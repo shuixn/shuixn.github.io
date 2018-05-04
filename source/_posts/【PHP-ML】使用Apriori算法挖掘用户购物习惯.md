@@ -5,6 +5,7 @@ tags:
   - PHP 
   - PHP-ML
   - 机器学习
+  - 学习笔记
 ---
 ```php
 <?php
