@@ -82,7 +82,7 @@ var_dump($Bob);
 
 ### clone方式
 
-```
+```php
 define("NEWLINE",chr(10));
 
 interface IPrototype {
