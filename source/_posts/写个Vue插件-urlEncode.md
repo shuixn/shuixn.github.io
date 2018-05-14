@@ -1,5 +1,5 @@
 ---
-title: 写个Vue插件【urlEncode】
+title: 编写全局Vue辅助函数【urlEncode】
 date: 2018-05-14
 tags: 
   - JS
