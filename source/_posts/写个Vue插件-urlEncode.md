@@ -6,7 +6,7 @@ tags:
   - Vue
 ---
 
-**src/utils/Common.js**
+新建一个文件**src/utils/Common.js**
 
 ```js
 export default {
