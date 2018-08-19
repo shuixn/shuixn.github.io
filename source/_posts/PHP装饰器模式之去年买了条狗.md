@@ -1,6 +1,8 @@
 ---
 title: PHP装饰器模式之去年买了条狗
 date: 2018-03-23
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

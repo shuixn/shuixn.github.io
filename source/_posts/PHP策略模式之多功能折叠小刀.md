@@ -1,6 +1,8 @@
 ---
 title: PHP策略模式之多功能折叠小刀
 date: 2018-03-27
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

@@ -1,6 +1,8 @@
 ---
 title: PHP适配器模式之找不到合适的接口
 date: 2018-03-28
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

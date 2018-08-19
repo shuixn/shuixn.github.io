@@ -1,6 +1,8 @@
 ---
 title: 安装impala-shell遇到的问题
 date: 2017-12-05
+categories:
+  - 技术
 tags: 
   - impala
   - 问题排查

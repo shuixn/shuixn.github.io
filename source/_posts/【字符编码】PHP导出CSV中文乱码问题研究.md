@@ -1,6 +1,8 @@
 ---
 title: 【字符编码】PHP导出CSV中文乱码问题研究
 date: 2018-02-02
+categories:
+  - 技术
 tags: 
   - PHP 
   - 乱码

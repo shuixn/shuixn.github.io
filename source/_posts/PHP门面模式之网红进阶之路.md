@@ -1,6 +1,8 @@
 ---
 title: PHP门面模式之网红进阶之路
 date: 2018-03-29
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

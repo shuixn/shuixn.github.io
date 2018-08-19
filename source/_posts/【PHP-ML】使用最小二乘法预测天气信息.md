@@ -1,6 +1,8 @@
 ---
 title: 【PHP-ML】使用最小二乘法预测天气信息
 date: 2018-01-08
+categories:
+  - 技术
 tags: 
   - PHP 
   - PHP-ML

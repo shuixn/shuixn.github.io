@@ -1,6 +1,8 @@
 ---
 title: ImpalaODBC StringColumnLength导致的乱码问题
 date: 2018-07-02
+categories:
+  - 技术
 tags: 
 - PHP 
 - ODBC

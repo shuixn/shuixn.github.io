@@ -1,6 +1,8 @@
 ---
 title: PHP在Web服务上的探索
 date: 2018-03-20
+categories:
+  - 技术
 tags: 
   - PHP 
   - 网络编程

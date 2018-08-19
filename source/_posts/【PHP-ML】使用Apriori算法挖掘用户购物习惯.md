@@ -1,6 +1,8 @@
 ---
 title: 【PHP-ML】使用Apriori算法挖掘用户购物习惯
 date: 2018-01-12
+categories:
+  - 技术
 tags: 
   - PHP 
   - PHP-ML

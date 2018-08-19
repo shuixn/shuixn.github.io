@@ -1,6 +1,8 @@
 ---
 title: 【funcipher】PHP密文定制工具
 date: 2018-02-04
+categories:
+  - 技术
 tags: 
   - PHP 
   - composer

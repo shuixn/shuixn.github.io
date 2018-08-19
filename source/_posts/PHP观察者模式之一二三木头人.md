@@ -1,6 +1,8 @@
 ---
 title: PHP观察者模式之一二三木头人
 date: 2018-03-23
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

@@ -1,6 +1,8 @@
 ---
 title: Duck Typing in PHP
 date: 2018-04-23
+categories:
+  - 技术
 tags: 
   - PHP 
 ---

@@ -1,6 +1,8 @@
 ---
 title: Oracle中的exists和in
 date: 2016-09-19
+categories:
+  - 技术
 tags: 
   - Oracle
 ---

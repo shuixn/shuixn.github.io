@@ -1,6 +1,8 @@
 ---
 title: 【funcompare】PHP文本/Json差异对比工具
 date: 2018-02-28
+categories:
+  - 技术
 tags: 
   - PHP 
   - composer

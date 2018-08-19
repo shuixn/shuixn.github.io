@@ -1,6 +1,8 @@
 ---
 title: 编写全局Vue辅助函数【urlEncode】
 date: 2018-05-14
+categories:
+  - 技术
 tags: 
   - JS
   - Vue

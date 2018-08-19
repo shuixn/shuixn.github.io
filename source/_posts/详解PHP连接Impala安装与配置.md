@@ -1,6 +1,8 @@
 ---
 title: 详解PHP连接Impala安装与配置
 date: 2017-12-08
+categories:
+  - 技术
 tags: 
   - PHP 
   - impala

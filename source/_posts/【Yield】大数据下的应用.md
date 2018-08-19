@@ -1,6 +1,8 @@
 ---
 title: 【Yield】大数据下的应用
 date: 2018-02-01
+categories:
+  - 技术
 tags: 
   - PHP 
   - 大数据

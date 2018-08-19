@@ -1,6 +1,8 @@
 ---
 title: PHP状态模式之天气热了把空调开开
 date: 2018-05-10
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

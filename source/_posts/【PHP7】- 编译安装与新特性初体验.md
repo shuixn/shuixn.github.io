@@ -1,6 +1,8 @@
 ---
 title: 【PHP7】- 编译安装与新特性初体验
 date: 2015-12-03
+categories:
+  - 技术
 tags: 
   - PHP
   - PHP7

@@ -1,6 +1,8 @@
 ---
 title: PHP返回对象的公有属性和值
 date: 2018-05-03
+categories:
+  - 技术
 tags: 
   - PHP 
 ---

@@ -1,6 +1,8 @@
 ---
 title: 【问题排查】PHP-FPM模式下提示缺失lib
 date: 2017-12-14
+categories:
+  - 技术
 tags: 
   - PHP 
   - 问题排查

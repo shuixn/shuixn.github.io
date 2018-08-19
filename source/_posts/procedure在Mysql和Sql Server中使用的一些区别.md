@@ -1,6 +1,8 @@
 ---
 title: procedure在Mysql和Sql Server中使用的一些区别
 date: 2015-12-17
+categories:
+  - 技术
 tags: 
   - 数据库
 ---

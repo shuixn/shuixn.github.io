@@ -1,6 +1,8 @@
 ---
 title: epoll学习笔记
 date: 2018-03-02
+categories:
+  - 技术
 tags: 
   - 网络编程
   - 学习笔记

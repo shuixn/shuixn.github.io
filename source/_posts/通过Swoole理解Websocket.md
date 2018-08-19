@@ -1,6 +1,8 @@
 ---
 title: 通过Swoole理解Websocket
 date: 2016-11-02
+categories:
+  - 技术
 tags: 
   - PHP
   - Swoole

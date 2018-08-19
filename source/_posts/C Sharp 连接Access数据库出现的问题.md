@@ -1,6 +1,8 @@
 ---
 title: C Sharp连接Access数据库出现的问题
 date: 2014-03-29
+categories:
+  - 技术
 tags: 
   - C Sharp
   - 问题排查

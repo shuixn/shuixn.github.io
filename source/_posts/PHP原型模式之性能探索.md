@@ -1,6 +1,8 @@
 ---
 title: PHP原型模式之性能探索
 date: 2018-05-10
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

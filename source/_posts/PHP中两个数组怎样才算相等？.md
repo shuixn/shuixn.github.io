@@ -1,6 +1,8 @@
 ---
 title: PHP中两个数组怎样才算相等？
 date: 2017-11-15
+categories:
+  - 技术
 tags: 
   - PHP 
 ---

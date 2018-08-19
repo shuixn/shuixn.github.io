@@ -1,6 +1,8 @@
 ---
 title: 【CSS】图片无法自适应高宽bug排查过程
 date: 2016-11-29
+categories:
+  - 技术
 tags: 
   - css
   - 问题排查

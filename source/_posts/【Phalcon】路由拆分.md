@@ -1,6 +1,8 @@
 ---
 title: 【Phalcon】路由拆分
 date: 2016-12-15
+categories:
+  - 技术
 tags: 
   - PHP 
   - Phlacon

@@ -1,6 +1,8 @@
 ---
 title: 【重构Hue】大数据处理的一些总结
 date: 2017-12-27
+categories:
+  - 技术
 tags: 
   - PHP 
   - 大数据

@@ -1,6 +1,8 @@
 ---
 title: 基于Bootstrap+jQuery写前端分页工具
 date: 2016-11-23
+categories:
+  - 技术
 tags: 
   - js
   - css

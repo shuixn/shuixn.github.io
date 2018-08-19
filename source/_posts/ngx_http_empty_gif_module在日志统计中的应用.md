@@ -1,6 +1,8 @@
 ---
 title: ngx_http_empty_gif_module在日志统计中的应用
 date: 2018-04-16
+categories:
+  - 技术
 tags: 
   - Nginx
 ---

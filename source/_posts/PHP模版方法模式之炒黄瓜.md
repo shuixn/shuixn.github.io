@@ -1,6 +1,8 @@
 ---
 title: PHP模版方法模式之炒黄瓜
 date: 2018-03-26
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

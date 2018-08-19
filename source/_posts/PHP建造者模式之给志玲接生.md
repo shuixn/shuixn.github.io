@@ -1,6 +1,8 @@
 ---
 title: PHP建造者模式之给志玲接生
 date: 2018-04-09
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式

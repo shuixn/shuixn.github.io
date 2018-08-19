@@ -1,6 +1,8 @@
 ---
 title: 【swoole】websocket聊天室
 date: 2018-03-02
+categories:
+  - 技术
 tags: 
   - PHP 
   - Swoole

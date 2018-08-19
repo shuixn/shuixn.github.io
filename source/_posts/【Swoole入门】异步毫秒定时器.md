@@ -1,6 +1,8 @@
 ---
 title: 【Swoole入门】异步毫秒定时器
 date: 2015-11-28
+categories:
+  - 技术
 tags: 
   - PHP
   - Swoole

@@ -1,6 +1,8 @@
 ---
 title: PHP单例模式探索
 date: 2018-03-22
+categories:
+  - 技术
 tags: 
   - PHP 
   - 设计模式
