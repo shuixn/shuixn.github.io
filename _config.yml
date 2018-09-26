@@ -80,5 +80,5 @@ theme: fexo
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:funsoul/funsoul.github.io.git
-  branch: master
+  repo: git@git.coding.net:mathming/mathming.git
+  branch: coding-pages
