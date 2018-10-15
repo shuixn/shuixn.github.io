@@ -81,5 +81,4 @@ theme: fexo
 deploy:
   type: git
   repo: 
-    coding: git@git.coding.net:mathming/mathming.git,coding-pages
     github: https://github.com/funsoul/funsoul.github.io.git,master
