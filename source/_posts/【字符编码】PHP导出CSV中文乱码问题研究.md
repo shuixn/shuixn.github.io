@@ -14,7 +14,7 @@ tags:
 
 ### 业务背景
 
-把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章[【Yield】大数据下的应用](http://www.funsoul.org/?p=295 "【Yield】大数据下的应用")
+把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章[【Yield】大数据下的应用](http://funsoul.org/2018/02/01/【Yield】大数据下的应用/ "【Yield】大数据下的应用")
 
 由于使用了Laravel Excel工具集，先来看看这个工具内部是如何实现编码兼容的
 ```php
