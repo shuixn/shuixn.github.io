@@ -7,8 +7,10 @@ tags:
   - PHP 
   - 问题排查
 ---
-<div><strong>php-fpm.conf</strong></div>
-<div>设置worker为1，方便strace</div>
+
+## php-fpm.conf
+
+设置worker为1，方便strace
 
 ```vim
 [global]
@@ -33,7 +35,7 @@ request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
 ```
-<div><strong>ps -ef | grep php-fpm</strong></div>
+## ps -ef | grep php-fpm
 
 ```bash
 root       6598      1  0 10:45 ?        00:00:00 php-fpm: master process (/usr/local/php/etc/php-fpm.conf)                                                                    
@@ -41,8 +43,9 @@ www        6599   6598  0 10:45 ?        00:00:00 php-fpm: 
 
 ```
 
-<div><strong>sudo strace -p 6599</strong></div>
-<div>查看worker进程系统调用，找到问题行</div>
+## sudo strace -p 6599
+
+查看worker进程系统调用，找到问题行
 
 ```vim
 open("/lib64/tls/libssl.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or directory) 
@@ -51,13 +54,13 @@ open("/usr/lib64/tls/libssl.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or di
 open("/usr/lib64/libssl.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or directory
 ```
 
-<div>发现系统中确实没有libssl.so.1.0.0，只有libssl.so.1.0.1e，一般而言都会向下兼容，设置软链接</div>
+发现系统中确实没有libssl.so.1.0.0，只有libssl.so.1.0.1e，一般而言都会向下兼容，设置软链接
 
 ```bash
 sudo ln -s /usr/lib64/libssl.so.1.0.1e /usr/lib64/tls/libssl.so.1.0.0
 ```
 
-<div>再次执行，刚刚出现的“libssl”缺失已经不见了，出现了新的lib缺失。</div>
+再次执行，刚刚出现的“libssl”缺失已经不见了，出现了新的lib缺失
 
 ```vim
 open("/lib64/tls/libcrypto.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or directory)
@@ -66,7 +69,7 @@ open("/usr/lib64/tls/libcrypto.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or
 open("/usr/lib64/libcrypto.so.1.0.0", O_RDONLY) = -1 ENOENT (No such file or directory)
 ```
 
-<div>同上，找到系统中存在的libcrypto.so.1.0.1e，并设置软链接</div>
+同上，找到系统中存在的libcrypto.so.1.0.1e，并设置软链接
 
 ```bash
 sudo ln -s /usr/lib64/libcrypto.so.1.0.1e /usr/lib64/libcrypto.so.1.0.0

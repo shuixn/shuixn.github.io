@@ -9,6 +9,7 @@ tags:
   - 机器学习
   - 学习笔记
 ---
+
 ```php
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
@@ -55,6 +56,7 @@ print_r($res);
 可以通过<span style="color: #ff0000;">apriori</span>方法获取所有的频繁项集。
 
 ```php
+
 $res = $associator->apriori();
 print_r($res);
 Array
@@ -100,6 +102,7 @@ Array
 ```
 
 <h3>关联规则（为什么买啤酒的人想去买唇膏？）</h3>
+
 ```php
 // 获取生成的关联规则
 $rules = $associator->getRules();
