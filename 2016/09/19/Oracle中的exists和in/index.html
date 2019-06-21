@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>Oracle中的exists和in | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Oracle,">
+  
+
+  <meta name="description" content="写在前今天有一个业务，前台是一个供用户选择条件进行查询的功能。选择完毕后点击查询，前台使用get方式发送打包好的参数列表到后台（Controller），持久层拿到参数列表后拼装到SQL中，使用jdbc连接oracle拿数据。 问题当条件过大（据说有7000多个数据），出现第一个问题，413 FULL HEAD ERROR。很明显是数据量过大，而使用的又是get方式传输，get请求的数据会附在URL">
+<meta name="keywords" content="Oracle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle中的exists和in">
+<meta property="og:url" content="http://funsoul.org/2016/09/19/Oracle中的exists和in/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="写在前今天有一个业务，前台是一个供用户选择条件进行查询的功能。选择完毕后点击查询，前台使用get方式发送打包好的参数列表到后台（Controller），持久层拿到参数列表后拼装到SQL中，使用jdbc连接oracle拿数据。 问题当条件过大（据说有7000多个数据），出现第一个问题，413 FULL HEAD ERROR。很明显是数据量过大，而使用的又是get方式传输，get请求的数据会附在URL">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.767Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle中的exists和in">
+<meta name="twitter:description" content="写在前今天有一个业务，前台是一个供用户选择条件进行查询的功能。选择完毕后点击查询，前台使用get方式发送打包好的参数列表到后台（Controller），持久层拿到参数列表后拼装到SQL中，使用jdbc连接oracle拿数据。 问题当条件过大（据说有7000多个数据），出现第一个问题，413 FULL HEAD ERROR。很明显是数据量过大，而使用的又是get方式传输，get请求的数据会附在URL">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题"><span class="toc-text">问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案"><span class="toc-text">解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、使用临时表"><span class="toc-text">一、使用临时表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、使用exists"><span class="toc-text">二、使用exists</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对比"><span class="toc-text">对比</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Oracle中的exists和in" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Oracle中的exists和in</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.09.19</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>今天有一个业务，前台是一个供用户选择条件进行查询的功能。选择完毕后点击查询，前台使用get方式发送打包好的参数列表到后台（Controller），持久层拿到参数列表后拼装到SQL中，使用jdbc连接oracle拿数据。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>当条件过大（据说有7000多个数据），出现第一个问题，413 FULL HEAD ERROR。很明显是数据量过大，而使用的又是get方式传输，get请求的数据会附在URL之后（就是把数据放置在HTTP协议头中），以?分割URL和传输数据，参数之间以&amp;相连。如：login.action?name=cym&amp;password=idontknow。如果数据是英文字母/数字，原样发送，如果是空格，转换为+，如果是中文/其他字符，则直接把字符串用BASE64加密。GET方式提交的数据依据浏览器而定，IE环境下的URL长度限制为2083，理论上POST没有限制，可传较大量的数据。</p>
+<p>第二个问题出现在SQL，拼接字符串中使用的where…in..，JDBC会抛出“java.sql.SQLException: ORA-01795: 列表中的最大表达式数为 1000”这个异常。没想到oracle还有这种限制，据说11g后不存在这个限制。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="一、使用临时表"><a href="#一、使用临时表" class="headerlink" title="一、使用临时表"></a>一、使用临时表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> <span class="keyword">id</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> <span class="keyword">id</span> <span class="keyword">FROM</span> temp)</span><br></pre></td></tr></table></figure>
+<p>建立一个表来存储传入参数，取数据的时候先从临时表中遍历取参数，然后再将取出的参数拿去作为in条件</p>
+<h3 id="二、使用exists"><a href="#二、使用exists" class="headerlink" title="二、使用exists"></a>二、使用exists</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> a <span class="keyword">WHERE</span> <span class="keyword">EXISTS</span>( <span class="keyword">SELECT</span> <span class="number">1</span> <span class="keyword">FROM</span> b <span class="keyword">WHERE</span> a.employee_id=b.employee_id)</span><br></pre></td></tr></table></figure>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><ul>
+<li>IN比 EXISTS 的可读性更好</li>
+<li>EXISTS 比IN 的表达性更好（更适合复杂的语句）</li>
+</ul>
+<p>二者之间性能没有差异（但对于某些数据库来说性能差异会非常大）</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2015/12/17/procedure在Mysql和Sql Server中使用的一些区别/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2016/10/28/【翻译】Modding Minecraft with PHP – Buildings from Code!/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

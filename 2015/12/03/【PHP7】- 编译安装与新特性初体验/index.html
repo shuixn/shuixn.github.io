@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【PHP7】- 编译安装与新特性初体验 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,PHP7,">
+  
+
+  <meta name="description" content="前言今天是世界上最好的语言革命性的一天，PHP7问世了！实际上我使用php只有一年半多一点，但是却被深深地吸引住，所以也容我感慨一下吧。 大一下学期，我们学校开始教Java（我的专业方向就是Java），那时班上的很多同学早在上学期就自学了Java，而且学的非常好。我跟着课程的进度一步步的下载，安装，配置环境，然后写一些简单的程序，调试。这个过程非常煎熬，因为在配置环境的时候就出现了很多问题，使用e">
+<meta name="keywords" content="PHP,PHP7">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【PHP7】- 编译安装与新特性初体验">
+<meta property="og:url" content="http://funsoul.org/2015/12/03/【PHP7】- 编译安装与新特性初体验/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="前言今天是世界上最好的语言革命性的一天，PHP7问世了！实际上我使用php只有一年半多一点，但是却被深深地吸引住，所以也容我感慨一下吧。 大一下学期，我们学校开始教Java（我的专业方向就是Java），那时班上的很多同学早在上学期就自学了Java，而且学的非常好。我跟着课程的进度一步步的下载，安装，配置环境，然后写一些简单的程序，调试。这个过程非常煎熬，因为在配置环境的时候就出现了很多问题，使用e">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/20151203232056485.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151203232255760.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151203231855632.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151203231720195.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151203231410865.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151203231219865.png">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【PHP7】- 编译安装与新特性初体验">
+<meta name="twitter:description" content="前言今天是世界上最好的语言革命性的一天，PHP7问世了！实际上我使用php只有一年半多一点，但是却被深深地吸引住，所以也容我感慨一下吧。 大一下学期，我们学校开始教Java（我的专业方向就是Java），那时班上的很多同学早在上学期就自学了Java，而且学的非常好。我跟着课程的进度一步步的下载，安装，配置环境，然后写一些简单的程序，调试。这个过程非常煎熬，因为在配置环境的时候就出现了很多问题，使用e">
+<meta name="twitter:image" content="http://funsoul.org/images/20151203232056485.jpg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#准备PHP源码"><span class="toc-text">准备PHP源码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#安装依赖项"><span class="toc-text">安装依赖项</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编译配置"><span class="toc-text">编译配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安装-PHP"><span class="toc-text">安装 PHP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP7新特性"><span class="toc-text">PHP7新特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#宇宙飞船运算符"><span class="toc-text">宇宙飞船运算符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Return-Type-Declarations"><span class="toc-text">Return Type Declarations</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更多的Error变为可捕获的Exception"><span class="toc-text">更多的Error变为可捕获的Exception</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#性能提升"><span class="toc-text">性能提升</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后再说两句"><span class="toc-text">最后再说两句</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【PHP7】- 编译安装与新特性初体验" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【PHP7】- 编译安装与新特性初体验</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2015.12.03</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天是世界上最好的语言革命性的一天，PHP7问世了！实际上我使用php只有一年半多一点，但是却被深深地吸引住，所以也容我感慨一下吧。</p>
+<p>大一下学期，我们学校开始教Java（我的专业方向就是Java），那时班上的很多同学早在上学期就自学了Java，而且学的非常好。我跟着课程的进度一步步的下载，安装，配置环境，然后写一些简单的程序，调试。这个过程非常煎熬，因为在配置环境的时候就出现了很多问题，使用eclipse来写代码，由于当时电脑配置并不好，所以写代码的时候总是会出现“未响应”，然后卡顿很长时间，更不用说MyEclipse了。苦闷的心情还历历在目~</p>
+<p>当时学校还为我们开设了一门PHP课程，我第一次使用的时候感觉很神奇，弱类型的概念还不是很清晰，只是觉得不需要再去考虑变量的类型，php为我们都处理好了。而且网上PHP的环境非常多，其中xampp就是一个著名的跨平台环境，一键安装，可以马上看到自己的代码运行的结果，我可以更关注自己写的逻辑和正确性，不得不说实在是太好用了。最后这门课需要结合另一门jQuery课做一个课程设计，我一个星期就敲出来了，还为我们赢得了不少掌声。就这样，一直用到现在，与php牵连在了一起。</p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><ul>
+<li>Ubuntu 14.04</li>
+</ul>
+<h3 id="准备PHP源码"><a href="#准备PHP源码" class="headerlink" title="准备PHP源码"></a>准备PHP源码</h3><p><a href="http://php.net/get/php-7.0.0.tar.gz/from/a/mirror" target="_blank" rel="noopener">http://php.net/get/php-7.0.0.tar.gz/from/a/mirror</a></p>
+<p>1.解压源码并重命名为php-7<br>2.安装依赖项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libxml2-dev</span><br></pre></td></tr></table></figure>
+<h4 id="安装依赖项"><a href="#安装依赖项" class="headerlink" title="安装依赖项"></a>安装依赖项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get  install  build-essential</span><br><span class="line">sudo apt-get install openssl </span><br><span class="line">sudo apt-get install libssl-dev </span><br><span class="line">sudo apt-get install make</span><br><span class="line">sudo apt-get install curl</span><br><span class="line">sudo apt-get install libcurl4-gnutls-dev</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br><span class="line">sudo apt-get install libpng-dev</span><br><span class="line">sudo apt-get install libmcrypt-dev</span><br><span class="line">sudo apt-get install libreadline6 libreadline6-dev</span><br></pre></td></tr></table></figure>
+<h4 id="编译配置"><a href="#编译配置" class="headerlink" title="编译配置"></a>编译配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./configure（注意斜杠前的点）</span><br><span class="line"></span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/php --with-config-file-path=/usr/<span class="built_in">local</span>/php/etc --<span class="built_in">enable</span>-fpm --with-fpm-user=www --with-fpm-group=www --with-mysqli --with-pdo-mysql --with-iconv-dir --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib --with-libxml-dir=/usr --<span class="built_in">enable</span>-xml --<span class="built_in">disable</span>-rpath --<span class="built_in">enable</span>-bcmath --<span class="built_in">enable</span>-shmop --<span class="built_in">enable</span>-sysvsem --<span class="built_in">enable</span>-inline-optimization --with-curl --<span class="built_in">enable</span>-mbregex --<span class="built_in">enable</span>-mbstring --with-mcrypt --<span class="built_in">enable</span>-ftp --with-gd --<span class="built_in">enable</span>-gd-native-ttf --with-openssl --with-mhash --<span class="built_in">enable</span>-pcntl --<span class="built_in">enable</span>-sockets --with-xmlrpc --<span class="built_in">enable</span>-zip --<span class="built_in">enable</span>-soap --without-pear --with-gettext --<span class="built_in">disable</span>-fileinfo --<span class="built_in">enable</span>-maintainer-zts  </span><br><span class="line"></span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/php --<span class="built_in">enable</span>-fpm --<span class="built_in">enable</span>-inline-optimization --<span class="built_in">disable</span>-debug --<span class="built_in">disable</span>-rpath --<span class="built_in">enable</span>-shared --<span class="built_in">enable</span>-opcache  --with-mysql --with-mysqli --with-mysql-sock  --<span class="built_in">enable</span>-pdo --with-pdo-mysql --with-gettext --<span class="built_in">enable</span>-mbstring --with-iconv --with-mcrypt --with-mhash --with-openssl --<span class="built_in">enable</span>-bcmath --<span class="built_in">enable</span>-soap --with-libxml-dir --<span class="built_in">enable</span>-pcntl --<span class="built_in">enable</span>-shmop --<span class="built_in">enable</span>-sysvmsg --<span class="built_in">enable</span>-sysvsem --<span class="built_in">enable</span>-sysvshm --<span class="built_in">enable</span>-sockets --with-curl --with-zlib --<span class="built_in">enable</span>-zip --<span class="built_in">enable</span>-bz2 --with-readline --without-sqlite3 --without-pdo-sqlite --with-pear --with-libdir=/lib/x86_64-linux-gnu --with-gd --with-jpeg-dir=/usr/lib --<span class="built_in">enable</span>-gd-native-ttf --<span class="built_in">enable</span>-xml</span><br></pre></td></tr></table></figure>
+<h4 id="安装-PHP"><a href="#安装-PHP" class="headerlink" title="安装 PHP"></a>安装 PHP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make <span class="built_in">test</span>      （这个过程可能会慢一点，视配置而定，我的虚拟机为单处理器+2G内存）</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20151203232056485.jpg" alt></p>
+<p>这里可能会出现这个问题，save一下就好了，也就是输入字母s即可，如果开源精神爆棚（我我我），可以输入y，然后输入自己的邮箱。啦啦啦~</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; sudo make install   （这里可能需要输入你的root账户密码）</span><br><span class="line">php -v</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20151203232255760.jpg" alt></p>
+<p>到这里已经完成php7的安装，接下来就可以尽情的使用PHP7了！</p>
+<h2 id="PHP7新特性"><a href="#PHP7新特性" class="headerlink" title="PHP7新特性"></a>PHP7新特性</h2><p>php7与以前的版本相比有哪些让人兴奋的新特性，我们来体验一番~</p>
+<h3 id="宇宙飞船运算符"><a href="#宇宙飞船运算符" class="headerlink" title="宇宙飞船运算符"></a>宇宙飞船运算符</h3><p>新增运算符Combined comparison Operator ‘&lt;=&gt;’ 吼吼~</p>
+<p><img src="/images/20151203231855632.jpg" alt></p>
+<p>代码变少了，小于则返回-1，大于返回1，等于返回0，简单易懂，非常爽~</p>
+<h3 id="Return-Type-Declarations"><a href="#Return-Type-Declarations" class="headerlink" title="Return Type Declarations"></a>Return Type Declarations</h3><p>返回类型声明 和Scalar Type Declarations 标量类型声明</p>
+<p><img src="/images/20151203231720195.jpg" alt></p>
+<p>对于C/C++/java系的看到这个肯定开心爆了，还可以通过declare(strict_type = 1);开启严格模式，这时php将不会帮你自动转换类型，而是报错。</p>
+<h3 id="更多的Error变为可捕获的Exception"><a href="#更多的Error变为可捕获的Exception" class="headerlink" title="更多的Error变为可捕获的Exception"></a>更多的Error变为可捕获的Exception</h3><p><img src="/images/20151203231410865.jpg" alt></p>
+<p>在php7前未定义函数是致命错误Fatal error，这样会使整个脚本中止，程序无法继续运行下去。但是现在可以通过捕获错误-&gt;处理错误，让程序继续执行下去，大大提高了异常处理能力。</p>
+<h3 id="性能提升"><a href="#性能提升" class="headerlink" title="性能提升"></a>性能提升</h3><p><img src="/images/20151203231219865.png" alt></p>
+<p>可以看出，php7比php5提高不止100%的性能。升级后该省多少机器啊！</p>
+<h2 id="最后再说两句"><a href="#最后再说两句" class="headerlink" title="最后再说两句"></a>最后再说两句</h2><p>听说PHP7.1将会重启JIT计划，PHP本来就不适合密集计算，开启JIT后，性能，效率又会有多大的提升？很难想象~再加上swoole，yaf等等优秀的开源框架，PHP社区只会越来越繁荣。简单，门槛低，性能好，这应该就是未来编程语言的走向，人人编程的设想也不会是梦吧~</p>
+<p>感谢开源，感谢自己的坚持~</p>
+<p>本文所有例子皆得到验证，亲测可用。</p>
+<p>本文安装教程参考了<a href="http://www.oschina.net/question/2010961_242272" target="_blank" rel="noopener">http://www.oschina.net/question/2010961_242272</a></p>
+<p>本文PHP7新特性参考了鸟哥的分享与博客<a href="http://www.laruence.com/" target="_blank" rel="noopener">http://www.laruence.com/</a></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2015/11/28/【Swoole入门】异步毫秒定时器/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2015/12/17/procedure在Mysql和Sql Server中使用的一些区别/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>PHP原型模式之性能探索 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,设计模式,学习笔记,">
+  
+
+  <meta name="description" content="原型模式有些时候，我们需要创建多个类似的大对象。如果直接通过new对象，开销很大，而且new完还得进行重复的初始化工作。可能把初始化工作封装起来的，但是对于系统来说，你封不封装，初始化工作还是要执行。 原型模式则不同，原型模式是先创建好一个原型对象，然后通过clone这个原型对象来创建新的对象，这样就免去了重复的初始化工作，系统仅需内存拷贝即可。 1234567891011121314151617">
+<meta name="keywords" content="PHP,设计模式,学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP原型模式之性能探索">
+<meta property="og:url" content="http://funsoul.org/2018/05/10/PHP原型模式之性能探索/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="原型模式有些时候，我们需要创建多个类似的大对象。如果直接通过new对象，开销很大，而且new完还得进行重复的初始化工作。可能把初始化工作封装起来的，但是对于系统来说，你封不封装，初始化工作还是要执行。 原型模式则不同，原型模式是先创建好一个原型对象，然后通过clone这个原型对象来创建新的对象，这样就免去了重复的初始化工作，系统仅需内存拷贝即可。 1234567891011121314151617">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.770Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP原型模式之性能探索">
+<meta name="twitter:description" content="原型模式有些时候，我们需要创建多个类似的大对象。如果直接通过new对象，开销很大，而且new完还得进行重复的初始化工作。可能把初始化工作封装起来的，但是对于系统来说，你封不封装，初始化工作还是要执行。 原型模式则不同，原型模式是先创建好一个原型对象，然后通过clone这个原型对象来创建新的对象，这样就免去了重复的初始化工作，系统仅需内存拷贝即可。 1234567891011121314151617">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#原型模式"><span class="toc-text">原型模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clone方式"><span class="toc-text">clone方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#clone方式性能测试"><span class="toc-text">clone方式性能测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#new方式"><span class="toc-text">new方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#new方式性能测试"><span class="toc-text">new方式性能测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#业务场景下的clone"><span class="toc-text">业务场景下的clone</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#业务场景下的clone性能测试"><span class="toc-text">业务场景下的clone性能测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结论"><span class="toc-text">结论</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PHP原型模式之性能探索" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">PHP原型模式之性能探索</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.05.10</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h3 id="原型模式"><a href="#原型模式" class="headerlink" title="原型模式"></a>原型模式</h3><p>有些时候，我们需要创建多个类似的大对象。如果直接通过new对象，开销很大，而且new完还得进行重复的初始化工作。可能把初始化工作封装起来的，但是对于系统来说，你封不封装，初始化工作还是要执行。</p>
+<p>原型模式则不同，原型模式是先创建好一个原型对象，然后通过clone这个原型对象来创建新的对象，这样就免去了重复的初始化工作，系统仅需内存拷贝即可。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_name;</span><br><span class="line">    <span class="keyword">private</span> $_hobbies = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span><span class="params">($name)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setHobby</span><span class="params">($hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">clone</span> <span class="keyword">$this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$Alan = <span class="keyword">new</span> Student(<span class="string">'Alan'</span>,[<span class="string">'basketball'</span>,<span class="string">'swimming'</span>]);</span><br><span class="line">$Bob = $Alan-&gt;copy();</span><br><span class="line">$Bob-&gt;setName(<span class="string">'Bob'</span>);</span><br><span class="line"></span><br><span class="line">$Alan-&gt;setHobby([<span class="string">'traveling'</span>,<span class="string">'chess'</span>]);</span><br><span class="line"></span><br><span class="line">var_dump($Alan);</span><br><span class="line">var_dump($Bob);</span><br><span class="line"></span><br><span class="line"><span class="comment">//    object(Student)#1 (2) &#123;</span></span><br><span class="line"><span class="comment">//    ["_name":"Student":private]=&gt;</span></span><br><span class="line"><span class="comment">//      string(4) "Alan"</span></span><br><span class="line"><span class="comment">//    ["_hobbies":"Student":private]=&gt;</span></span><br><span class="line"><span class="comment">//      array(2) &#123;</span></span><br><span class="line"><span class="comment">//        [0]=&gt;</span></span><br><span class="line"><span class="comment">//        string(9) "traveling"</span></span><br><span class="line"><span class="comment">//        [1]=&gt;</span></span><br><span class="line"><span class="comment">//        string(5) "chess"</span></span><br><span class="line"><span class="comment">//      &#125;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//    object(Student)#2 (2) &#123;</span></span><br><span class="line"><span class="comment">//    ["_name":"Student":private]=&gt;</span></span><br><span class="line"><span class="comment">//      string(3) "Bob"</span></span><br><span class="line"><span class="comment">//    ["_hobbies":"Student":private]=&gt;</span></span><br><span class="line"><span class="comment">//      array(2) &#123;</span></span><br><span class="line"><span class="comment">//        [0]=&gt;</span></span><br><span class="line"><span class="comment">//        string(10) "basketball"</span></span><br><span class="line"><span class="comment">//        [1]=&gt;</span></span><br><span class="line"><span class="comment">//        string(8) "swimming"</span></span><br><span class="line"><span class="comment">//      &#125;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br></pre></td></tr></table></figure>
+<p>我对这里的性能差异有些兴趣，分别对new和clone做一些性能测试</p>
+<h3 id="clone方式"><a href="#clone方式" class="headerlink" title="clone方式"></a>clone方式</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="string">"NEWLINE"</span>,chr(<span class="number">10</span>));</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_name;</span><br><span class="line">    <span class="keyword">private</span> $_hobbies = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span><span class="params">($name)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setHobby</span><span class="params">($hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">clone</span> <span class="keyword">$this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$bigArr = range(<span class="number">1</span>,<span class="number">100000</span>);</span><br><span class="line"></span><br><span class="line">$m1 = memory_get_usage();</span><br><span class="line"></span><br><span class="line">$Alan = <span class="keyword">new</span> Student(<span class="string">'Alan'</span>, $bigArr);</span><br><span class="line">$Bob = $Alan-&gt;copy();</span><br><span class="line"></span><br><span class="line">$m2 = memory_get_usage();</span><br><span class="line">$memory = $m2 - $m1;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'内存占用：'</span> . $memory . NEWLINE;</span><br></pre></td></tr></table></figure>
+<h4 id="clone方式性能测试"><a href="#clone方式性能测试" class="headerlink" title="clone方式性能测试"></a>clone方式性能测试</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ php index.php </span><br><span class="line">内存占用：664</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：664</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：664</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：664</span><br></pre></td></tr></table></figure>
+<h3 id="new方式"><a href="#new方式" class="headerlink" title="new方式"></a>new方式</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="string">"NEWLINE"</span>,chr(<span class="number">10</span>));</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_name;</span><br><span class="line">    <span class="keyword">private</span> $_hobbies = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span><span class="params">($name)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setHobby</span><span class="params">($hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">clone</span> <span class="keyword">$this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$bigArr = range(<span class="number">1</span>,<span class="number">100000</span>);</span><br><span class="line"></span><br><span class="line">$m1 = memory_get_usage();</span><br><span class="line"></span><br><span class="line">$Alan = <span class="keyword">new</span> Student(<span class="string">'Alan'</span>, $bigArr);</span><br><span class="line">$Alan2 = <span class="keyword">new</span> Student(<span class="string">'Alan'</span>, $bigArr);</span><br><span class="line"></span><br><span class="line">$m2 = memory_get_usage();</span><br><span class="line">$memory = $m2 - $m1;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'内存占用：'</span> . $memory . NEWLINE;</span><br></pre></td></tr></table></figure>
+<h4 id="new方式性能测试"><a href="#new方式性能测试" class="headerlink" title="new方式性能测试"></a>new方式性能测试</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ php index.php </span><br><span class="line">内存占用：712</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：712</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：712</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：712</span><br></pre></td></tr></table></figure>
+<p>可以看出，clone确实比new消耗的内存更小，但是，回到上面，我们真正的业务是copy完这个对象后，要对这个对象做一些修改，比如修改这个clone完后的对象的name，看看会发生什么事情</p>
+<h3 id="业务场景下的clone"><a href="#业务场景下的clone" class="headerlink" title="业务场景下的clone"></a>业务场景下的clone</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="string">"NEWLINE"</span>,chr(<span class="number">10</span>));</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">IPrototype</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_name;</span><br><span class="line">    <span class="keyword">private</span> $_hobbies = [];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($name, $hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span><span class="params">($name)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_name = $name;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setHobby</span><span class="params">($hobbies)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_hobbies = $hobbies;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">clone</span> <span class="keyword">$this</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$bigArr = range(<span class="number">1</span>,<span class="number">100000</span>);</span><br><span class="line"></span><br><span class="line">$m1 = memory_get_usage();</span><br><span class="line"></span><br><span class="line">$Alan = <span class="keyword">new</span> Student(<span class="string">'Alan'</span>, $bigArr);</span><br><span class="line">$Bob = $Alan-&gt;copy();</span><br><span class="line">$Bob-&gt;setName(<span class="string">'Bob'</span>);</span><br><span class="line"></span><br><span class="line">$m2 = memory_get_usage();</span><br><span class="line">$memory = $m2 - $m1;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">'内存占用：'</span> . $memory . NEWLINE;</span><br></pre></td></tr></table></figure>
+<h4 id="业务场景下的clone性能测试"><a href="#业务场景下的clone性能测试" class="headerlink" title="业务场景下的clone性能测试"></a>业务场景下的clone性能测试</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ php index.php </span><br><span class="line">内存占用：744</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：744</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：744</span><br><span class="line">$ php index.php </span><br><span class="line">内存占用：744</span><br></pre></td></tr></table></figure>
+<p>我们发现，对新对象做完名字重置的操作后，内存占用更大了，比new的操作更大！</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><ul>
+<li>clone一个对象带来的内存消耗比new一个对象更少</li>
+<li>在某些业务下，比如对新对象做属性修改时，直接new一个对象带来的内存消耗更少</li>
+</ul>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/10/PHP状态模式之天气热了开个空调/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/05/14/写个Vue插件-urlEncode/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

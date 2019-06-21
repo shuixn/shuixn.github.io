@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【Phalcon】路由拆分 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Phlacon,">
+  
+
+  <meta name="description" content="写在前去年使用过PHP的Flight框架编写api，Flight框架非常简单，只需要花一点点时间看官方文档即可上手写代码，原生支持Restful风格。刚开始没觉得什么，只要有需求则加一个路由，由于项目不大，总共也不超过10个。 最近在使用Phalcon，项目规模中等，在路由（routes.php）那里遇到了本文所关注的痛点，几十个路由放在一个文件中，而且还会继续往里加，当达到一定的数量级，如果有一">
+<meta name="keywords" content="PHP,Phlacon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Phalcon】路由拆分">
+<meta property="og:url" content="http://funsoul.org/2016/12/15/【Phalcon】路由拆分/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="写在前去年使用过PHP的Flight框架编写api，Flight框架非常简单，只需要花一点点时间看官方文档即可上手写代码，原生支持Restful风格。刚开始没觉得什么，只要有需求则加一个路由，由于项目不大，总共也不超过10个。 最近在使用Phalcon，项目规模中等，在路由（routes.php）那里遇到了本文所关注的痛点，几十个路由放在一个文件中，而且还会继续往里加，当达到一定的数量级，如果有一">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Phalcon】路由拆分">
+<meta name="twitter:description" content="写在前去年使用过PHP的Flight框架编写api，Flight框架非常简单，只需要花一点点时间看官方文档即可上手写代码，原生支持Restful风格。刚开始没觉得什么，只要有需求则加一个路由，由于项目不大，总共也不超过10个。 最近在使用Phalcon，项目规模中等，在路由（routes.php）那里遇到了本文所关注的痛点，几十个路由放在一个文件中，而且还会继续往里加，当达到一定的数量级，如果有一">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#加载流程"><span class="toc-text">加载流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#index-php"><span class="toc-text">index.php</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#routes-php"><span class="toc-text">routes.php</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#user-php"><span class="toc-text">user.php</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【Phalcon】路由拆分" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【Phalcon】路由拆分</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2016.12.15</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>去年使用过PHP的Flight框架编写api，Flight框架非常简单，只需要花一点点时间看官方文档即可上手写代码，原生支持Restful风格。刚开始没觉得什么，只要有需求则加一个路由，由于项目不大，总共也不超过10个。</p>
+<p>最近在使用Phalcon，项目规模中等，在路由（routes.php）那里遇到了本文所关注的痛点，几十个路由放在一个文件中，而且还会继续往里加，当达到一定的数量级，如果有一天，我想改其中某一个路由（名称忘了或者记不清），则需要滚动鼠标刷半天才找到。代码混乱，所有的controller/action都放在这里管理。</p>
+<p>如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 首页</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$router-&gt;add(</span><br><span class="line">    <span class="string">"/"</span>,</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"controller"</span> =&gt; <span class="string">"index"</span>,</span><br><span class="line">        <span class="string">"action"</span>     =&gt; <span class="string">"index"</span>,</span><br><span class="line">    ]</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 用户信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$router-&gt;add(</span><br><span class="line">    <span class="string">"/user/info"</span>,</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"controller"</span> =&gt; <span class="string">"user"</span>,</span><br><span class="line">        <span class="string">"action"</span>     =&gt; <span class="string">"info"</span>,</span><br><span class="line">    ]</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 添加商品到购物车</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$router-&gt;add(</span><br><span class="line">    <span class="string">"/shopcart/add"</span>,</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"controller"</span> =&gt; <span class="string">"shopcart"</span>,</span><br><span class="line">        <span class="string">"action"</span>     =&gt; <span class="string">"add"</span>,</span><br><span class="line">    ]</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>既然有痛点，那就想解决办法</p>
+<p>Phalcon通常的项目结构大概是这样的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">app/                                   <span class="comment">#应用程序</span></span><br><span class="line">     cache/                            <span class="comment">#缓存文件</span></span><br><span class="line">          data/                             <span class="comment">#缓存数据</span></span><br><span class="line">          metaData/                         <span class="comment">#缓存元数据</span></span><br><span class="line">          models/                           <span class="comment">#缓存模型</span></span><br><span class="line">          views/                            <span class="comment">#缓存视图</span></span><br><span class="line">          volt/                             <span class="comment">#缓存volt模版文件</span></span><br><span class="line">     config/                           <span class="comment">#配置文件</span></span><br><span class="line">          config.example.php                <span class="comment">#配置文件（加载环境配置，返回所有配置）</span></span><br><span class="line">          development.example.php           <span class="comment">#开发环境配置（定义debug模式等）</span></span><br><span class="line">          env.php                           <span class="comment">#配置文件（定义基路径，定义全局变量，设置环境异常模式）      </span></span><br><span class="line">          nginx.example.conf                <span class="comment">#nginx配置</span></span><br><span class="line">          routes.php                        <span class="comment">#返回路由配置</span></span><br><span class="line">          timezones.php                     <span class="comment">#返回时区配置</span></span><br><span class="line">     controllers/                           <span class="comment">#控制器</span></span><br><span class="line">     library/                               <span class="comment">#类库文件（工具类，启动文件）</span></span><br><span class="line">          Badges/                           <span class="comment">#</span></span><br><span class="line">          Github/                           <span class="comment">#</span></span><br><span class="line">          Http/                             <span class="comment">#</span></span><br><span class="line">          Mail/                             <span class="comment">#</span></span><br><span class="line">          Markdown/                         <span class="comment">#</span></span><br><span class="line">          Mvc/                              <span class="comment">#</span></span><br><span class="line">          Notifications/                    <span class="comment">#</span></span><br><span class="line">          Paginator/                        <span class="comment">#</span></span><br><span class="line">          Queue/                            <span class="comment">#</span></span><br><span class="line">          Search/                           <span class="comment">#</span></span><br><span class="line">          Utils/                            <span class="comment">#</span></span><br><span class="line">          Bootstrap.php                     <span class="comment">#启动文件</span></span><br><span class="line">     logs/                                  <span class="comment">#日志文件</span></span><br><span class="line">     models/                                <span class="comment">#模型类</span></span><br><span class="line">     views/                                 <span class="comment">#视图（volt模版）</span></span><br><span class="line">docs/                                  <span class="comment">#项目说明文档 </span></span><br><span class="line">opsfiles/                              <span class="comment">#运维工具配置文件</span></span><br><span class="line"><span class="keyword">public</span>/                                <span class="comment">#公共目录</span></span><br><span class="line">     css/                              <span class="comment">#样式文件</span></span><br><span class="line">     fonts/                            <span class="comment">#字体文件</span></span><br><span class="line">     icon/                             <span class="comment">#图标文件</span></span><br><span class="line">     js/                               <span class="comment">#javascript脚本</span></span><br><span class="line">     .htaccess                         <span class="comment">#路由重写规则（指向该目录下的index.php）</span></span><br><span class="line">     <span class="number">505.</span>html                          <span class="comment">#服务器异常展示文件</span></span><br><span class="line">     index.php                         <span class="comment">#引导文件（框架先从这里开始执行）</span></span><br><span class="line">schemas/                               <span class="comment">#sql文件</span></span><br><span class="line">scripts/                               <span class="comment">#服务器脚本</span></span><br><span class="line">test/                                  <span class="comment">#单元测试</span></span><br><span class="line">.env.example                           <span class="comment">#用户专属环境配置</span></span><br><span class="line">.htaccess                              <span class="comment">#路由重写规则（指向public目录下的index.php）</span></span><br><span class="line">.htrouter.php                          <span class="comment">#与.htaccess文件功能一样，包含public目录下的index.php</span></span><br><span class="line">composer.json                          <span class="comment">#依赖管理文件</span></span><br></pre></td></tr></table></figure>
+<h3 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h3><h4 id="index-php"><a href="#index-php" class="headerlink" title="index.php"></a>index.php</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="number">1.</span>/<span class="keyword">public</span>/index.php</span><br><span class="line"><span class="keyword">use</span> <span class="title">app</span>\<span class="title">library</span>\<span class="title">Bootstrap</span>;</span><br><span class="line">使用命名空间的方式，划分程序块</span><br><span class="line"></span><br><span class="line"><span class="keyword">include_once</span> realpath(dirname(dirname(<span class="keyword">__FILE__</span>))) . <span class="string">'/app/config/env.php'</span>;</span><br><span class="line"><span class="keyword">include_once</span> BASE_DIR . <span class="string">'app/library/Bootstrap.php'</span>;</span><br><span class="line">第一行，包含配置文件，配置文件中有BASE_DIR的定义，APPLICATION_ENV的定义</span><br><span class="line">第二行，包含引导文件</span><br><span class="line"></span><br><span class="line">$bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (APPLICATION_ENV == ENV_TESTING) &#123;</span><br><span class="line">    <span class="keyword">return</span> $bootstrap-&gt;run();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span> $bootstrap-&gt;run();</span><br><span class="line">&#125;</span><br><span class="line">声明Bootstrap对象，开始执行</span><br></pre></td></tr></table></figure>
+<p>找到Bootstrap.php，初始化路由的代码如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Initialize the Router.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">initRouter</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">	    $router = <span class="keyword">include</span> BASE_DIR . <span class="string">'app/routes/routes.php'</span>;</span><br><span class="line">	    ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现，路由是这样包含进框架的，去到我们的routes.php，把原来的路由拆分成各自模块的文件，然后包含进routes.php，这样做的好处是，模块化管理，便于查找和修改。</p>
+<h4 id="routes-php"><a href="#routes-php" class="headerlink" title="routes.php"></a>routes.php</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Phalcon</span>\<span class="title">Mvc</span>\<span class="title">Router</span>;</span><br><span class="line"></span><br><span class="line">$router = <span class="keyword">new</span> Router(<span class="keyword">false</span>);</span><br><span class="line">$router-&gt;removeExtraSlashes(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * loader the urls</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$urls = [</span><br><span class="line">    <span class="string">'index'</span>,</span><br><span class="line">    <span class="string">'shopcart'</span>,</span><br><span class="line">    <span class="string">'user'</span>,</span><br><span class="line">];</span><br><span class="line"><span class="keyword">foreach</span> ($urls <span class="keyword">as</span> $url)&#123;</span><br><span class="line">    <span class="keyword">include</span> BASE_DIR.<span class="string">'app/routes/'</span>.$url.<span class="string">'.php'</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> $router;</span><br></pre></td></tr></table></figure>
+<h4 id="user-php"><a href="#user-php" class="headerlink" title="user.php"></a>user.php</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 用户信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">$router-&gt;add(</span><br><span class="line">    <span class="string">"/user/info"</span>,</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"controller"</span> =&gt; <span class="string">"user"</span>,</span><br><span class="line">        <span class="string">"action"</span>     =&gt; <span class="string">"info"</span>,</span><br><span class="line">    ]</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2016/11/29/【CSS】图片无法自适应高宽bug排查过程/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

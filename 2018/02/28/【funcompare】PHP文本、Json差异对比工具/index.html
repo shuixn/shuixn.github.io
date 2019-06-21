@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【funcompare】PHP文本/Json差异对比工具 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,composer,">
+  
+
+  <meta name="description" content="funcompareA tool compare text differences Installation1composer require &quot;funsoul/funcompare: ~1.1&quot; UsagecompareText()12345678910use Funsoul\Funcompare\Funcompare;$old = &apos;A tool compare text difference">
+<meta name="keywords" content="PHP,composer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【funcompare】PHP文本&#x2F;Json差异对比工具">
+<meta property="og:url" content="http://funsoul.org/2018/02/28/【funcompare】PHP文本、Json差异对比工具/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="funcompareA tool compare text differences Installation1composer require &quot;funsoul/funcompare: ~1.1&quot; UsagecompareText()12345678910use Funsoul\Funcompare\Funcompare;$old = &apos;A tool compare text difference">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【funcompare】PHP文本&#x2F;Json差异对比工具">
+<meta name="twitter:description" content="funcompareA tool compare text differences Installation1composer require &quot;funsoul/funcompare: ~1.1&quot; UsagecompareText()12345678910use Funsoul\Funcompare\Funcompare;$old = &apos;A tool compare text difference">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#funcompare"><span class="toc-text">funcompare</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Installation"><span class="toc-text">Installation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Usage"><span class="toc-text">Usage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#compareText"><span class="toc-text">compareText()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#compareJson"><span class="toc-text">compareJson()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#css"><span class="toc-text">css</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wrapper"><span class="toc-text">wrapper()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#License"><span class="toc-text">License</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【funcompare】PHP文本、Json差异对比工具" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【funcompare】PHP文本/Json差异对比工具</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.02.28</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="funcompare"><a href="#funcompare" class="headerlink" title="funcompare"></a>funcompare</h1><p>A tool compare text differences</p>
+<h1 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer require <span class="string">"funsoul/funcompare: ~1.1"</span></span><br></pre></td></tr></table></figure>
+<h1 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h1><h3 id="compareText"><a href="#compareText" class="headerlink" title="compareText()"></a>compareText()</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> <span class="title">Funsoul</span>\<span class="title">Funcompare</span>\<span class="title">Funcompare</span>;</span><br><span class="line"></span><br><span class="line">$old = <span class="string">'A tool compare text differences is funny'</span>;</span><br><span class="line">$new = <span class="string">'A tool that compare text differences'</span>;</span><br><span class="line"></span><br><span class="line">$fc = <span class="keyword">new</span> Funcompare();</span><br><span class="line">$res = $fc-&gt;compareText($old, $new);</span><br><span class="line"><span class="keyword">echo</span> $res;</span><br><span class="line"></span><br><span class="line"><span class="comment">// A tool &lt;span class="new-word"&gt;that&lt;/span&gt; compare text differences &lt;span class="old-word"&gt;is&lt;/span&gt; &lt;span class="old-word"&gt;funny&lt;/span&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="compareJson"><a href="#compareJson" class="headerlink" title="compareJson()"></a>compareJson()</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> <span class="title">Funsoul</span>\<span class="title">Funcompare</span>\<span class="title">Funcompare</span>;</span><br><span class="line"></span><br><span class="line">$old = <span class="string">'[&#123;"id":1,"name":"xxx","age":18,"cart":[&#123;"id":100,"name":"rice"&#125;]&#125;,&#123;"id":2,"name":"aaa","age":18&#125;]'</span>;</span><br><span class="line">$new = <span class="string">'[&#123;"id":1,"name":"yyy","age":20,"cart":[&#123;"id":100,"name":"banana"&#125;]&#125;,&#123;"id":2,"name":"bbb","age":18&#125;]'</span>;</span><br><span class="line"></span><br><span class="line">$fc = <span class="keyword">new</span> Funcompare();</span><br><span class="line">$res = $fc-&gt;compareJson($old, $new);</span><br><span class="line"><span class="keyword">echo</span> $res</span><br><span class="line"></span><br><span class="line"><span class="comment">// [&#123;"name":&#123;"old":"&lt;span class=\"old-word\"&gt;xxx&lt;/span&gt;","new":"&lt;span class=\"new-word\"&gt;yyy&lt;/span&gt;"&#125;,"age":&#123;"old":"&lt;span class=\"old-word\"&gt;18&lt;/span&gt;","new":"&lt;span class=\"new-word\"&gt;20&lt;/span&gt;"&#125;,"cart":[&#123;"name":&#123;"old":"&lt;span class=\"old-word\"&gt;rice&lt;/span&gt;","new":"&lt;span class=\"new-word\"&gt;banana&lt;/span&gt;"&#125;&#125;]&#125;,&#123;"name":&#123;"old":"&lt;span class=\"old-word\"&gt;aaa&lt;/span&gt;","new":"&lt;span class=\"new-word\"&gt;bbb&lt;/span&gt;"&#125;&#125;]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">"name"</span>:&#123;</span><br><span class="line">            <span class="attr">"old"</span>:<span class="string">"&lt;span class="</span>old-word<span class="string">"&gt;xxx&lt;/span&gt;"</span>,</span><br><span class="line">            <span class="attr">"new"</span>:<span class="string">"&lt;span class="</span>new-word<span class="string">"&gt;yyy&lt;/span&gt;"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"age"</span>:&#123;</span><br><span class="line">            <span class="attr">"old"</span>:<span class="string">"&lt;span class="</span>old-word<span class="string">"&gt;18&lt;/span&gt;"</span>,</span><br><span class="line">            <span class="attr">"new"</span>:<span class="string">"&lt;span class="</span>new-word<span class="string">"&gt;20&lt;/span&gt;"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"cart"</span>:[</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">"name"</span>:&#123;</span><br><span class="line">                    <span class="attr">"old"</span>:<span class="string">"&lt;span class="</span>old-word<span class="string">"&gt;rice&lt;/span&gt;"</span>,</span><br><span class="line">                    <span class="attr">"new"</span>:<span class="string">"&lt;span class="</span>new-word<span class="string">"&gt;banana&lt;/span&gt;"</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">"name"</span>:&#123;</span><br><span class="line">            <span class="attr">"old"</span>:<span class="string">"&lt;span class="</span>old-word<span class="string">"&gt;aaa&lt;/span&gt;"</span>,</span><br><span class="line">            <span class="attr">"new"</span>:<span class="string">"&lt;span class="</span>new-word<span class="string">"&gt;bbb&lt;/span&gt;"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<h3 id="css"><a href="#css" class="headerlink" title="css"></a>css</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;<span class="selector-tag">style</span>&gt;</span><br><span class="line">    <span class="selector-class">.new-word</span>&#123;<span class="attribute">background</span>:<span class="built_in">rgba</span>(245,255,178,1.00)&#125;</span><br><span class="line">    <span class="selector-class">.new-word</span><span class="selector-pseudo">:after</span>&#123;<span class="attribute">content</span>:<span class="string">' '</span>; <span class="attribute">background</span>:<span class="built_in">rgba</span>(245,255,178,1.00)&#125;</span><br><span class="line">    <span class="selector-class">.old-word</span>&#123;<span class="attribute">text-decoration</span>:none; <span class="attribute">position</span>:relative&#125;</span><br><span class="line">    <span class="selector-class">.old-word</span><span class="selector-pseudo">:after</span>&#123;</span><br><span class="line">        <span class="attribute">content</span>: <span class="string">' '</span>;</span><br><span class="line">        <span class="attribute">font-size</span>: inherit;</span><br><span class="line">        <span class="attribute">display</span>: block;</span><br><span class="line">        <span class="attribute">position</span>: absolute;</span><br><span class="line">        <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">top</span>: <span class="number">55%</span>;</span><br><span class="line">        <span class="attribute">bottom</span>: <span class="number">30%</span>;</span><br><span class="line">        <span class="attribute">border-top</span>: <span class="number">1px</span> solid <span class="number">#000</span>;</span><br><span class="line">        <span class="attribute">border-bottom</span>: <span class="number">1px</span> solid <span class="number">#000</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="wrapper"><a href="#wrapper" class="headerlink" title="wrapper()"></a>wrapper()</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> <span class="title">Funsoul</span>\<span class="title">Funcompare</span>\<span class="title">Funcompare</span>;</span><br><span class="line"></span><br><span class="line">$old = <span class="string">'A tool compare text differences is funny'</span>;</span><br><span class="line">$new = <span class="string">'A tool that compare text differences'</span>;</span><br><span class="line"></span><br><span class="line">$fc = <span class="keyword">new</span> Funcompare();</span><br><span class="line">$res = $fc-&gt;wrapper(<span class="string">'['</span>,<span class="string">']'</span>,<span class="string">'&lt;'</span>,<span class="string">'&gt;'</span>)-&gt;compareText($old, $new);</span><br><span class="line"><span class="keyword">echo</span> $res;</span><br><span class="line"></span><br><span class="line"><span class="comment">// A tool &lt;that&gt; compare text differences [is] [funny]</span></span><br></pre></td></tr></table></figure>
+<h1 id="License"><a href="#License" class="headerlink" title="License"></a>License</h1><p>MIT</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/02/04/【funcipher】PHP密文定制工具/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/03/02/【swoole】websocket聊天室/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

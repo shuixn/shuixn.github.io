@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【Yield】大数据下的应用 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,大数据,">
+  
+
+  <meta name="description" content="继上一篇文章【重构Hue】大数据处理的一些总结后,引起了一些思考.上篇文章提出了在大数据查询的情况下,分次读取是一种方案,但是这种方案并不完善,接下来,看看这样的情况吧. :) SQL子查询嵌套什么是SQL子查询？类似这样的:12345678SELECT * from    (SELECT user_id,name,age     FROM user     WHERE age = 18)aLEF">
+<meta name="keywords" content="PHP,大数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Yield】大数据下的应用">
+<meta property="og:url" content="http://funsoul.org/2018/02/01/【Yield】大数据下的应用/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="继上一篇文章【重构Hue】大数据处理的一些总结后,引起了一些思考.上篇文章提出了在大数据查询的情况下,分次读取是一种方案,但是这种方案并不完善,接下来,看看这样的情况吧. :) SQL子查询嵌套什么是SQL子查询？类似这样的:12345678SELECT * from    (SELECT user_id,name,age     FROM user     WHERE age = 18)aLEF">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Yield】大数据下的应用">
+<meta name="twitter:description" content="继上一篇文章【重构Hue】大数据处理的一些总结后,引起了一些思考.上篇文章提出了在大数据查询的情况下,分次读取是一种方案,但是这种方案并不完善,接下来,看看这样的情况吧. :) SQL子查询嵌套什么是SQL子查询？类似这样的:12345678SELECT * from    (SELECT user_id,name,age     FROM user     WHERE age = 18)aLEF">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL子查询嵌套"><span class="toc-text">SQL子查询嵌套</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#缓冲与无缓冲"><span class="toc-text">缓冲与无缓冲</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#odbc计算行数"><span class="toc-text">odbc计算行数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PDO查询每条记录最后几个字段为null"><span class="toc-text">PDO查询每条记录最后几个字段为null</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Yield生成器"><span class="toc-text">Yield生成器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#协程"><span class="toc-text">协程</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【Yield】大数据下的应用" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【Yield】大数据下的应用</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.02.01</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>继上一篇文章<a href="http://funsoul.org/2017/12/27/【重构Hue】大数据处理的一些总结/" title="【重构Hue】大数据处理的一些总结">【重构Hue】大数据处理的一些总结</a>后,引起了一些思考.上篇文章提出了在大数据查询的情况下,分次读取是一种方案,但是这种方案并不完善,接下来,看看这样的情况吧. :)</p>
+<h4 id="SQL子查询嵌套"><a href="#SQL子查询嵌套" class="headerlink" title="SQL子查询嵌套"></a><strong>SQL子查询嵌套</strong></h4><p>什么是SQL子查询？类似这样的:<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">from</span></span><br><span class="line">    (<span class="keyword">SELECT</span> user_id,<span class="keyword">name</span>,age</span><br><span class="line">     <span class="keyword">FROM</span> <span class="keyword">user</span></span><br><span class="line">     <span class="keyword">WHERE</span> age = <span class="number">18</span>)a</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span></span><br><span class="line">    (<span class="keyword">SELECT</span> user_id,good_id</span><br><span class="line">     <span class="keyword">FROM</span> cart)b </span><br><span class="line"><span class="keyword">ON</span> a.user_id = b.user_id</span><br></pre></td></tr></table></figure></p>
+<p>上面的SQL查询出”18岁的用户购买了哪些商品”,直接查询是没有丝毫问题的.但是如果在这条SQL的外层再加一层SELECT呢?比如这样:<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">from</span></span><br><span class="line">	(<span class="keyword">SELECT</span> * <span class="keyword">from</span></span><br><span class="line">		(<span class="keyword">SELECT</span> user_id,<span class="keyword">name</span>,age</span><br><span class="line">		 <span class="keyword">FROM</span> <span class="keyword">user</span></span><br><span class="line">		 <span class="keyword">WHERE</span> age = <span class="number">18</span>) <span class="keyword">AS</span> a</span><br><span class="line">	<span class="keyword">LEFT</span> <span class="keyword">JOIN</span></span><br><span class="line">		(<span class="keyword">SELECT</span> user_id,good_id</span><br><span class="line">		 <span class="keyword">FROM</span> cart) <span class="keyword">AS</span> b</span><br><span class="line">	<span class="keyword">ON</span> a.user_id = b.user_id) <span class="keyword">AS</span> c <span class="keyword">limit</span> <span class="number">0</span>,<span class="number">1000</span></span><br></pre></td></tr></table></figure></p>
+<p>或许你已经察觉到了什么,是的,这条SQL会引发错误（[HY000] : AnalysisException: duplicated inline view colum<br>n alias: ‘user_id’ in inline view ‘c’）</p>
+<p>也就是说,如果想要分次查询大数据,必须在原始SQL的基础上多加一层限制（查询区间）.而对于子查询来说,这样极容易造成错误.有人说了,使用者给SELECT加查询字段而不是*,或者给相同的字段加别名都可以避免这个问题,是的,你没说错.但是,既然原本的语句没有问题,为何要多写一个版本呢?给使用者也新增了工作量.</p>
+<h4 id="缓冲与无缓冲"><a href="#缓冲与无缓冲" class="headerlink" title="缓冲与无缓冲"></a><strong>缓冲与无缓冲</strong></h4><p>在技术角度,有没有查询大数据更好的方案,这值得思考,我们知道,查询分为缓冲与无缓冲,默认情况下,使用缓冲模式,这意味着查询结果会立即从数据库服务器转移到PHP,然后保存在PHP的内存中.这种模式有一定的好处</p>
+<ul>
+<li>计算行数</li>
+<li>移动(查找)当前的结果指针</li>
+<li>在处理结果集时对相同的连接发出进一步的查询</li>
+</ul>
+<p>缺点显而易见,遇到大数据查询,需要大量的内存.相对之下,无缓冲模式执行查询时返回一个资源句柄,然后等待数据库服务器的获取,在PHP进程内占用内存较少,但是缺点也是相对的</p>
+<ul>
+<li>维持资源句柄,增加服务器负载</li>
+<li>获得完整结果集前,无法对相同进一步连接发送查询</li>
+</ul>
+<p>因此,根据不同的业务场景可以选择.</p>
+<h4 id="odbc计算行数"><a href="#odbc计算行数" class="headerlink" title="odbc计算行数"></a><strong>odbc计算行数</strong></h4><p>刚开始,我找到了这个[odbc_num_rows]函数,后来发现,怎么查都是返回-1,看看手册才知道,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">odbc_num_rows be reliable for INSERT, UPDATE, and DELETE queries only.</span><br><span class="line">Using odbc_num_rows() to determine the number of rows available after a SELECT will return -1 with many drivers.</span><br></pre></td></tr></table></figure>
+<p>那么怎么得到SELECT返回的数据行数呢?接着看</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">best_odbc_num_rows</span><span class="params">($r1)</span>  </span>&#123;</span><br><span class="line">	ob_start(); <span class="comment">// block printing table with results</span></span><br><span class="line">	$number = (int)odbc_result_all($r1); </span><br><span class="line">	ob_clean(); <span class="comment">// block printing table with results</span></span><br><span class="line">	<span class="keyword">return</span> $number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>哈哈,是不是相当机智:)</p>
+<h4 id="PDO查询每条记录最后几个字段为null"><a href="#PDO查询每条记录最后几个字段为null" class="headerlink" title="PDO查询每条记录最后几个字段为null"></a><strong>PDO查询每条记录最后几个字段为null</strong></h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$pdo = <span class="keyword">new</span> \PDO($dsn, $username,$password);</span><br><span class="line">$pdo-&gt;setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, <span class="keyword">false</span>);</span><br><span class="line">$result = $pdo-&gt;query($sql);</span><br></pre></td></tr></table></figure>
+<p>类似这种情况：<a href="https://stackoverflow.com/questions/22197884/pdo-select-fetch-last-columns-as-null" target="_blank" rel="noopener">https://stackoverflow.com/questions/22197884/pdo-select-fetch-last-columns-as-null</a><br>一直找不到原因,可能是bug,也可能是用的姿势不对吧</p>
+<h4 id="Yield生成器"><a href="#Yield生成器" class="headerlink" title="Yield生成器"></a><strong>Yield生成器</strong></h4><ul>
+<li>PHP5.5开始支持</li>
+<li>是一个函数,返回值依次返回.更方便的实现Iterator接口</li>
+<li>可中断的函数,为了继续执行生成器中yield后的代码,你就需要调用$range-&gt;next()方法.这将再次启动生成器, 直到下一次yield语句出现.因此,连续调用next()和current()方法, 你就能从生成器里获得所有的值, 直到再没有yield语句出现.</li>
+</ul>
+<p>从数据库服务器到PHP进程,如果直接放进内存中,很容易造成内存不够,比如下面的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$rs = odbc_exec($conn, $sql);</span><br><span class="line"><span class="keyword">while</span> ($row=odbc_fetch_array($rs)) &#123;</span><br><span class="line">    $result[] = $row;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么,可不可以一点一点的取出来呢？Yield可以做到,<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">query</span><span class="params">($conn, $sql)</span></span>&#123;</span><br><span class="line">	$rs = odbc_exec($conn, $sql);</span><br><span class="line">	<span class="keyword">while</span> ($row=odbc_fetch_array($rs)) &#123;</span><br><span class="line">	    <span class="keyword">yield</span> $row;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后,在需要的地方进行迭代<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span>(query($conn, $sql) <span class="keyword">as</span> $row)&#123;</span><br><span class="line">	<span class="comment">// 业务处理</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果需要把数据导出到文件,不建议直接写文件,细想一下很容易明白,生成器是逐条返回的,如果逐条写入文件,那么频繁的打开关闭文件,性能消耗巨大,这时候可以使用一个$bucket装起来,达到一定数量后才做写文件操作.</p>
+<p>Yield在这篇文章中仅当生成器来用,我们知道,它的另一个概念【协程】更有意思,值得深入研究 :)</p>
+<h4 id="协程"><a href="#协程" class="headerlink" title="协程"></a><strong>协程</strong></h4><ul>
+<li>抢占式（操作系统控制、目前大多数操作系统，防止恶意程序占用）</li>
+<li>协作式（程序主动控制）</li>
+<li>协程的支持是在迭代生成器的基础上, 增加了可以回送数据给生成器的功能(调用者发送数据给被调用的生成器函数). 这就把生成器到调用者的单向通信转变为两者之间的双向通信.</li>
+</ul>
+<p>这里引用一下鸟哥的例子做简单的探讨,详情可以看看【<a href="http://www.laruence.com/2015/05/28/3038.html" title="在PHP中使用协程实现多任务调度" target="_blank" rel="noopener">在PHP中使用协程实现多任务调度</a>】<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gen</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    $ret = (<span class="keyword">yield</span> <span class="string">'yield1'</span>);</span><br><span class="line">    var_dump($ret);</span><br><span class="line">    $ret = (<span class="keyword">yield</span> <span class="string">'yield2'</span>);</span><br><span class="line">    var_dump($ret);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">$gen = gen();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1、接收第一个yield返回的值</span></span><br><span class="line">var_dump($gen-&gt;current());    <span class="comment">// string(6) "yield1"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2、发送值回去给第一个yield并替代，执行到第二个yield，进行接收</span></span><br><span class="line">var_dump($gen-&gt;send(<span class="string">'ret1'</span>)); <span class="comment">// string(4) "ret1"   (the first var_dump in gen)</span></span><br><span class="line">                              <span class="comment">// string(6) "yield2" (the var_dump of the -&gt;send() return value)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3、发送值回去给第二个yield并替代，没有返回</span></span><br><span class="line">var_dump($gen-&gt;send(<span class="string">'ret2'</span>)); <span class="comment">// string(4) "ret2"   (again from within gen)</span></span><br><span class="line">                              <span class="comment">// NULL               (the return value of -&gt;send())</span></span><br></pre></td></tr></table></figure></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/01/17/拍一个视频作为2018的开始也不错/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/02/02/【字符编码】PHP导出CSV中文乱码问题研究/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

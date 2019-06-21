@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>PHP单例模式探索 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,设计模式,学习笔记,">
+  
+
+  <meta name="description" content="设计初衷在讨论每个设计模式时，我们会反复思考设计的初衷是什么？真正理解后，用起来才能更加得心应手。单例模式是最早开始接触的模式之一，这篇文章将基于PHP语言做一些探索。 在讨论单例模式之前，先聊聊面向对象，编程语言一开始是过程式，代表语言有C，后来出现了C++、Java等等面向对象式语言，对象的含义由此而生。说到面向对象，必谈三大特性，封装、继承和多态，这里不深入讨论，以后会着重谈谈。把数据和方法">
+<meta name="keywords" content="PHP,设计模式,学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP单例模式探索">
+<meta property="og:url" content="http://funsoul.org/2018/03/22/PHP单例模式探索/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="设计初衷在讨论每个设计模式时，我们会反复思考设计的初衷是什么？真正理解后，用起来才能更加得心应手。单例模式是最早开始接触的模式之一，这篇文章将基于PHP语言做一些探索。 在讨论单例模式之前，先聊聊面向对象，编程语言一开始是过程式，代表语言有C，后来出现了C++、Java等等面向对象式语言，对象的含义由此而生。说到面向对象，必谈三大特性，封装、继承和多态，这里不深入讨论，以后会着重谈谈。把数据和方法">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.770Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP单例模式探索">
+<meta name="twitter:description" content="设计初衷在讨论每个设计模式时，我们会反复思考设计的初衷是什么？真正理解后，用起来才能更加得心应手。单例模式是最早开始接触的模式之一，这篇文章将基于PHP语言做一些探索。 在讨论单例模式之前，先聊聊面向对象，编程语言一开始是过程式，代表语言有C，后来出现了C++、Java等等面向对象式语言，对象的含义由此而生。说到面向对象，必谈三大特性，封装、继承和多态，这里不深入讨论，以后会着重谈谈。把数据和方法">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#设计初衷"><span class="toc-text">设计初衷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模式"><span class="toc-text">模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#懒汉模式"><span class="toc-text">懒汉模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#饿汉模式"><span class="toc-text">饿汉模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线程安全（web模式-cli模式）"><span class="toc-text">线程安全（web模式/cli模式）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单例复用-后期静态绑定"><span class="toc-text">单例复用-后期静态绑定</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PHP单例模式探索" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">PHP单例模式探索</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.03.22</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="设计初衷"><a href="#设计初衷" class="headerlink" title="设计初衷"></a>设计初衷</h2><p>在讨论每个设计模式时，我们会反复思考设计的初衷是什么？真正理解后，用起来才能更加得心应手。单例模式是最早开始接触的模式之一，这篇文章将基于PHP语言做一些探索。</p>
+<p>在讨论单例模式之前，先聊聊面向对象，编程语言一开始是过程式，代表语言有C，后来出现了C++、Java等等面向对象式语言，对象的含义由此而生。说到面向对象，必谈三大特性，封装、继承和多态，这里不深入讨论，以后会着重谈谈。把数据和方法进行封装，我们得到类，类是抽象的，我们需要能做点事的，于是把类实例化得到对象。哪里需要这个类的数据，那就在哪里实例一个对象。看起来没什么问题，但是，在内存没那么多的时候，能不能在进程中只使用一个对象，能省则省嘛，于是，我们找到了单例模式。</p>
+<h2 id="模式"><a href="#模式" class="headerlink" title="模式"></a>模式</h2><p>在Java中，我们知道单例模式可以写成两种，分别是懒汉模式和饿汉模式，他们的区别在于对象实例化的时间，一个java类的完整的生命周期会经历加载、连接、初始化、使用、和卸载五个阶段，懒汉模式正如其名，在显示调用类的getInstance方法时（使用阶段），才会实例化对象。而饿汉模式早在java初始化时就已经实例化好了对象，故名饿汉。</p>
+<p>那么在PHP中如何使用单例模式呢？</p>
+<h3 id="懒汉模式"><a href="#懒汉模式" class="headerlink" title="懒汉模式"></a>懒汉模式</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Husky</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">	<span class="comment">// 定义私有静态变量</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> $_instance = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 私有化构成方法</span></span><br><span class="line">	<span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 提供获取实例的公共方法  </span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span><span class="params">()</span></span>&#123;  </span><br><span class="line">	    <span class="keyword">if</span>(!(<span class="keyword">self</span>::$_instance <span class="keyword">instanceof</span> <span class="keyword">self</span>))&#123;  </span><br><span class="line">	        <span class="keyword">self</span>::$_instance = <span class="keyword">new</span> <span class="keyword">self</span>();  </span><br><span class="line">	    &#125;  </span><br><span class="line">	    <span class="keyword">return</span> <span class="keyword">self</span>::$_instance;  </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 私有__clone方法，禁止复制对象  </span></span><br><span class="line">	<span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 防止反序列化后创建对象</span></span><br><span class="line">	<span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="饿汉模式"><a href="#饿汉模式" class="headerlink" title="饿汉模式"></a>饿汉模式</h3><p>我们知道，在PHP中，静态变量只能被初始化为文字或常量，不能使用表达式。所以可以把静态属性初始化为整数或数组，但不能初始化为另一个变量或函数返回值，也不能指向一个对象。</p>
+<p>所以，饿汉模式也没办法写了:)</p>
+<h2 id="线程安全（web模式-cli模式）"><a href="#线程安全（web模式-cli模式）" class="headerlink" title="线程安全（web模式/cli模式）"></a>线程安全（web模式/cli模式）</h2><p>PHP在web模式下可以粗略的认为是单进程单线程的，当然，nginx/php-fpm确是多进程多线程。单次请求对于PHP来说，可以认为是单线程的，那么不存在线程安全问题。但是对于其他线程来说，比如读取数据库，文件，session来说，则需要加锁处理。</p>
+<p>在cli模式下，每次执行脚本都会新建一个进程，所以也不需要考虑线程安全问题。</p>
+<h2 id="单例复用-后期静态绑定"><a href="#单例复用-后期静态绑定" class="headerlink" title="单例复用-后期静态绑定"></a>单例复用-后期静态绑定</h2><p>设计模式的流行在很大一方面是因为人是懒惰的，能复用就复用，能少写就少写，于是，在我想创建下一个相同的单例类时，我想到了继承，于是有了下面的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Akitas</span> <span class="keyword">extends</span> <span class="title">Husky</span></span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们期望得到的是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">object(Husky)<span class="comment">#1 (0) &#123;&#125;</span></span><br><span class="line">object(Akitas)<span class="comment">#2 (0) &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+<p>但是，结果不尽人意，得到了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">object(Husky)<span class="comment">#1 (0) &#123;&#125;</span></span><br><span class="line">object(Husky)<span class="comment">#1 (0) &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+<p>那么，可以怎么修改这个类呢，我们想到了php5.3出的特性，后期静态绑定。修改一下代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Husky</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">// 定义私有静态变量</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> $_instance = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有化构成方法</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提供获取实例的公共方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">static</span>::$_instance === <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">static</span>::$_instance = <span class="keyword">new</span> <span class="keyword">static</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">static</span>::$_instance;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 私有__clone方法，禁止复制对象</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 防止反序列化后创建对象</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Akitas</span> <span class="keyword">extends</span> <span class="title">Husky</span></span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> $_instance = <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果如预期所想，<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">object(Husky)<span class="comment">#1 (0) &#123;&#125;</span></span><br><span class="line">object(Akitas)<span class="comment">#2 (0) &#123;&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>thanks :)</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/03/20/PHP在Web服务上的探索/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/03/23/PHP观察者模式之一二三木头人/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

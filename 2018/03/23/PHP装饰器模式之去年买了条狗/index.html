@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>PHP装饰器模式之去年买了条狗 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,设计模式,学习笔记,">
+  
+
+  <meta name="description" content="去年买了条狗小明去年想买条狗，于是他搭公交去宠物店逛了逛，看到了很多种狗。 1abstract class Dog &amp;#123;&amp;#125; 他看了看，哈士奇要888，秋田犬比哈士奇还要更贵，需要1298。 [ 哈士奇 - 888￥ ] [ 秋田犬 - 1298￥ ] 123456789class Husky extends Dog &amp;#123;    public function cost()">
+<meta name="keywords" content="PHP,设计模式,学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP装饰器模式之去年买了条狗">
+<meta property="og:url" content="http://funsoul.org/2018/03/23/PHP装饰器模式之去年买了条狗/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="去年买了条狗小明去年想买条狗，于是他搭公交去宠物店逛了逛，看到了很多种狗。 1abstract class Dog &amp;#123;&amp;#125; 他看了看，哈士奇要888，秋田犬比哈士奇还要更贵，需要1298。 [ 哈士奇 - 888￥ ] [ 秋田犬 - 1298￥ ] 123456789class Husky extends Dog &amp;#123;    public function cost()">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/Husky.jpg">
+<meta property="og:image" content="http://funsoul.org/images/Akitas.jpg">
+<meta property="og:image" content="http://funsoul.org/images/yellowHusky-1.jpg">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP装饰器模式之去年买了条狗">
+<meta name="twitter:description" content="去年买了条狗小明去年想买条狗，于是他搭公交去宠物店逛了逛，看到了很多种狗。 1abstract class Dog &amp;#123;&amp;#125; 他看了看，哈士奇要888，秋田犬比哈士奇还要更贵，需要1298。 [ 哈士奇 - 888￥ ] [ 秋田犬 - 1298￥ ] 123456789class Husky extends Dog &amp;#123;    public function cost()">
+<meta name="twitter:image" content="http://funsoul.org/images/Husky.jpg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#去年买了条狗"><span class="toc-text">去年买了条狗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完整代码"><span class="toc-text">完整代码</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PHP装饰器模式之去年买了条狗" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">PHP装饰器模式之去年买了条狗</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.03.23</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="去年买了条狗"><a href="#去年买了条狗" class="headerlink" title="去年买了条狗"></a>去年买了条狗</h2><p>小明去年想买条狗，于是他搭公交去宠物店逛了逛，看到了很多种狗。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>他看了看，哈士奇要888，秋田犬比哈士奇还要更贵，需要1298。</p>
+<p><img src="/images/Husky.jpg" alt="哈士奇"><br>[ 哈士奇 - 888￥ ]</p>
+<p><img src="/images/Akitas.jpg" alt="秋田犬"><br>[ 秋田犬 - 1298￥ ]</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Husky</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="number">888</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'灰白'</span>;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Akitas</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="number">1298</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'黄白'</span>;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看着自己腰包上仅有的1024.5，一阵凉风吹过，充满了唏嘘和无奈…</p>
+<p>交完钱，顺手买了一根狗链10块，还有一包狗粮20块。</p>
+<p>其实，他内心更喜欢黄色的秋田犬，无奈太贵了，<strong>这狗自己就长这样，没办法自己变成黄色啊~</strong></p>
+<p>正要回家，看到旁边的宠物美容店，嘴角划过一丝微笑…</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DogDecorator</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $dog;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(Dog $dog)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;dog = $dog;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>咨询了下，原来染毛只需要100块钱，嘿嘿</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DyeYellow</span> <span class="keyword">extends</span> <span class="title">DogDecorator</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;dog-&gt;cost() + <span class="number">100</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'黄白'</span>;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>于是，他给这只哈士奇染成了黄色…这样一来，虽然没买到秋田犬，但是只需要998就可以买到和秋田犬差不多的狗，还是很开心的…</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$a = <span class="keyword">new</span> DyeYellow(<span class="keyword">new</span> Husky());</span><br><span class="line"><span class="keyword">echo</span> $a-&gt;cost();</span><br><span class="line"><span class="keyword">echo</span> $a-&gt;getDescribe();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 998</span></span><br><span class="line"><span class="comment">// 黄白</span></span><br></pre></td></tr></table></figure>
+<p><img src="/images/yellowHusky-1.jpg" alt></p>
+<p>感到非常开心的他，在家附近的士多店买一根五羊2块钱，正要开始吃时，哈士奇一个飞扑，把他弄摔在地，手中的五羊以一个美妙的抛物线划过天际，口袋里仅剩的5毛钱掉了出来，望着哈士奇，哭笑不得~</p>
+<h2 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Dog</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Husky</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="number">1000</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'灰白'</span>;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Akitas</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="number">1500</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'黄白'</span>;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DogDecorator</span> <span class="keyword">extends</span> <span class="title">Dog</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> $dog;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">(Dog $dog)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;dog = $dog;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DyeYellow</span> <span class="keyword">extends</span> <span class="title">DogDecorator</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cost</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;dog-&gt;cost() + <span class="number">100</span>;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getDescribe</span><span class="params">()</span></span>&#123; <span class="keyword">return</span> <span class="string">'黄白'</span>;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a = <span class="keyword">new</span> DyeYellow(<span class="keyword">new</span> Husky());</span><br><span class="line"><span class="keyword">echo</span> $a-&gt;cost();</span><br><span class="line"><span class="keyword">echo</span> $a-&gt;getDescribe();</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/03/23/PHP观察者模式之一二三木头人/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/03/26/PHP模版方法模式之炒黄瓜/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

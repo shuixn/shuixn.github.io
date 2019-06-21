@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【Swoole入门】异步毫秒定时器 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,学习笔记,Swoole,">
+  
+
+  <meta name="description" content="前言前几天在朋友圈看到一个俄罗斯工程师为了给他老婆实时报到情况写了一个自动化脚本，通过定时任务来触发。比如晚上9点了，他的服务器上还有正在运行的SSH进程，就给他老婆发一条短信，“今晚加班晚点回家”，多么温馨的故事啊。碰巧我正在学习swoole扩展，特此记录一下。 定时器一般的定时器是怎么实现的呢？我总结如下：  使用Crontab工具，写一个shell脚本，在脚本中调用PHP文件，然后定期执行该">
+<meta name="keywords" content="PHP,学习笔记,Swoole">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Swoole入门】异步毫秒定时器">
+<meta property="og:url" content="http://funsoul.org/2015/11/28/【Swoole入门】异步毫秒定时器/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="前言前几天在朋友圈看到一个俄罗斯工程师为了给他老婆实时报到情况写了一个自动化脚本，通过定时任务来触发。比如晚上9点了，他的服务器上还有正在运行的SSH进程，就给他老婆发一条短信，“今晚加班晚点回家”，多么温馨的故事啊。碰巧我正在学习swoole扩展，特此记录一下。 定时器一般的定时器是怎么实现的呢？我总结如下：  使用Crontab工具，写一个shell脚本，在脚本中调用PHP文件，然后定期执行该">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/20151128020847375.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151128021004126.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151128021727238.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151128021830709.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151128021727238.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20151128023519283.jpg">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Swoole入门】异步毫秒定时器">
+<meta name="twitter:description" content="前言前几天在朋友圈看到一个俄罗斯工程师为了给他老婆实时报到情况写了一个自动化脚本，通过定时任务来触发。比如晚上9点了，他的服务器上还有正在运行的SSH进程，就给他老婆发一条短信，“今晚加班晚点回家”，多么温馨的故事啊。碰巧我正在学习swoole扩展，特此记录一下。 定时器一般的定时器是怎么实现的呢？我总结如下：  使用Crontab工具，写一个shell脚本，在脚本中调用PHP文件，然后定期执行该">
+<meta name="twitter:image" content="http://funsoul.org/images/20151128020847375.jpg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#定时器"><span class="toc-text">定时器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#swoole异步毫秒定时器"><span class="toc-text">swoole异步毫秒定时器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Timer定时器"><span class="toc-text">Timer定时器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#swoole-timer-add定时器"><span class="toc-text">swoole_timer_add定时器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tick定时器"><span class="toc-text">Tick定时器</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【Swoole入门】异步毫秒定时器" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【Swoole入门】异步毫秒定时器</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2015.11.28</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前几天在朋友圈看到一个俄罗斯工程师为了给他老婆实时报到情况写了一个自动化脚本，通过定时任务来触发。比如晚上9点了，他的服务器上还有正在运行的SSH进程，就给他老婆发一条短信，“今晚加班晚点回家”，多么温馨的故事啊。碰巧我正在学习swoole扩展，特此记录一下。</p>
+<h2 id="定时器"><a href="#定时器" class="headerlink" title="定时器"></a>定时器</h2><p>一般的定时器是怎么实现的呢？我总结如下：</p>
+<ol>
+<li>使用Crontab工具，写一个shell脚本，在脚本中调用PHP文件，然后定期执行该脚本；</li>
+<li>ignore_user_abort()和set_time_limit()配合使用；</li>
+<li>pcntl_alarm;</li>
+<li>swoole异步毫秒定时器</li>
+</ol>
+<h2 id="swoole异步毫秒定时器"><a href="#swoole异步毫秒定时器" class="headerlink" title="swoole异步毫秒定时器"></a>swoole异步毫秒定时器</h2><h3 id="Timer定时器"><a href="#Timer定时器" class="headerlink" title="Timer定时器"></a>Timer定时器</h3><p>swoole内置定时器，通过函数addtimer即可在server中添加一个定时器，参数单位为毫秒，该定时器会在建立之后，按照预先设定好的时间间隔，每到对应的时间就会调用一次回调函数onTimer。看代码：</p>
+<p><img src="/images/20151128020847375.jpg" alt></p>
+<p>执行过程：</p>
+<p><img src="/images/20151128021004126.jpg" alt></p>
+<h3 id="swoole-timer-add定时器"><a href="#swoole-timer-add定时器" class="headerlink" title="swoole_timer_add定时器"></a>swoole_timer_add定时器</h3><p>swoole_timer_add($interval,$callback)</p>
+<p>$interval：时间间隔，单位毫秒，不能同时存在同样时间间隔的两个定时器（据官方文档，即将废弃）</p>
+<p><strong>注意点</strong></p>
+<ol>
+<li>swoole_server中不能使用。</li>
+<li>定时器必须在全异步模式下使用，同步阻塞代码下不可使用，比如sleep,file_get_contents，这些会阻塞timer，使之不能在预定时间间隔下执行。</li>
+</ol>
+<p><img src="/images/20151128021727238.jpg" alt></p>
+<p><img src="/images/20151128021830709.jpg" alt></p>
+<h3 id="Tick定时器"><a href="#Tick定时器" class="headerlink" title="Tick定时器"></a>Tick定时器</h3><p>swoole_timer_tick函数</p>
+<p>设置一个间隔时钟定时器，与after定时器不同的是tick定时器会持续触发，直到调用swoole_timer_clear清除。与swoole_timer_add不同的是tick定时器可以存在多个相同间隔时间的定时器。</p>
+<p><img src="/images/20151128021727238.jpg" alt></p>
+<p><img src="/images/20151128023519283.jpg" alt></p>
+<p>定时器的作用非常重要，在实际工作中常常通过定时器任务检测服务器状况，数据库备份，心跳检测，消息订阅等等。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2014/06/01/记第一次参加比赛的经历/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2015/12/03/【PHP7】- 编译安装与新特性初体验/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

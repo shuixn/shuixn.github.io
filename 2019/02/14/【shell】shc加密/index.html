@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>用shc保护你的敏感信息 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="shell,">
+  
+
+  <meta name="description" content="背景有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？ 一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。 于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定">
+<meta name="keywords" content="shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用shc保护你的敏感信息">
+<meta property="og:url" content="http://funsoul.org/2019/02/14/【shell】shc加密/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="背景有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？ 一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。 于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用shc保护你的敏感信息">
+<meta name="twitter:description" content="背景有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？ 一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。 于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装shc"><span class="toc-text">安装shc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用shc"><span class="toc-text">使用shc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用二进制"><span class="toc-text">使用二进制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curl注意事项"><span class="toc-text">curl注意事项</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【shell】shc加密" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">用shc保护你的敏感信息</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.02.14</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？</p>
+<p>一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。</p>
+<p>于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定的安全性，只要不被反编译，应该是目前最可靠的方法。</p>
+<h2 id="安装shc"><a href="#安装shc" class="headerlink" title="安装shc"></a>安装shc</h2><p>root用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.3.tgz</span><br><span class="line"># tar -zxvf shc-3.8.3.tgz</span><br><span class="line"># cd shc-3.8.3</span><br><span class="line"># make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p><strong>这里会让你确认，千万别直接enter，而是输入y，enter</strong></p>
+<h2 id="使用shc"><a href="#使用shc" class="headerlink" title="使用shc"></a>使用shc</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shc -v -r -T -f xxx.sh</span><br></pre></td></tr></table></figure>
+<p>这里也有坑，不用-T的话，是没办法执行的。</p>
+<p>然后会生成两个文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xxx.sh.x  --- 二进制文件</span><br><span class="line">xxx.sh.x.c  --- C文件，可删除</span><br></pre></td></tr></table></figure>
+<h2 id="使用二进制"><a href="#使用二进制" class="headerlink" title="使用二进制"></a>使用二进制</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chmod +x xxx.sh.x</span><br><span class="line">rname xxx.sh （重命名）</span><br><span class="line">./xxx.sh</span><br></pre></td></tr></table></figure>
+<p>windows下，是执行不了这个二进制文件的，需要使用cygwin或者windows子系统才可以。想过直接用gcc编译c文件，但是会报错，应该是格式原因，还是得在windows下执行shc。</p>
+<h2 id="curl注意事项"><a href="#curl注意事项" class="headerlink" title="curl注意事项"></a>curl注意事项</h2><p>如果想要在windows下执行curl，如果链接里面有&amp;符号是有问题的，需要把整个链接用引号包起来才可以</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;https://aa.com/api/excel/download?token=xx&amp;file=xx.csv&quot; &gt;&gt; xx.csv</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/01/19/【打脸】php5解决laravel队列中的超时重试问题/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/02/14/【nginx】fastcgi_max_tmp_file_size/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

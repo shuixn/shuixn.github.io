@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【Phalcon】请求volt与请求json的性能压测对比 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Phlacon,Apache Bench,">
+  
+
+  <meta name="description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
+<meta name="keywords" content="PHP,Phlacon,Apache Bench">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Phalcon】请求volt与请求json的性能压测对比">
+<meta property="og:url" content="http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/20170307235446889.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20170307235503952.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20170307235516635.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20170307235529197.jpg">
+<meta property="og:image" content="http://funsoul.org/images/20170307235552891.jpg">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Phalcon】请求volt与请求json的性能压测对比">
+<meta name="twitter:description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
+<meta name="twitter:image" content="http://funsoul.org/images/20170307235446889.jpg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phalcon的模板渲染流程是这样的，"><span class="toc-text">Phalcon的模板渲染流程是这样的，</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#路由"><span class="toc-text">路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请求JSON"><span class="toc-text">请求JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合Volt和JSON"><span class="toc-text">结合Volt和JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完全使用Volt"><span class="toc-text">完全使用Volt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#压测前准备："><span class="toc-text">压测前准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始压测："><span class="toc-text">开始压测：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、请求Volt"><span class="toc-text">一、请求Volt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、请求Json"><span class="toc-text">二、请求Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2000请求，并发200对比"><span class="toc-text">2000请求，并发200对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-text">结论</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【Phalcon】请求volt与请求json的性能压测对比" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【Phalcon】请求volt与请求json的性能压测对比</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2017.03.07</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。</p>
+<p>使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。</p>
+<h2 id="Phalcon的模板渲染流程是这样的，"><a href="#Phalcon的模板渲染流程是这样的，" class="headerlink" title="Phalcon的模板渲染流程是这样的，"></a>Phalcon的模板渲染流程是这样的，</h2><h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p> =&gt; 控制器(如indexController) ，使用setVars把变量发到视图</p>
+<p> =&gt; views，存放所有视图</p>
+<p> =&gt; views/index.volt</p>
+<p> =&gt; views/index/</p>
+<p> =&gt; views/index/index.volt，视图文件</p>
+<p>这样一来，只需要在最终的视图文件中写HTML即可，但是调试起来并不是非常友好，至少在PHPStorm里面不会语法高亮。</p>
+<p>回到渲染过程，可以把PHP逻辑写成Volt模板语句。一个页面就生成并返回到浏览器了。</p>
+<p>但是，这里的痛点也开始出现了。有时候，在页面DOM生成的时候，整个页面还未加载完成，我们希望根据服务端传来的数据，使用JS改变页面的呈现。比如，我们希望保存中国的省份信息在一个JS变量中，然后把它循环输出到页面中。以前我们可以直接把PHP变量发送到JS中保存，现在不奏效了。使用setVars保存的变量，并不能发送到JS中。有人说，可以使用PHP输出JS变量，这个还未尝试过，而且我会告诉你，即使这样做能行，也不能很好的解决我所描述的业务。</p>
+<h2 id="请求JSON"><a href="#请求JSON" class="headerlink" title="请求JSON"></a>请求JSON</h2><p>这是一个类似微博时间线的业务，如果我使用刚才说的方法，使用PHP输出JS变量（实现起来应该很简单），那么，第一次加载的时候，可以做成一个包含时间线数据的JSON，以及一个空的HTML和一堆JS模板，在页面加载的时候，JS读取变量数据，填充到预先写好的JS模板，再渲染到Body中，看似没问题，渲染页面的工作交给了JS，服务端只负责取数据，不负责渲染HTML。那么，SEO呢？搜索引擎是不知道JSON数据里面的信息有什么关系的，所以，对爬虫并不友好。尽管对开发人员来说，只需要写一套JS模板就可以了，是一件多么开心的事情~</p>
+<h2 id="结合Volt和JSON"><a href="#结合Volt和JSON" class="headerlink" title="结合Volt和JSON"></a>结合Volt和JSON</h2><p>第二种方法，大多数人都会这样做。还是使用Volt在服务端渲染HTML，输出到浏览器，当我请求下一页的时候，使用JSON返回数据，前端有一套由JS写的逻辑一样的模板，然后使用高效一点的模板引擎，填充到模板中，最后输出到页面（局部动态刷新）。这里有一个痛点，那就是，同一套逻辑，PHP写一遍，JS一遍，维护起来也相当麻烦。不过效率很高，看下面的压测数据。</p>
+<h2 id="完全使用Volt"><a href="#完全使用Volt" class="headerlink" title="完全使用Volt"></a>完全使用Volt</h2><p>第三种方法，AJAX这一步，我请求一个webapi，而不是ajaxapi，什么意思？其实返回数据是一个包含HTML标签的页面。具体怎么做？在indexController里面定义一个nextPageAction，然后在views/index/中新建一个nextPage.volt，里面是index中抽出来的时间线业务模板。我只需要在nextPageAction中获取数据，并setVars到nextPage.volt中，返回。我就能得到一个渲染好的模板，直接append到页面中即可。是不是非常简单！这样一来，只有一套模板代码，维护简单，也很开心。但是，正如我刚刚说，返回数据原本应该只有JSON，现在多了HTML标签，体积大了，是否会造成一些影响？想不出来，用数据说话把！</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>ubuntu 16.04</li>
+<li>64位</li>
+<li>CPU:2</li>
+<li>内存：4G</li>
+<li>硬盘(SCSI)：20G</li>
+<li>Apache</li>
+<li>PHP 7.0.14</li>
+<li>MySQL 5.6</li>
+<li>Apache Bench 2.3</li>
+</ul>
+<h2 id="压测前准备："><a href="#压测前准备：" class="headerlink" title="压测前准备："></a>压测前准备：</h2><p>使用浏览器登录网站，到审查元素中 -&gt; network -&gt; cookies<br>获取所需cookie。</p>
+<p>请求的时间线数据是相同的第二页。</p>
+<h2 id="开始压测："><a href="#开始压测：" class="headerlink" title="开始压测："></a>开始压测：</h2><h3 id="一、请求Volt"><a href="#一、请求Volt" class="headerlink" title="一、请求Volt"></a>一、请求Volt</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -n 100 -H <span class="string">"Cookie:key=value;key=value"</span> http://localhost/index/timeline</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20170307235446889.jpg" alt></p>
+<p>在上一个基础上加10个并发</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -n 100 -c 10 -H <span class="string">"Cookie:key=value;key=value"</span> http://localhost/index/timeline</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20170307235503952.jpg" alt></p>
+<p>2000请求，200并发</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -n 2000 -c 200 -H <span class="string">"Cookie:key=value;key=value"</span> http://localhost/index/timeline</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20170307235516635.jpg" alt></p>
+<h3 id="二、请求Json"><a href="#二、请求Json" class="headerlink" title="二、请求Json"></a>二、请求Json</h3><p>100请求，10并发</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -n 100 -c 10 -H <span class="string">"Cookie:key=value;key=value"</span> http://localhost/index/timeline</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20170307235529197.jpg" alt></p>
+<p>2000请求，200并发</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ab -n 2000 -c 200 -H <span class="string">"Cookie:key=value;key=value"</span> http://localhost/index/timeline</span><br></pre></td></tr></table></figure>
+<p><img src="/images/20170307235552891.jpg" alt></p>
+<h3 id="2000请求，并发200对比"><a href="#2000请求，并发200对比" class="headerlink" title="2000请求，并发200对比"></a>2000请求，并发200对比</h3><table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align:right">请求Volt</th>
+<th style="text-align:center">请求json</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Time taken for tests        (seconds)</td>
+<td style="text-align:right">70.096</td>
+<td style="text-align:center">63.901</td>
+</tr>
+<tr>
+<td>Total transferred           (bytes)</td>
+<td style="text-align:right">43890000</td>
+<td style="text-align:center">11228000</td>
+</tr>
+<tr>
+<td>HTML transferred        ( bytes )</td>
+<td style="text-align:right">43298000</td>
+<td style="text-align:center">10578000</td>
+</tr>
+<tr>
+<td>Requests per second    [#/sec] (mean)</td>
+<td style="text-align:right">28.53</td>
+<td style="text-align:center">31.30</td>
+</tr>
+<tr>
+<td>Time per request          [ms] (mean)</td>
+<td style="text-align:right">7009.527</td>
+<td style="text-align:center">6390.073</td>
+</tr>
+<tr>
+<td>Time per request       [ms] (mean,across all concurrent requests)</td>
+<td style="text-align:right">35.048</td>
+<td style="text-align:center">31.950</td>
+</tr>
+<tr>
+<td>Transfer rate            [Kbytes/sec] received</td>
+<td style="text-align:right">611.47</td>
+<td style="text-align:center">171.59</td>
+</tr>
+</tbody>
+</table>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol>
+<li>数据（包含HTML）比原来（JSON串）大4倍以上；</li>
+<li>网络传输效率比原来低三倍以上；</li>
+</ol>
+<p>考虑到网络延时情况，实时性，数据量大、效率要求高的地方，如时间线，应该优先使用JSON传输数据。其他的可以考虑使用请求volt方法，提高开发效率。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2016/12/15/【Phalcon】路由拆分/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2017/11/15/PHP中两个数组怎样才算相等？/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

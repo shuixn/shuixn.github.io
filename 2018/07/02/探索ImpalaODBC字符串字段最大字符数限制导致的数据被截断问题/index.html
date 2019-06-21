@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>ImpalaODBC StringColumnLength导致的乱码问题 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,ODBC,">
+  
+
+  <meta name="description" content="说明 mhue:自研的类似hue的hadoop查询系统  这个字段有点大有一个新表，记录游戏前端发来的appdata数据，这个appdata就是本次问题的主角，存储的是玩家手机里所有应用的安装信息（应用名称、安装时间等等）。在这里，刚开始我很惊讶，为什么这些数据如此容易就能获得，直觉告诉我，这些信息非常敏感。后来才知道，原来也是需要授权的，高版本的安卓系统更难获得，而苹果手机就不用想了。了解后才知">
+<meta name="keywords" content="PHP,ODBC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ImpalaODBC StringColumnLength导致的乱码问题">
+<meta property="og:url" content="http://funsoul.org/2018/07/02/探索ImpalaODBC字符串字段最大字符数限制导致的数据被截断问题/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="说明 mhue:自研的类似hue的hadoop查询系统  这个字段有点大有一个新表，记录游戏前端发来的appdata数据，这个appdata就是本次问题的主角，存储的是玩家手机里所有应用的安装信息（应用名称、安装时间等等）。在这里，刚开始我很惊讶，为什么这些数据如此容易就能获得，直觉告诉我，这些信息非常敏感。后来才知道，原来也是需要授权的，高版本的安卓系统更难获得，而苹果手机就不用想了。了解后才知">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.779Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ImpalaODBC StringColumnLength导致的乱码问题">
+<meta name="twitter:description" content="说明 mhue:自研的类似hue的hadoop查询系统  这个字段有点大有一个新表，记录游戏前端发来的appdata数据，这个appdata就是本次问题的主角，存储的是玩家手机里所有应用的安装信息（应用名称、安装时间等等）。在这里，刚开始我很惊讶，为什么这些数据如此容易就能获得，直觉告诉我，这些信息非常敏感。后来才知道，原来也是需要授权的，高版本的安卓系统更难获得，而苹果手机就不用想了。了解后才知">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#说明"><span class="toc-text">说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#这个字段有点大"><span class="toc-text">这个字段有点大</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#乱码排查开始"><span class="toc-text">乱码排查开始</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP缓冲区满导致的字段被截断"><span class="toc-text">PHP缓冲区满导致的字段被截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#odbc-longreadlen太短，导致字符串被截断"><span class="toc-text">odbc longreadlen太短，导致字符串被截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#impala-odbc-StringColumnLength太短，导致字符串被截断"><span class="toc-text">impala odbc StringColumnLength太短，导致字符串被截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#impala-odbc-StringColumnLength最大限制为32k，导致字符串被截断"><span class="toc-text">impala odbc StringColumnLength最大限制为32k，导致字符串被截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-探索ImpalaODBC字符串字段最大字符数限制导致的数据被截断问题" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">ImpalaODBC StringColumnLength导致的乱码问题</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.07.02</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><ul>
+<li>mhue:自研的类似hue的hadoop查询系统</li>
+</ul>
+<h3 id="这个字段有点大"><a href="#这个字段有点大" class="headerlink" title="这个字段有点大"></a>这个字段有点大</h3><p>有一个新表，记录游戏前端发来的appdata数据，这个appdata就是本次问题的主角，存储的是玩家手机里所有应用的安装信息（应用名称、安装时间等等）。在这里，刚开始我很惊讶，为什么这些数据如此容易就能获得，直觉告诉我，这些信息非常敏感。后来才知道，原来也是需要授权的，高版本的安卓系统更难获得，而苹果手机就不用想了。了解后才知道，原来这些数据是用来做机器学习的，或许能够通过这些数据，推测出玩家的兴趣、性格等等？看起来似乎有一定的研究价值。不过，这里有一个问题，就是这个app_data实在是太“大”了，一个字段就占了几K到几十K不止（目前的实际数据，最大约47K），而且，随着玩家手机里面的应用增加而增加，也就是说，有可能会更多。这些信息都使用json格式发送到数据库中。</p>
+<h3 id="乱码排查开始"><a href="#乱码排查开始" class="headerlink" title="乱码排查开始"></a>乱码排查开始</h3><p>前面说的乱码问题，正是这个表的appdata数据导致的，其他数据表不会出现这个问题。一开始报错的提示非常奇怪，第一，在mhue中直接查询并展示数据，appdata字段呈现“抖动”情况（整个页面都不太正常），后来才知道，这个数据太大了，页面要正常显示出来非常难，Element官方估计也会表示无奈= =。其次，直接点击页面上的“下载”按钮下载数据后，数据是乱码的。以前我有探讨过乱码产生的原因，无非是字符集对不上了，于是我把impala odbc取到的数据拿出来，看看是不是UTF8编码。果然不是！打印出来的结果是CP936，这是GBK的编码吧，于是我很高兴的说，这是编码的问题，看看是不是建表有误。但是，得到的回答并非如此，建库建表有非常完善的流程，基本不会出现编码的问题，都是统一的。</p>
+<h3 id="PHP缓冲区满导致的字段被截断"><a href="#PHP缓冲区满导致的字段被截断" class="headerlink" title="PHP缓冲区满导致的字段被截断"></a>PHP缓冲区满导致的字段被截断</h3><p>既然不是编码问题，也就是说，拿到数据后，这个字符串就是不完整的，而我是在PHP层检测编码的，那是不是说，PHP拿到impala odbc的数据时，并没有拿到完整的数据呢？为了印证我的想法，我把缓冲区变为无限制，默认的output buffer是4096个字符，再看看发现并没有用。其实细想之下，缓冲区只是一个“缓冲带”，解决不同设备的读写速度差异问题，只要及时把缓冲区写到内存，根本不会出现这种问题。而稳定重现乱码问题，说明操作系统调度没有问题，没有阻塞写内存的操作。接着看</p>
+<h3 id="odbc-longreadlen太短，导致字符串被截断"><a href="#odbc-longreadlen太短，导致字符串被截断" class="headerlink" title="odbc longreadlen太短，导致字符串被截断"></a>odbc longreadlen太短，导致字符串被截断</h3><p>翻查php odbc的文档可以发现一个配置，longreadlen，这个配置决定了每一行数据中字段的最大长度，咋一看应该是它了，而且文档说明，设置为0的时候，长字段限制将会去掉。设为0试试看，发现还是没有用。</p>
+<h3 id="impala-odbc-StringColumnLength太短，导致字符串被截断"><a href="#impala-odbc-StringColumnLength太短，导致字符串被截断" class="headerlink" title="impala odbc StringColumnLength太短，导致字符串被截断"></a>impala odbc StringColumnLength太短，导致字符串被截断</h3><p>既然PHP层的配置没有起效，那么还可能是别的模块出现了错误，由于mhue的查询使用的是impala odbc连接hadoop进行查询的，所以有可能是这里的问题。查一下odbc.ini，发现确实有一个这样的字段，StringColumnLength，这个字段和longreadlen的意思相近，不过没有0这种无限制的选项。按理说，字符串限制最大应该可以去到2G，我尝试改大一点，就1M吧，1024x1024，删掉原来的32767。再试试看，发现还是没有用，下载的长度只有40k左右，而实际大小为47k。</p>
+<h3 id="impala-odbc-StringColumnLength最大限制为32k，导致字符串被截断"><a href="#impala-odbc-StringColumnLength最大限制为32k，导致字符串被截断" class="headerlink" title="impala odbc StringColumnLength最大限制为32k，导致字符串被截断"></a>impala odbc StringColumnLength最大限制为32k，导致字符串被截断</h3><p>查阅了国外的一些帖子，看到有个开发者似乎很有权威，难道是官方开发者？先不管了，看看说了什么，他说，这个StringColumnLength是一个max limit，最大就是32k，当然根据操作系统位数、内存等因素决定，可能会大一点，但是呢，这个32k在性能考虑下，是一个最佳配置…..怪不得我改了没有用，估计代码里面写死了。给出的建议是，更改数据类型为varchar，并配置字符数长度。这样的建议并不适合于我们的需求，好吧，既然如此，那就不改了。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>既然这个库有限制，可以联想到，其他库也会做相应的限制，而app_data字段是无限制的，这样搞肯定是不合理。那么如何优化呢？针对这个需求，可以有三个方案：</p>
+<ol>
+<li>给与权限，让客户端直接连接hadoop取数据。</li>
+<li>另外建库，订阅数据，给与权限。</li>
+<li>分库，把appdata数据分包发，不要一次性发一个很大的数据包，通过roleid等字段映射数据包</li>
+</ol>
+<p>方案一权限可能会很大，毕竟一不小心来个drop database and rm -rf /咋办？这个东西需要斟酌一下。</p>
+<p>方案二建个库给你订阅一份数据问题也不大，看成本。再者，机器学习那边如何能够更有效率的拿到数据做分析也需要考量在内，这一点，第三个方案可能略显粗鲁，毕竟，机器学习如果以excel做数据集，未免有点奇葩..</p>
+<p>方案三，联表查数据，做归并，导出excel，也就是mhue现在这套机制。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/05/14/写个Vue插件-urlEncode/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/07/29/【funtask】又一个多任务处理框架/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

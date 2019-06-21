@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>安装impala-shell遇到的问题 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="问题排查,impala,">
+  
+
+  <meta name="description" content="下载rpm包 impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 安装12# yum install python-setuptools# rpm -ivh impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 报错1error: Failed depend">
+<meta name="keywords" content="问题排查,impala">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安装impala-shell遇到的问题">
+<meta property="og:url" content="http://funsoul.org/2017/12/05/安装impala-shell遇到的问题/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="下载rpm包 impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 安装12# yum install python-setuptools# rpm -ivh impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 报错1error: Failed depend">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.779Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="安装impala-shell遇到的问题">
+<meta name="twitter:description" content="下载rpm包 impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 安装12# yum install python-setuptools# rpm -ivh impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm 报错1error: Failed depend">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#下载rpm包"><span class="toc-text">下载rpm包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#报错"><span class="toc-text">报错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#下载并安装"><span class="toc-text">下载并安装</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连接"><span class="toc-text">连接</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#报错-1"><span class="toc-text">报错</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#检查sasl"><span class="toc-text">检查sasl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#重装sasl"><span class="toc-text">重装sasl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安装pip"><span class="toc-text">安装pip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安装epel扩展源"><span class="toc-text">安装epel扩展源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#卸载sasl"><span class="toc-text">卸载sasl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安装sasl"><span class="toc-text">安装sasl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#继续找问题，回到这一步"><span class="toc-text">继续找问题，回到这一步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方案"><span class="toc-text">解决方案</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-安装impala-shell遇到的问题" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">安装impala-shell遇到的问题</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2017.12.05</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h3 id="下载rpm包"><a href="#下载rpm包" class="headerlink" title="下载rpm包"></a>下载rpm包</h3><p> <a href="http://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/5.4.9/RPMS/x86_64/" target="_blank" rel="noopener">impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm</a></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># yum install python-setuptools</span><br><span class="line"># rpm -ivh impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h4 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error: Failed dependencies: libpython2.6.so.1.0()(64bit) is needed by impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h4 id="下载并安装"><a href="#下载并安装" class="headerlink" title="下载并安装"></a>下载并安装</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -Uvh lib64python2.6-2.6.6-1mdv2011.0.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># impala-shell</span><br></pre></td></tr></table></figure>
+<h4 id="报错-1"><a href="#报错-1" class="headerlink" title="报错"></a>报错</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">···</span><br><span class="line">···</span><br><span class="line">ImportError: libsasl2.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+<h4 id="检查sasl"><a href="#检查sasl" class="headerlink" title="检查sasl"></a>检查sasl</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rpm -qa | grep sasl</span><br><span class="line">rpm -ql cyrus-sasl-lib</span><br></pre></td></tr></table></figure>
+<p>发现 libsasl2.so.3被 cyrus-sasl-lib 安装在了 /usr/lib64/.这个目录下</p>
+<h4 id="重装sasl"><a href="#重装sasl" class="headerlink" title="重装sasl"></a>重装sasl</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall sasl</span><br><span class="line">pip install sasl</span><br></pre></td></tr></table></figure>
+<p>pip不存在</p>
+<h4 id="安装pip"><a href="#安装pip" class="headerlink" title="安装pip"></a>安装pip</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yun install -y pip</span><br><span class="line">Nothing to do</span><br></pre></td></tr></table></figure>
+<h4 id="安装epel扩展源"><a href="#安装epel扩展源" class="headerlink" title="安装epel扩展源"></a>安装epel扩展源</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install epel-release</span><br><span class="line">yum -y install python-pip</span><br></pre></td></tr></table></figure>
+<h4 id="卸载sasl"><a href="#卸载sasl" class="headerlink" title="卸载sasl"></a>卸载sasl</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall sasl</span><br></pre></td></tr></table></figure>
+<p>无法删除</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cannot uninstall requirement sasl, not installed</span><br></pre></td></tr></table></figure>
+<h4 id="安装sasl"><a href="#安装sasl" class="headerlink" title="安装sasl"></a>安装sasl</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pip install sasl</span><br><span class="line"></span><br><span class="line">sasl/saslwrapper.cpp:8:22: fatal error: pyconfig.h: No such file or directory</span><br><span class="line">#include &quot;pyconfig.h&quot;</span><br><span class="line">^</span><br><span class="line">compilation terminated.</span><br><span class="line">error: command &apos;gcc&apos; failed with exit status 1</span><br></pre></td></tr></table></figure>
+<h4 id="继续找问题，回到这一步"><a href="#继续找问题，回到这一步" class="headerlink" title="继续找问题，回到这一步"></a>继续找问题，回到这一步</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImportError: libsasl2.so.2: cannot open shared object file: No such file or directory</span><br></pre></td></tr></table></figure>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Sometimes these version problems can be resolved by creating a symbolic link with another version of the same library. If you have libsasl2.so installed, create a linked file libsasl2.so.2 for the same:</span><br><span class="line"></span><br><span class="line">sudo ln -s /usr/lib64/libsasl2.so /usr/lib64/libsasl2.so.2</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2017/11/15/PHP中两个数组怎样才算相等？/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2017/12/08/详解PHP连接Impala安装与配置/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

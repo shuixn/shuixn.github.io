@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>ngx_http_empty_gif_module在日志统计中的应用 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Nginx,">
+  
+
+  <meta name="description" content="日志统计分析架构在日志统计分析中，通常包括以下的模块  前端日志上报（js上报url、user_agent等等） 打点服务器（nginx） 统计日志（access_log） 分析日志（后端程序） 保存分析结果（db）  我们通常把日志上报和日志分析解耦，利用nginx的大并发承载力，接收前端上报的日志。在这里，我们不做协议转发到后端程序（PHP或者其他cgi程序）处理日志统计，而是利用nginx的">
+<meta name="keywords" content="Nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ngx_http_empty_gif_module在日志统计中的应用">
+<meta property="og:url" content="http://funsoul.org/2018/04/16/ngx_http_empty_gif_module在日志统计中的应用/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="日志统计分析架构在日志统计分析中，通常包括以下的模块  前端日志上报（js上报url、user_agent等等） 打点服务器（nginx） 统计日志（access_log） 分析日志（后端程序） 保存分析结果（db）  我们通常把日志上报和日志分析解耦，利用nginx的大并发承载力，接收前端上报的日志。在这里，我们不做协议转发到后端程序（PHP或者其他cgi程序）处理日志统计，而是利用nginx的">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.772Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ngx_http_empty_gif_module在日志统计中的应用">
+<meta name="twitter:description" content="日志统计分析架构在日志统计分析中，通常包括以下的模块  前端日志上报（js上报url、user_agent等等） 打点服务器（nginx） 统计日志（access_log） 分析日志（后端程序） 保存分析结果（db）  我们通常把日志上报和日志分析解耦，利用nginx的大并发承载力，接收前端上报的日志。在这里，我们不做协议转发到后端程序（PHP或者其他cgi程序）处理日志统计，而是利用nginx的">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#日志统计分析架构"><span class="toc-text">日志统计分析架构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ngx-http-empty-gif-module"><span class="toc-text">ngx_http_empty_gif_module</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-ngx_http_empty_gif_module在日志统计中的应用" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">ngx_http_empty_gif_module在日志统计中的应用</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.04.16</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="日志统计分析架构"><a href="#日志统计分析架构" class="headerlink" title="日志统计分析架构"></a>日志统计分析架构</h2><p>在日志统计分析中，通常包括以下的模块</p>
+<ul>
+<li>前端日志上报（js上报url、user_agent等等）</li>
+<li>打点服务器（nginx）</li>
+<li>统计日志（access_log）</li>
+<li>分析日志（后端程序）</li>
+<li>保存分析结果（db）</li>
+</ul>
+<p>我们通常把日志上报和日志分析解耦，利用nginx的大并发承载力，接收前端上报的日志。在这里，我们不做协议转发到后端程序（PHP或者其他cgi程序）处理日志统计，而是利用nginx的access_log，约定好日志保存格式（format），由nginx帮助我们做日志统计。</p>
+<p>日志上报的并发量有可能非常巨大，举个例子，如果由PHP来处理，那么每一次日志上报都需要经过nginx的转发、PHP生命周期的五个阶段（MINIT、RINIT、代码处理、RSHUTDOWN、MSHUTDOWN），即使做了opcache，将预编译的脚本存储在共享内存中，也是需要不菲的消耗。1毫秒的处理时间不算什么，但是 1 X 100000n 那就需要引起关注了。</p>
+<p>我们还需要一个分析日志的守护进程，这时候可以利用php的cli或者别的语言实现，将分析结果（pv、uv等等）保存到数据库，然后提供一个web界面来展示结果。</p>
+<h2 id="ngx-http-empty-gif-module"><a href="#ngx-http-empty-gif-module" class="headerlink" title="ngx_http_empty_gif_module"></a>ngx_http_empty_gif_module</h2><p>http程序是请求-响应模式，日志上报完成后，后端需要返回一个值，告诉前端结果。一般来说，我们会使用json，上报一个日志，返回一个json串，比如</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	code: 0,</span><br><span class="line">	msg: 'sucess'</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>正如前文所说，这是有可能是一个大并发的程序，如果每次都返回一个json串，是不是有点太大了，为什么这里会说“大”，接着看，我尝试返回一个整型数字1,</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>在浏览器中查看返回数据的大小为 268B ，一个数字的占用就有268B，如果包含状态码，状态值，岂不是更大。</p>
+<p>所以我们看看nginx有没有更好的解决方式，那就是ngx_http_empty_gif_module。</p>
+<p>这是一个由nginx生成的 1x1 像素的图片，通过查看源码可以知道，这是nginx自己拼接而成的完全内存级别的图片</p>
+<p>/path-to-nginx/src/http/modules/ngx_http_empty_gif_module.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> u_char  ngx_empty_gif[] = &#123;</span><br><span class="line"></span><br><span class="line">    <span class="string">'G'</span>, <span class="string">'I'</span>, <span class="string">'F'</span>, <span class="string">'8'</span>, <span class="string">'9'</span>, <span class="string">'a'</span>,  <span class="comment">/* header                                 */</span></span><br><span class="line"></span><br><span class="line">                                   <span class="comment">/* logical screen descriptor              */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="number">0x00</span>,                    <span class="comment">/* logical screen width                   */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="number">0x00</span>,                    <span class="comment">/* logical screen height                  */</span></span><br><span class="line">    <span class="number">0x80</span>,                          <span class="comment">/* global 1-bit color table               */</span></span><br><span class="line">    <span class="number">0x01</span>,                          <span class="comment">/* background color #1                    */</span></span><br><span class="line">    <span class="number">0x00</span>,                          <span class="comment">/* no aspect ratio                        */</span></span><br><span class="line"></span><br><span class="line">                                   <span class="comment">/* global color table                     */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,              <span class="comment">/* #0: black                              */</span></span><br><span class="line">    <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>,              <span class="comment">/* #1: white                              */</span></span><br><span class="line"></span><br><span class="line">                                   <span class="comment">/* graphic control extension              */</span></span><br><span class="line">    <span class="number">0x21</span>,                          <span class="comment">/* extension introducer                   */</span></span><br><span class="line">    <span class="number">0xf9</span>,                          <span class="comment">/* graphic control label                  */</span></span><br><span class="line">    <span class="number">0x04</span>,                          <span class="comment">/* block size                             */</span></span><br><span class="line">    <span class="number">0x01</span>,                          <span class="comment">/* transparent color is given,            */</span></span><br><span class="line">                                   <span class="comment">/*     no disposal specified,             */</span></span><br><span class="line">                                   <span class="comment">/*     user input is not expected         */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="number">0x00</span>,                    <span class="comment">/* delay time                             */</span></span><br><span class="line">    <span class="number">0x01</span>,                          <span class="comment">/* transparent color #1                   */</span></span><br><span class="line">    <span class="number">0x00</span>,                          <span class="comment">/* block terminator                       */</span></span><br><span class="line"></span><br><span class="line">                                   <span class="comment">/* image descriptor                       */</span></span><br><span class="line">    <span class="number">0x2c</span>,                          <span class="comment">/* image separator                        */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="number">0x00</span>,                    <span class="comment">/* image left position                    */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="number">0x00</span>,                    <span class="comment">/* image top position                     */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="number">0x00</span>,                    <span class="comment">/* image width                            */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="number">0x00</span>,                    <span class="comment">/* image height                           */</span></span><br><span class="line">    <span class="number">0x00</span>,                          <span class="comment">/* no local color table, no interlaced    */</span></span><br><span class="line"></span><br><span class="line">                                   <span class="comment">/* table based image data                 */</span></span><br><span class="line">    <span class="number">0x02</span>,                          <span class="comment">/* LZW minimum code size,                 */</span></span><br><span class="line">                                   <span class="comment">/*     must be at least 2-bit             */</span></span><br><span class="line">    <span class="number">0x02</span>,                          <span class="comment">/* block size                             */</span></span><br><span class="line">    <span class="number">0x4c</span>, <span class="number">0x01</span>,                    <span class="comment">/* compressed bytes 01_001_100, 0000000_1 */</span></span><br><span class="line">                                   <span class="comment">/* 100: clear code                        */</span></span><br><span class="line">                                   <span class="comment">/* 001: 1                                 */</span></span><br><span class="line">                                   <span class="comment">/* 101: end of information code           */</span></span><br><span class="line">    <span class="number">0x00</span>,                          <span class="comment">/* block terminator                       */</span></span><br><span class="line"></span><br><span class="line">    <span class="number">0x3B</span>                           <span class="comment">/* trailer                                */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>继续刚刚的问题，前端上报日志后，后端怎么返回这个图片呢？返回这个图片有什么好处？</p>
+<p>只需要在nginx中配置</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server</span><br><span class="line">&#123;</span><br><span class="line">        listen 80;</span><br><span class="line">        server_name log.com;</span><br><span class="line"></span><br><span class="line">        location = /<span class="keyword">dig</span> &#123;</span><br><span class="line">           empty_gif;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样一来，前端只需要把url、ua等信息提交到 log.com/dig 即可，后端就会返回一个1pixel的图片。</p>
+<p>通过查看浏览器信息可以发现，返回大小为 229B，是不是比返回json更快，占用更小呢 :)</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/04/13/今天玩了一款让我写代码的游戏/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/04/23/Duck-Typing-in-PHP/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

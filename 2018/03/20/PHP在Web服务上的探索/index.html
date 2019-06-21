@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>PHP在Web服务上的探索 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,网络编程,">
+  
+
+  <meta name="description" content="传统模式cgi早期的web程序其实都是一种cgi程序，cgi是什么？cgi程序又是什么？通用网关接口（Common Gateway Interface/CGI）是一种互联网技术，可以让一个客户端向服务器上的程序请求数据。CGI描述了服务器（nginx\apache）和请求处理程序(php)之间传输数据的一种标准。这是一种标准、协议，不是程序。cgi程序是实现了cgi标准的程序。 fastcgicg">
+<meta name="keywords" content="PHP,网络编程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP在Web服务上的探索">
+<meta property="og:url" content="http://funsoul.org/2018/03/20/PHP在Web服务上的探索/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="传统模式cgi早期的web程序其实都是一种cgi程序，cgi是什么？cgi程序又是什么？通用网关接口（Common Gateway Interface/CGI）是一种互联网技术，可以让一个客户端向服务器上的程序请求数据。CGI描述了服务器（nginx\apache）和请求处理程序(php)之间传输数据的一种标准。这是一种标准、协议，不是程序。cgi程序是实现了cgi标准的程序。 fastcgicg">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.770Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP在Web服务上的探索">
+<meta name="twitter:description" content="传统模式cgi早期的web程序其实都是一种cgi程序，cgi是什么？cgi程序又是什么？通用网关接口（Common Gateway Interface/CGI）是一种互联网技术，可以让一个客户端向服务器上的程序请求数据。CGI描述了服务器（nginx\apache）和请求处理程序(php)之间传输数据的一种标准。这是一种标准、协议，不是程序。cgi程序是实现了cgi标准的程序。 fastcgicg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#传统模式"><span class="toc-text">传统模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cgi"><span class="toc-text">cgi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastcgi"><span class="toc-text">fastcgi</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#黄金搭档"><span class="toc-text">黄金搭档</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LAMP"><span class="toc-text">LAMP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LNMP"><span class="toc-text">LNMP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LANMP"><span class="toc-text">LANMP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Swoole常驻内存模式"><span class="toc-text">Swoole常驻内存模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#swoole机制"><span class="toc-text">swoole机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx和swoole"><span class="toc-text">nginx和swoole</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#协程"><span class="toc-text">协程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php-yield"><span class="toc-text">php yield</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#swoole-coroutine"><span class="toc-text">swoole coroutine</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#swoft微服务"><span class="toc-text">swoft微服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后记"><span class="toc-text">后记</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PHP在Web服务上的探索" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">PHP在Web服务上的探索</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.03.20</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="传统模式"><a href="#传统模式" class="headerlink" title="传统模式"></a>传统模式</h2><h3 id="cgi"><a href="#cgi" class="headerlink" title="cgi"></a>cgi</h3><p>早期的web程序其实都是一种cgi程序，cgi是什么？cgi程序又是什么？通用网关接口（Common Gateway Interface/CGI）是一种互联网技术，可以让一个客户端向服务器上的程序请求数据。CGI描述了服务器（nginx\apache）和请求处理程序(php)之间传输数据的一种标准。这是一种标准、协议，不是程序。cgi程序是实现了cgi标准的程序。</p>
+<h3 id="fastcgi"><a href="#fastcgi" class="headerlink" title="fastcgi"></a>fastcgi</h3><p>cgi协议是这样的处理机制：请求来一个，便建起一个进程，这样的程序很容易实现，但是不好扩展，当并发量大了后，可能会有成千上万的进程，操作系统面对如此大的进程数，增加了进程上下文切换、新建以及销毁进程的开销，cpu资源占据居高不下，拖慢系统。内存上，由于进程处理完请求便销毁，地址空间无法共享与重用。</p>
+<p>现在的php-fpm采用的是fastcgi协议，与cgi不同，fastcgi使用持续的进程（1 master,n workers）来处理一连串的请求。这些进程由fastcgi服务器(php-fpm)管理，而不是web服务器。 当进来一个请求时，web服务器把环境变量和这个页面请求通过一个socket比如fastcgi进程与web服务器(都位于本地）或者一个TCP connection（fastcgi进程在远端的server farm）传递给fastcgi进程。</p>
+<h3 id="黄金搭档"><a href="#黄金搭档" class="headerlink" title="黄金搭档"></a>黄金搭档</h3><h4 id="LAMP"><a href="#LAMP" class="headerlink" title="LAMP"></a>LAMP</h4><p>php在apache中是以mod_php扩展的形式存在，必须依靠apache才能启动，当请求到达，apache判断是否是php程序，提交给php解释器进行处理，处理完并返回。</p>
+<h4 id="LNMP"><a href="#LNMP" class="headerlink" title="LNMP"></a>LNMP</h4><p>nginx可以配置资源类型，当请求到达时，比如/index.html，这是静态资源，服务器会到配置的web root文件系统中寻找，然后返回这个文件。如果请求的是/index.php，nginx知道必须把这个交给php解释器，这时候，根据cgi规范，把该有的数据（查询字符串、post数据，http header等等）发到相应的fastcgi进程进行处理。</p>
+<h4 id="LANMP"><a href="#LANMP" class="headerlink" title="LANMP"></a>LANMP</h4><p>LANMP使用nginx作为前端和代理服务器，利用nginx应对高并发的能力，真正的服务器可能有多个，比如apache。nginx把请求反向代理给后端的服务器。</p>
+<h2 id="Swoole常驻内存模式"><a href="#Swoole常驻内存模式" class="headerlink" title="Swoole常驻内存模式"></a>Swoole常驻内存模式</h2><p>php在这之前都是属于cgi程序，依赖于php-fpm。php-fpm是同步阻塞模式，虽然进程复用，但是PHP是短生命周期的，一次请求结束，php的变量和对象就会销毁。相较之下，swoole应运而生了。swoole的http server是常驻内存的，而且worker为异步非阻塞，可以处理更大的请求数。</p>
+<h3 id="swoole机制"><a href="#swoole机制" class="headerlink" title="swoole机制"></a>swoole机制</h3><p>swoole的reacter线程就好像nginx，异步非阻塞（epoll）的处理网络请求、协议，缓冲数据frame并拆分。然后把数据包通过unixsocket发送到worker（好像fpm的worker）进行处理。有时候我们需要处理一些IO耗时任务，可以通过投递task进程进行处理，比如消息队列，连接池。</p>
+<h3 id="nginx和swoole"><a href="#nginx和swoole" class="headerlink" title="nginx和swoole"></a>nginx和swoole</h3><p>一个很好的思路是，仍然使用nginx作为前端服务器，然后把请求反向代理到swoole服务器。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root /data/code/app/static;</span><br><span class="line">location / &#123;</span><br><span class="line">	proxy_http_version 1.1;</span><br><span class="line">	proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">	proxy_pass http://127.0.0.1:9501;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><ul>
+<li>协作式</li>
+<li>抢占式任务</li>
+</ul>
+<p>进程和线程都是抢占式的，由操作系统调度上下文切换，保存上下文状态。</p>
+<p>协程更像是编译器的魔法，通过一些代码使得进程中的代码段能够分段执行，每次调度都会从yield开始。</p>
+<p>协程是用户态线程，理论上可以建起成百上千万个协程。相较于进程和线程，无需从用户态过渡到内核态，创建和切换的开销更低。</p>
+<h2 id="php-yield"><a href="#php-yield" class="headerlink" title="php yield"></a>php yield</h2><p>在之前的文章中，我粗略的介绍了yield的使用，yield的语义有生成器的意思，生成器的意思是，从一端把数据传到另一端。而协程的实现正是yield的双向通信。</p>
+<h2 id="swoole-coroutine"><a href="#swoole-coroutine" class="headerlink" title="swoole coroutine"></a>swoole coroutine</h2><p>swoole2.x已经完全在底层实现了协程调度，开发者在业务层无需再通过yield的关键字来显式执行调用，只需要以同步的方式编写代码，底层自动切换。</p>
+<h2 id="swoft微服务"><a href="#swoft微服务" class="headerlink" title="swoft微服务"></a>swoft微服务</h2><p>很多人由于PHP没有成熟的微服务框架而转到JAVA或者Go或者其他成熟的语言，swoole社区有一些人（swoft）把大家熟知的JAVA编程思想搬了过来，基于swoole2.x，全协程，AOP面向切面编程、服务治理，熔断、降级、负载、注册与发现，基于注解编程，看起来和JAVA非常像，通过composer把一切组件化。不过，1.0刚刚发布，需要开源社区的支持。看起来非常有前景。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>最近利用业余时间基于swoole，做了两个有趣的项目，欢迎star：）</p>
+<ol>
+<li><a href="https://github.com/funsoul/funchat" title="基于swoole websocket的聊天室" target="_blank" rel="noopener">基于swoole websocket的聊天室</a></li>
+<li><a href="https://github.com/funsoul/funpinyin" title="基于swoole http server的小程序游戏后端服务" target="_blank" rel="noopener">基于swoole http server的小程序游戏后端服务</a></li>
+</ol>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/03/02/epoll学习笔记/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/03/22/PHP单例模式探索/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

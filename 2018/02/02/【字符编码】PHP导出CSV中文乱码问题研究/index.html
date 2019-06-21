@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【字符编码】PHP导出CSV中文乱码问题研究 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,乱码,">
+  
+
+  <meta name="description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+<meta name="keywords" content="PHP,乱码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【字符编码】PHP导出CSV中文乱码问题研究">
+<meta property="og:url" content="http://funsoul.org/2018/02/02/【字符编码】PHP导出CSV中文乱码问题研究/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.776Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【字符编码】PHP导出CSV中文乱码问题研究">
+<meta name="twitter:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#业务背景"><span class="toc-text">业务背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看PHPExcel对CSV格式的兼容性实现"><span class="toc-text">查看PHPExcel对CSV格式的兼容性实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#laravel-Excel配置开启use-bom"><span class="toc-text">laravel Excel配置开启use_bom</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看BOM"><span class="toc-text">查看BOM</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【字符编码】PHP导出CSV中文乱码问题研究" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【字符编码】PHP导出CSV中文乱码问题研究</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.02.02</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p>没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:)</p>
+<p>推荐一下这篇文章<a href="http://cenalulu.github.io/linux/character-encoding/" title="十分钟搞清字符集和字符编码" target="_blank" rel="noopener">十分钟搞清字符集和字符编码</a>，可以快速了解一下字符编码的知识</p>
+<h3 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h3><p>把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章<a href="http://funsoul.org/2018/02/01/【Yield】大数据下的应用/" title="【Yield】大数据下的应用">【Yield】大数据下的应用</a></p>
+<p>由于使用了Laravel Excel工具集，先来看看这个工具内部是如何实现编码兼容的<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ..\vendor\maatwebsite\excel\src\Maatwebsite\Excel\Writers\LaravelExcelWriter.php</span></span><br><span class="line"><span class="comment"># 约347行</span></span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_download</span><span class="params">(Array $headers = [])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// Set the headers</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_setHeaders(</span><br><span class="line">        $headers,</span><br><span class="line">        [</span><br><span class="line">            <span class="string">'Content-Type'</span>        =&gt; <span class="keyword">$this</span>-&gt;contentType,</span><br><span class="line">            <span class="string">'Content-Disposition'</span> =&gt; <span class="string">'attachment; filename="'</span> . <span class="keyword">$this</span>-&gt;filename . <span class="string">'.'</span> . <span class="keyword">$this</span>-&gt;ext . <span class="string">'"'</span>,</span><br><span class="line">            <span class="string">'Expires'</span>             =&gt; <span class="string">'Mon, 26 Jul 1997 05:00:00 GMT'</span>, <span class="comment">// Date in the past</span></span><br><span class="line">            <span class="string">'Last-Modified'</span>       =&gt; Carbon::now()-&gt;format(<span class="string">'D, d M Y H:i:s'</span>),</span><br><span class="line">            <span class="string">'Cache-Control'</span>       =&gt; <span class="string">'cache, must-revalidate'</span>,</span><br><span class="line">            <span class="string">'Pragma'</span>              =&gt; <span class="string">'public'</span></span><br><span class="line">        ]</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    ..</span><br><span class="line">    .</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过区分不同的文件类型设置$this-&gt;contentType，但是这里是用来设置浏览器下载的header的，并不是保存为服务器文件，继续找。</p>
+<h3 id="查看PHPExcel对CSV格式的兼容性实现"><a href="#查看PHPExcel对CSV格式的兼容性实现" class="headerlink" title="查看PHPExcel对CSV格式的兼容性实现"></a>查看PHPExcel对CSV格式的兼容性实现</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ..\vendor\phpoffice\phpexcel\Classes\PHPExcel\Writer\CSV.php</span></span><br><span class="line"><span class="comment"># 约116行</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_excelCompatibility) &#123;</span><br><span class="line">	fwrite($fileHandle, <span class="string">"\xEF\xBB\xBF"</span>);	<span class="comment">//	Enforce UTF-8 BOM Header</span></span><br><span class="line">	<span class="keyword">$this</span>-&gt;setEnclosure(<span class="string">'"'</span>);				<span class="comment">//	Set enclosure to "</span></span><br><span class="line">	<span class="keyword">$this</span>-&gt;setDelimiter(<span class="string">";"</span>);			    <span class="comment">//	Set delimiter to a semi-colon</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;setLineEnding(<span class="string">"\r\n"</span>);</span><br><span class="line">	fwrite($fileHandle, <span class="string">'sep='</span> . <span class="keyword">$this</span>-&gt;getDelimiter() . <span class="keyword">$this</span>-&gt;_lineEnding);</span><br><span class="line">&#125; <span class="keyword">elseif</span> (<span class="keyword">$this</span>-&gt;_useBOM) &#123;</span><br><span class="line">	<span class="comment">// Write the UTF-8 BOM code if required</span></span><br><span class="line">	fwrite($fileHandle, <span class="string">"\xEF\xBB\xBF"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发现$this-&gt;_useBOM这个配置项，默认是没有开启的。查看使用LaravelExcel下载的CSV文件的BOM确实没有支持UTF-8</p>
+<h3 id="laravel-Excel配置开启use-bom"><a href="#laravel-Excel配置开启use-bom" class="headerlink" title="laravel Excel配置开启use_bom"></a>laravel Excel配置开启use_bom</h3><p>config/excel.php，设置csv的use_bom为true，默认为false</p>
+<h3 id="查看BOM"><a href="#查看BOM" class="headerlink" title="查看BOM"></a>查看BOM</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">]$ head -c 3 file | hexdump -C</span><br><span class="line"></span><br><span class="line">00000000  ef bb bf                                          |...|</span><br><span class="line">00000003</span><br></pre></td></tr></table></figure>
+<p>找到问题的关键了，在需要写入文件前，添加UTF-8的BOM即可<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fwrite($fp, <span class="string">"\xEF\xBB\xBF"</span>); <span class="comment">// 添加 UTF-8 BOM</span></span><br></pre></td></tr></table></figure></p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/02/01/【Yield】大数据下的应用/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/02/04/【funcipher】PHP密文定制工具/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

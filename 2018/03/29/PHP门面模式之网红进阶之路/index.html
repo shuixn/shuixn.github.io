@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>PHP门面模式之网红进阶之路 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,设计模式,学习笔记,">
+  
+
+  <meta name="description" content="写在前门面模式又称外观模式，既然如此，最容易联想到的就是化妆了。不要问我为什么知道怎么化妆 = =# 有人说，关注我的文字是为了学习技术，我觉得这是对我赤果果的侮辱！今天我就教你如何化妆！ 化妆我简单总结了一下，化妆大致分为五大模块  基础护肤 隔离保护 脸部美容 眼部美容 唇部美容  题外话（划重点）：这里的化妆步骤看起来很像模版方法模式，也是给定一个算法架构，然后让客户端去实现细节。其实，化妆">
+<meta name="keywords" content="PHP,设计模式,学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP门面模式之网红进阶之路">
+<meta property="og:url" content="http://funsoul.org/2018/03/29/PHP门面模式之网红进阶之路/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="写在前门面模式又称外观模式，既然如此，最容易联想到的就是化妆了。不要问我为什么知道怎么化妆 = =# 有人说，关注我的文字是为了学习技术，我觉得这是对我赤果果的侮辱！今天我就教你如何化妆！ 化妆我简单总结了一下，化妆大致分为五大模块  基础护肤 隔离保护 脸部美容 眼部美容 唇部美容  题外话（划重点）：这里的化妆步骤看起来很像模版方法模式，也是给定一个算法架构，然后让客户端去实现细节。其实，化妆">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-06-21T03:15:13.772Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP门面模式之网红进阶之路">
+<meta name="twitter:description" content="写在前门面模式又称外观模式，既然如此，最容易联想到的就是化妆了。不要问我为什么知道怎么化妆 = =# 有人说，关注我的文字是为了学习技术，我觉得这是对我赤果果的侮辱！今天我就教你如何化妆！ 化妆我简单总结了一下，化妆大致分为五大模块  基础护肤 隔离保护 脸部美容 眼部美容 唇部美容  题外话（划重点）：这里的化妆步骤看起来很像模版方法模式，也是给定一个算法架构，然后让客户端去实现细节。其实，化妆">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#化妆"><span class="toc-text">化妆</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础护肤"><span class="toc-text">基础护肤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#隔离保护"><span class="toc-text">隔离保护</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#脸部美容"><span class="toc-text">脸部美容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#眼部美容"><span class="toc-text">眼部美容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#唇部美容"><span class="toc-text">唇部美容</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#化妆门面类"><span class="toc-text">化妆门面类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始化妆"><span class="toc-text">开始化妆</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-PHP门面模式之网红进阶之路" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">PHP门面模式之网红进阶之路</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.03.29</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>门面模式又称外观模式，既然如此，最容易联想到的就是化妆了。不要问我为什么知道怎么化妆 = =#</p>
+<p>有人说，关注我的文字是为了学习技术，我觉得这是对我赤果果的侮辱！今天我就教你如何化妆！</p>
+<h2 id="化妆"><a href="#化妆" class="headerlink" title="化妆"></a>化妆</h2><p>我简单总结了一下，化妆大致分为五大模块</p>
+<ul>
+<li>基础护肤</li>
+<li>隔离保护</li>
+<li>脸部美容</li>
+<li>眼部美容</li>
+<li>唇部美容</li>
+</ul>
+<p><strong>题外话（划重点）</strong>：这里的化妆步骤看起来很像模版方法模式，也是给定一个算法架构，然后让客户端去实现细节。其实，化妆除了前面两步（基础护肤和隔离保护）需要严格按顺序执行，其他部分并不需要强制按顺序，如果你有多个化妆师，也可以一遍画眉一遍抹口红，或者你觉得你不需要抹口红，纯天然水嫩！那少了唇部美容这一部分也无碍。所以，外观模式是最适合的，对于整个化妆而言，每个模块都是相对独立的。</p>
+<h4 id="基础护肤"><a href="#基础护肤" class="headerlink" title="基础护肤"></a>基础护肤</h4><p>众说周知（真的假的），化妆前不护肤？这脸是要毁掉了呀！</p>
+<blockquote>
+<p>化妆品主要成分是溶剂，其次是表面活性剂，另外就是林林总总的防腐剂、色素、香精、增色剂、稠化剂、络合剂等添加剂。</p>
+<ol>
+<li>溶剂、表面活性剂会软化表皮细胞，褪去角质层，一次当然不行，天天累积的效果，一定程度上弱化皮肤的防护作用（主要是表面活性剂的效果）;</li>
+<li>被弱化的表皮细胞和毛孔部位会渗透进各种添加剂，有些存在特殊结构的物质有可能会被细胞识别并拖进去，完成吸收——主要是小分子有机物，对于蛋白类，呵呵，你又不是欧米巴变形虫~;</li>
+<li>从来没有报道或研究指出此种途径对人体的影响，但是整体影响的相关报道时有见报，一般是医学杂志——其实是体系太复杂，不好研究，又没人会支持这项研究;</li>
+<li>过多的添加剂，在前两条途径存在的情况下，会整体上增大过敏的可能性，尤其是使防护能力减弱的皮肤暴露在空气中，会使皮肤变得敏感;</li>
+<li>重金属化合物往往是化妆品增色剂的主要成分，依靠其物理色泽产生美白等效果，在前两点的存在下，重金属积累的效果很有可能会产生，而且由于生物体缺乏对这种物质的代谢能力，其影响是深远的。另外，由于重金属运输效率其实不高，在皮肤积累会使得皮肤变得越来越差！</li>
+</ol>
+</blockquote>
+<p>有人又说了，生活中到处都是化学品，防不胜防啊，是啊，现在教你怎么防~</p>
+<ol>
+<li>洗脸</li>
+<li>爽肤</li>
+<li>精华 （促进吸收、美白、保湿）</li>
+<li>乳液</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 基础护肤</span></span><br><span class="line"><span class="comment"> * Class BasicSkinCare</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BasicSkinCare</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">washFace</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'洗脸'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">toning</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'爽肤'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">eliteFluid</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'精华'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">emulsion</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'乳液'</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="隔离保护"><a href="#隔离保护" class="headerlink" title="隔离保护"></a>隔离保护</h4><p>做完基础护肤，还不能直接往脸上抹化妆品，需要做隔离</p>
+<ol>
+<li>隔离霜</li>
+<li>粉底液</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 隔离保护</span></span><br><span class="line"><span class="comment"> * Class IsolationProtection</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IsolationProtection</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">segregationFrost</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'隔离霜'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">liquidFoundation</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'粉底液'</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="脸部美容"><a href="#脸部美容" class="headerlink" title="脸部美容"></a>脸部美容</h4><p>昨晚隔离后，可以开始化妆了，从脸部开始，</p>
+<ol>
+<li>定妆粉饼</li>
+<li>腮红</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 脸部美容</span></span><br><span class="line"><span class="comment"> * Class FacialBeauty</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FacialBeauty</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">calmMakeup</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'定妆粉饼'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">cheekRed</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'腮红'</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="眼部美容"><a href="#眼部美容" class="headerlink" title="眼部美容"></a>眼部美容</h4><p>眼睛是心灵的窗户，拥有一双明眸会让你增色不少</p>
+<ol>
+<li>画眉</li>
+<li>眼影</li>
+<li>眼线</li>
+<li>睫毛膏</li>
+</ol>
+<p>这里还可以加美瞳，因人而异啦吼吼~</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 眼部美容</span></span><br><span class="line"><span class="comment"> * Class EyeBeauty</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EyeBeauty</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">thrush</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'画眉'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">eyeShadow</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'眼影'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">eyeliner</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'眼线'</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">eyelashCream</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'睫毛膏'</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="唇部美容"><a href="#唇部美容" class="headerlink" title="唇部美容"></a>唇部美容</h4><p>在某些男生眼中，判断一个女生是否化妆的标准是 —— 有没有口红….我的兄dei…</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 唇部美容</span></span><br><span class="line"><span class="comment"> * Class LipsBeauty</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LipsBeauty</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">lipstick</span><span class="params">()</span></span>&#123; <span class="keyword">echo</span> <span class="string">'唇彩或唇膏'</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="化妆门面类"><a href="#化妆门面类" class="headerlink" title="化妆门面类"></a>化妆门面类</h2><p>刚刚介绍了化妆的五大模块，把这个五个模块组装在一起，就形成了化妆门面类。当然，你也可以少一些模块，并不强制要求，也不需要严格按照步骤执行。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 化妆门面类</span></span><br><span class="line"><span class="comment"> * Class SecurityFacade</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MakeupFacade</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> $_basicSkinCare;</span><br><span class="line">    <span class="keyword">private</span> $_isolationProtection;</span><br><span class="line">    <span class="keyword">private</span> $_facialBeauty;</span><br><span class="line">    <span class="keyword">private</span> $_eyeBeauty;</span><br><span class="line">    <span class="keyword">private</span> $_lipsBeauty;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_basicSkinCare = <span class="keyword">new</span> BasicSkinCare();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_isolationProtection = <span class="keyword">new</span> IsolationProtection();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_facialBeauty = <span class="keyword">new</span> FacialBeauty();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_eyeBeauty = <span class="keyword">new</span> EyeBeauty();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_lipsBeauty = <span class="keyword">new</span> LipsBeauty();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">start</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_basicSkinCare-&gt;washFace();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_basicSkinCare-&gt;toning();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_basicSkinCare-&gt;eliteFluid();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_basicSkinCare-&gt;emulsion();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;_isolationProtection-&gt;segregationFrost();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_isolationProtection-&gt;liquidFoundation();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;_facialBeauty-&gt;calmMakeup();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_facialBeauty-&gt;cheekRed();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;_eyeBeauty-&gt;thrush();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_eyeBeauty-&gt;eyeShadow();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_eyeBeauty-&gt;eyeliner();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;_eyeBeauty-&gt;eyelashCream();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;_lipsBeauty-&gt;lipstick();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="开始化妆"><a href="#开始化妆" class="headerlink" title="开始化妆"></a>开始化妆</h2><p>一般而言，门面只需要一个对象，所以这里声明为静态变量，下次使用不需要再重新申请。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 客户端</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> $_makeupFacade;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Main program.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">self</span>::$_makeupFacade = <span class="keyword">new</span> MakeupFacade();</span><br><span class="line">        <span class="keyword">self</span>::$_makeupFacade-&gt;start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Client::main();</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2018/03/28/PHP适配器模式之找不到合适的接口/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/04/02/同步和异步、阻塞与非阻塞/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
