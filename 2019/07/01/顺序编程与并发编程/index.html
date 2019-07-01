@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>顺序编程与并发编程 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Swoole,Golang,Node,">
+  
+
+  <meta name="description" content="写在前假设有一个连接数据库添加新表的操作需要耗费的时间为1秒，顺序遍历100个数据库执行加表操作，将需要100秒才能完成，也就是顺序编程。 顺序编程12345678910111213141516171819202122function timeDiff($startTime)&amp;#123;    return microtime(true) - $startTime;&amp;#125;function a">
+<meta name="keywords" content="PHP,Swoole,Golang,Node">
+<meta property="og:type" content="article">
+<meta property="og:title" content="顺序编程与并发编程">
+<meta property="og:url" content="http://funsoul.org/2019/07/01/顺序编程与并发编程/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="写在前假设有一个连接数据库添加新表的操作需要耗费的时间为1秒，顺序遍历100个数据库执行加表操作，将需要100秒才能完成，也就是顺序编程。 顺序编程12345678910111213141516171819202122function timeDiff($startTime)&amp;#123;    return microtime(true) - $startTime;&amp;#125;function a">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/顺序编程与并发编程/单进程单线程（事件循环）.png">
+<meta property="og:image" content="http://funsoul.org/images/顺序编程与并发编程/协程（多进程单线程：swoole4）.png">
+<meta property="og:image" content="http://funsoul.org/images/顺序编程与并发编程/协程（多进程多线程：golang）.jpeg">
+<meta property="og:updated_time" content="2019-07-01T03:18:43.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="顺序编程与并发编程">
+<meta name="twitter:description" content="写在前假设有一个连接数据库添加新表的操作需要耗费的时间为1秒，顺序遍历100个数据库执行加表操作，将需要100秒才能完成，也就是顺序编程。 顺序编程12345678910111213141516171819202122function timeDiff($startTime)&amp;#123;    return microtime(true) - $startTime;&amp;#125;function a">
+<meta name="twitter:image" content="http://funsoul.org/images/顺序编程与并发编程/单进程单线程（事件循环）.png">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#顺序编程"><span class="toc-text">顺序编程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程与线程"><span class="toc-text">进程与线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#多任务处理"><span class="toc-text">多任务处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单进程单线程-事件循环"><span class="toc-text">单进程单线程(事件循环)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多进程单线程"><span class="toc-text">多进程单线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#协程（多进程单线程：swoole4）"><span class="toc-text">协程（多进程单线程：swoole4）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#协程（单进程多线程：golang）"><span class="toc-text">协程（单进程多线程：golang）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-顺序编程与并发编程" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">顺序编程与并发编程</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.07.01</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>假设有一个连接数据库添加新表的操作需要耗费的时间为1秒，顺序遍历100个数据库执行加表操作，将需要100秒才能完成，也就是<strong>顺序编程</strong>。</p>
+<h2 id="顺序编程"><a href="#顺序编程" class="headerlink" title="顺序编程"></a>顺序编程</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">timeDiff</span><span class="params">($startTime)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> microtime(<span class="keyword">true</span>) - $startTime;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addTable</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">/** 模拟耗时 */</span></span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    $startTime = microtime(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ($i = <span class="number">0</span>; $i &lt; <span class="number">100</span>; $i++) &#123;</span><br><span class="line">        addTable();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> timeDiff($startTime) . <span class="string">'s'</span> . PHP_EOL;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 100.25194597244s</span></span><br></pre></td></tr></table></figure>
+<h2 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h2><p>进程是资源分配的最小单位，线程是CPU调度的最小单位。</p>
+<h2 id="多任务处理"><a href="#多任务处理" class="headerlink" title="多任务处理"></a>多任务处理</h2><p>在现代操作系统中，多任务解决方案有很多种（<strong>以下的线程无特别说明均指内核态线程</strong>）：</p>
+<ol>
+<li>单进程单线程(事件循环)</li>
+<li>多进程单线程</li>
+<li>swoole4 协程（多进程单线程）</li>
+<li>golang 协程（单进程多线程）</li>
+</ol>
+<h3 id="单进程单线程-事件循环"><a href="#单进程单线程-事件循环" class="headerlink" title="单进程单线程(事件循环)"></a>单进程单线程(事件循环)</h3><p><img src="/images/顺序编程与并发编程/单进程单线程（事件循环）.png" alt="单进程单线程（事件循环）- 图片引自网络"></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getCurrentDate</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> now = <span class="keyword">new</span> <span class="built_in">Date</span>();</span><br><span class="line">    <span class="keyword">let</span> year = now.getFullYear();</span><br><span class="line">    <span class="keyword">let</span> month = now.getMonth();</span><br><span class="line">    <span class="keyword">let</span> date = now.getDate();</span><br><span class="line">    <span class="keyword">let</span> day = now.getDay();</span><br><span class="line">    <span class="keyword">let</span> hour = now.getHours();</span><br><span class="line">    <span class="keyword">let</span> minu = now.getMinutes();</span><br><span class="line">    <span class="keyword">let</span> sec = now.getSeconds();</span><br><span class="line"></span><br><span class="line">    month = month + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (month &lt; <span class="number">10</span>) month = <span class="string">"0"</span> + month;</span><br><span class="line">    <span class="keyword">if</span> (date &lt; <span class="number">10</span>) date = <span class="string">"0"</span> + date;</span><br><span class="line">    <span class="keyword">if</span> (hour &lt; <span class="number">10</span>) hour = <span class="string">"0"</span> + hour;</span><br><span class="line">    <span class="keyword">if</span> (minu &lt; <span class="number">10</span>) minu = <span class="string">"0"</span> + minu;</span><br><span class="line">    <span class="keyword">if</span> (sec &lt; <span class="number">10</span>) sec = <span class="string">"0"</span> + sec;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> year + <span class="string">"-"</span> + month + <span class="string">"-"</span> + date+ <span class="string">" "</span> + hour + <span class="string">":"</span> + minu + <span class="string">":"</span> + sec;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span> (<span class="params">second</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, second * <span class="number">1000</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addTable</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'finished at '</span> + getCurrentDate());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'start at '</span> + getCurrentDate());</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">        sleep(<span class="number">1</span>).then(<span class="function"><span class="params">()</span> =&gt;</span> addTable());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'end at '</span> + getCurrentDate());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main();</span><br><span class="line"></span><br><span class="line"><span class="comment">// start at 2019-06-30 11:11:17</span></span><br><span class="line"><span class="comment">// end at 2019-06-30 11:11:17</span></span><br><span class="line"><span class="comment">// finished at 2019-06-30 11:11:18</span></span><br><span class="line"><span class="comment">// finished at 2019-06-30 11:11:18</span></span><br><span class="line"><span class="comment">// finished at 2019-06-30 11:11:18</span></span><br><span class="line"><span class="comment">// ..</span></span><br></pre></td></tr></table></figure>
+<h3 id="多进程单线程"><a href="#多进程单线程" class="headerlink" title="多进程单线程"></a>多进程单线程</h3><p>php可以使用PCNTL或者swoole的<a href="https://wiki.swoole.com/wiki/page/p-process.html" target="_blank" rel="noopener">Process模块</a>，通过fork子进程与相关进程间通信方式（管道、FIFO、消息队列..）具体使用方法可以看下<a href="https://github.com/funsoul/funtask" target="_blank" rel="noopener">funtask</a>的demo。</p>
+<h3 id="协程（多进程单线程：swoole4）"><a href="#协程（多进程单线程：swoole4）" class="headerlink" title="协程（多进程单线程：swoole4）"></a>协程（多进程单线程：swoole4）</h3><p><img src="/images/顺序编程与并发编程/协程（多进程单线程：swoole4）.png" alt="协程（多进程单线程：swoole4）- 图片引自网络"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getCurrentDate</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> date(<span class="string">'Y-m-d H:i:s'</span>, time());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addTable</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Co::sleep(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">"coroutine "</span> . Co::getuid() .  <span class="string">" finished at "</span> . getCurrentDate() . PHP_EOL;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">'start at '</span> . getCurrentDate() . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ($i = <span class="number">0</span>; $i &lt; <span class="number">100</span>; $i++) &#123;</span><br><span class="line">    go(<span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">        addTable();</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">'end at '</span> . getCurrentDate() . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="comment">// start at 2019-06-30 11:23:16</span></span><br><span class="line"><span class="comment">// end at 2019-06-30 11:23:16</span></span><br><span class="line"><span class="comment">// coroutine 1 finished at 2019-06-30 11:23:17</span></span><br><span class="line"><span class="comment">// coroutine 2 finished at 2019-06-30 11:23:17</span></span><br><span class="line"><span class="comment">// coroutine 4 finished at 2019-06-30 11:23:17</span></span><br><span class="line"><span class="comment">// coroutine 8 finished at 2019-06-30 11:23:17</span></span><br><span class="line"><span class="comment">// ..</span></span><br></pre></td></tr></table></figure>
+<p>这段程序不能很好的说明这是多进程单线程模型的，之所以说swoole4采用该模型，是把场景放在<code>swoole server</code>下的时候，swoole通过开启<strong>多个worker</strong>的方式来处理请求，而每个worker是单线程（<strong>内核态</strong>），在单线程的基础上使用协程（<strong>用户态</strong>）。</p>
+<h3 id="协程（单进程多线程：golang）"><a href="#协程（单进程多线程：golang）" class="headerlink" title="协程（单进程多线程：golang）"></a>协程（单进程多线程：golang）</h3><p><img src="/images/顺序编程与并发编程/协程（多进程多线程：golang）.jpeg" alt="协程（多进程多线程：golang）- 图片引自网络"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">addTable</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">	fmt.Printf(<span class="string">"goroutine %d finished at %s \n"</span>, i, getCurrentDate())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getCurrentDate</span><span class="params">()</span> <span class="title">time</span>.<span class="title">Time</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> time.Now()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"start at %s \n"</span>, getCurrentDate())</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> addTable(i);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Printf(<span class="string">"end at %s \n"</span>, getCurrentDate())</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// main函数也是一个goroutine，这里是为了让任务的goroutine执行完</span></span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// start at 2019-06-30 19:16:41.905093 +0800 CST m=+0.000270723 </span></span><br><span class="line"><span class="comment">// end at 2019-06-30 19:16:41.905521 +0800 CST m=+0.000699248 </span></span><br><span class="line"><span class="comment">// goroutine 79 finished at 2019-06-30 19:16:42.909839 +0800 CST m=+1.005007866 </span></span><br><span class="line"><span class="comment">// goroutine 27 finished at 2019-06-30 19:16:42.909775 +0800 CST m=+1.004944053 </span></span><br><span class="line"><span class="comment">// goroutine 99 finished at 2019-06-30 19:16:42.909779 +0800 CST m=+1.004948541</span></span><br><span class="line"><span class="comment">// ..</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>PHP的目标一直都是简单为主，php-fpm很受欢迎的一大原因就是多进程单线程模型（没有线程或进程间IPC）、生命周期短暂，写代码不需要手动管理内存，减少心智负担。而多线程一直令人诟病的地方是<strong>data race</strong>（数据竞争），因为线程间通信的方式为<strong>共享变量</strong>，这需要开发者提高警惕，通过加锁等方式来解决。</p>
+<p>本文介绍顺序编程与并发编程，探索在并发编程上各语言在不同模型上的支持度，在选择并发模型前，应该综合考虑业务类型是IO密集还是CPU密集型。前面介绍的几种并发模型中，node的事件循环、swoole4协程、golang协程都适用于IO密集型应用，其中golang的协程还适用于CPU密集型应用，在多核支持上更好。不过swoole4新版本中，引入的<strong>协程抢占式调度</strong>避免<strong>cpu饿死问题</strong>，值得一试！</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="https://book.douban.com/subject/4118577/" target="_blank" rel="noopener">《unix网络编程 卷2》</a></li>
+<li><a href="https://www.cnblogs.com/onepixel/p/7143769.html" target="_blank" rel="noopener">node 时间循环机制</a></li>
+<li><a href="https://wiki.swoole.com/" target="_blank" rel="noopener">swoole wiki</a></li>
+<li><a href="https://segmentfault.com/a/1190000019089997" target="_blank" rel="noopener">swoole 协程</a></li>
+<li><a href="https://segmentfault.com/a/1190000018150987" target="_blank" rel="noopener">golang goroutine理解</a></li>
+</ul>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/04/21/一段诡异的文本（notepad++）/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/07/01/【leetcode】0020.Valid Parentheses/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
