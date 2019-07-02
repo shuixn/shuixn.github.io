@@ -23,10 +23,12 @@
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="安装12345git clone https://github.com/longxinH/xhprof.git ./xhprofcd xhprof/extension//path/to/php7/phpize./configure --with-php-config=/path/to/php7/bin/php-config --enalbe-xhprofmake &amp;amp;&amp;amp; sudo m">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-07-02T09:46:35.295Z">
+<meta property="og:image" content="http://funsoul.org/images/xhprof/check_word_sim_xhprof.png">
+<meta property="og:updated_time" content="2019-07-02T09:50:34.070Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="xhprof性能分析">
 <meta name="twitter:description" content="安装12345git clone https://github.com/longxinH/xhprof.git ./xhprofcd xhprof/extension//path/to/php7/phpize./configure --with-php-config=/path/to/php7/bin/php-config --enalbe-xhprofmake &amp;amp;&amp;amp; sudo m">
+<meta name="twitter:image" content="http://funsoul.org/images/xhprof/check_word_sim_xhprof.png">
 
   
 
@@ -156,7 +158,7 @@ ga('send', 'pageview');
 
   <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图形界面"><span class="toc-text">图形界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用方法"><span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xhprof-配置选项"><span class="toc-text">xhprof 配置选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#倾入性代码（可精确控制想要分析的代码段）"><span class="toc-text">倾入性代码（可精确控制想要分析的代码段）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php代码入口（针对特定项目）"><span class="toc-text">php代码入口（针对特定项目）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fpm"><span class="toc-text">fpm</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx"><span class="toc-text">nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php-ini"><span class="toc-text">php.ini</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#访问"><span class="toc-text">访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用nginx"><span class="toc-text">使用nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用php内置服务器"><span class="toc-text">使用php内置服务器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#性能指标"><span class="toc-text">性能指标</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#图形界面"><span class="toc-text">图形界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用方法"><span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xhprof-配置选项"><span class="toc-text">xhprof 配置选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#倾入性代码（可精确控制想要分析的代码段）"><span class="toc-text">倾入性代码（可精确控制想要分析的代码段）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php代码入口（针对特定项目）"><span class="toc-text">php代码入口（针对特定项目）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fpm"><span class="toc-text">fpm</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx"><span class="toc-text">nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php-ini"><span class="toc-text">php.ini</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#访问"><span class="toc-text">访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用nginx"><span class="toc-text">使用nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用php内置服务器"><span class="toc-text">使用php内置服务器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#性能指标"><span class="toc-text">性能指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Done"><span class="toc-text">Done</span></a></li></ol>
   </div>
 
 
@@ -225,6 +227,7 @@ ga('send', 'pageview');
 <li>Excl. Wall Time(microsec)：函数运行时间（不包括子函数）</li>
 <li>EWall%：函数运行时间（不包括子函数）</li>
 </ul>
+<h2 id="Done"><a href="#Done" class="headerlink" title="Done"></a>Done</h2><p><img src="/images/xhprof/check_word_sim_xhprof.png" alt="check_word_sim_xhprof.png"></p>
 
     
   </div>
