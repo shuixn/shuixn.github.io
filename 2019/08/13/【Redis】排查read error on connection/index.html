@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【Redis】排查 read error on connection 小记 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Redis,TCP/IP,">
+  
+
+  <meta name="description" content="从错误说起版本信息  php-7.1.x phpredis-4.0.x  一个PHP常驻内存进程，连上Redis后，定时做brpop操作，阻塞时间为10s。问题出现在，几天（不定时）后，该进程就会僵死，表现为：  netstat下，php进程与redis建立的客户端连接仍在（ESTABLISHED) 在客户机tcpdump，没有输出任何数据包信息（没有通信？) strace该php进程，并没有输出">
+<meta name="keywords" content="PHP,Redis,TCP&#x2F;IP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Redis】排查 read error on connection 小记">
+<meta property="og:url" content="http://funsoul.org/2019/08/13/【Redis】排查read error on connection/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="从错误说起版本信息  php-7.1.x phpredis-4.0.x  一个PHP常驻内存进程，连上Redis后，定时做brpop操作，阻塞时间为10s。问题出现在，几天（不定时）后，该进程就会僵死，表现为：  netstat下，php进程与redis建立的客户端连接仍在（ESTABLISHED) 在客户机tcpdump，没有输出任何数据包信息（没有通信？) strace该php进程，并没有输出">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-08-21T10:00:28.668Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Redis】排查 read error on connection 小记">
+<meta name="twitter:description" content="从错误说起版本信息  php-7.1.x phpredis-4.0.x  一个PHP常驻内存进程，连上Redis后，定时做brpop操作，阻塞时间为10s。问题出现在，几天（不定时）后，该进程就会僵死，表现为：  netstat下，php进程与redis建立的客户端连接仍在（ESTABLISHED) 在客户机tcpdump，没有输出任何数据包信息（没有通信？) strace该php进程，并没有输出">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从错误说起"><span class="toc-text">从错误说起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis客户端连接为何不断？"><span class="toc-text">phpredis客户端连接为何不断？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#connect-函数参数-timeout"><span class="toc-text">connect 函数参数 timeout</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#default-socket-timeout"><span class="toc-text">default_socket_timeout</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OPT-READ-TIMEOUT"><span class="toc-text">OPT_READ_TIMEOUT</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pconnect的原理是什么？"><span class="toc-text">pconnect的原理是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#redis-server为什么会移除client？"><span class="toc-text">redis-server为什么会移除client？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#模拟tcp-keepalive"><span class="toc-text">模拟tcp keepalive</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开始通信"><span class="toc-text">开始通信</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用docker重现问题"><span class="toc-text">使用docker重现问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-compose建立本地网络"><span class="toc-text">docker-compose建立本地网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#断开服务端容器的网络"><span class="toc-text">断开服务端容器的网络</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#phpredis客户端"><span class="toc-text">phpredis客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网络恢复？"><span class="toc-text">网络恢复？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#docker模拟"><span class="toc-text">docker模拟</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案：忙连接"><span class="toc-text">解决方案：忙连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#系统与网络情况"><span class="toc-text">系统与网络情况</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OPT-TCP-KEEPALIVE-到底是什么？怎么用？"><span class="toc-text">OPT_TCP_KEEPALIVE 到底是什么？怎么用？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#docker模拟-1"><span class="toc-text">docker模拟</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#代码-1"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#非debug模式"><span class="toc-text">非debug模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#debug模式"><span class="toc-text">debug模式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#疑问"><span class="toc-text">疑问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置系统默认TCP-KEEPALIVE各参数值"><span class="toc-text">设置系统默认TCP_KEEPALIVE各参数值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#更简单的方案"><span class="toc-text">更简单的方案?</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【Redis】排查read error on connection" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【Redis】排查 read error on connection 小记</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.08.13</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="从错误说起"><a href="#从错误说起" class="headerlink" title="从错误说起"></a>从错误说起</h2><p>版本信息</p>
+<ul>
+<li>php-7.1.x</li>
+<li><a href="https://github.com/phpredis/phpredis/tree/4.0.2" target="_blank" rel="noopener">phpredis-4.0.x</a></li>
+</ul>
+<p>一个<code>PHP常驻内存进程</code>，连上<code>Redis</code>后，定时做<code>brpop</code>操作，阻塞时间为<code>10s</code>。问题出现在，几天（不定时）后，该进程就会<br><code>僵死</code>，表现为：</p>
+<ol>
+<li><code>netstat</code>下，php进程与redis建立的客户端连接仍在（ESTABLISHED)</li>
+<li>在客户机<code>tcpdump</code>，没有输出任何数据包信息（没有通信？)</li>
+<li><code>strace</code>该php进程，并没有输出任何系统调用（阻塞在哪了？）</li>
+<li>查看redis-server，发现<code>client list</code>中，并不存在该client（被移除了？）</li>
+</ol>
+<h2 id="phpredis客户端连接为何不断？"><a href="#phpredis客户端连接为何不断？" class="headerlink" title="phpredis客户端连接为何不断？"></a>phpredis客户端连接为何不断？</h2><p>关于phpredis连接，有下面几个地方需要理解清楚</p>
+<ol>
+<li>connect() 函数参数 timeout 为 0</li>
+<li>ini_set(‘default_socket_timeout’, -1)</li>
+<li>setOption(\Redis::OPT_READ_TIMEOUT, -1)</li>
+<li>pconnect</li>
+</ol>
+<h3 id="connect-函数参数-timeout"><a href="#connect-函数参数-timeout" class="headerlink" title="connect 函数参数 timeout"></a>connect 函数参数 timeout</h3><p>参数：</p>
+<ul>
+<li><em>host</em>: string. can be a host, or the path to a unix domain socket. Starting from version 5.0.0 it is possible to specify schema </li>
+<li><em>port</em>: int, optional  </li>
+<li><em>timeout</em>: float, value in seconds (optional, default is 0 meaning unlimited)  </li>
+<li><em>reserved</em>: should be NULL if retry_interval is specified  </li>
+<li><em>retry_interval</em>: int, value in milliseconds (optional)  </li>
+<li><em>read_timeout</em>: float, value in seconds (optional, default is 0 meaning unlimited)</li>
+</ul>
+<p>这里的<code>timeout</code>表示<code>建立连接</code>时的超时时间，调用此函数时，客户端将与服务端进行三次握手，建立TCP连接。由于网络原因，可以指定一个超时时间，意思是，如果客户端和服务端在该<code>时间限制</code>内未能建立连接，则返回false</p>
+<p>文件：redis.c 行：935</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PHP_METHOD(Redis, connect)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (redis_connect(INTERNAL_FUNCTION_PARAM_PASSTHRU, <span class="number">0</span>) == FAILURE) &#123;</span><br><span class="line">        RETURN_FALSE;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        RETURN_TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，redis_connect的函数原型为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PHP_REDIS_API <span class="keyword">int</span> <span class="title">redis_connect</span><span class="params">(INTERNAL_FUNCTION_PARAMETERS, <span class="keyword">int</span> persistent)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>persistent 为 <code>0</code> 表示不建立<code>持久连接</code>，下面会聊到<code>等于 1</code>的情况。说明<code>connect</code>函数建立的是<code>短连接</code>，当调用<code>close</code>函数时，连接就会关闭。看下面的源码确实如此，如果在建立连接前已经存在另一个连接，则关闭。</p>
+<p>文件：redis.c 行：1011</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">redis = PHPREDIS_GET_OBJECT(redis_object, object);</span><br><span class="line"><span class="comment">/* if there is a redis sock already we have to remove it */</span></span><br><span class="line"><span class="keyword">if</span> (redis-&gt;sock) &#123;</span><br><span class="line">    redis_sock_disconnect(redis-&gt;sock, <span class="number">0</span>);</span><br><span class="line">    redis_free_socket(redis-&gt;sock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="default-socket-timeout"><a href="#default-socket-timeout" class="headerlink" title="default_socket_timeout"></a>default_socket_timeout</h3><p>这个配置可以在php.ini找到，文档注释很简单：<code>基于 socket 的流的默认超时时间（秒）</code></p>
+<p>redis是基于<code>tcp协议</code>的程序，所以这个配置也会对其造成影响。比如<code>read error on connection</code>错误，这是phpredis在执行get、brpop等操作时，如果在<code>default_socket_timeout</code>时间内不返回结果就会报这个错误。php.ini中默认为<code>60s</code>。可以在程序中使用内置函数<code>ini_set</code>在运行时修改。</p>
+<h3 id="OPT-READ-TIMEOUT"><a href="#OPT-READ-TIMEOUT" class="headerlink" title="OPT_READ_TIMEOUT"></a>OPT_READ_TIMEOUT</h3><p>phpredis版本的“default_socket_timeout”，通过这个值，一样可以达到同样的效果。那么如果同时设置了<code>default_socket_timeout</code>和<code>OPT_READ_TIMEOUT</code>，优先级是怎样的？</p>
+<p>实测发现，<strong>如果同时存在两个配置，优先使用<code>OPT_READ_TIMEOUT</code>的配置</strong>，这样是合理的。</p>
+<p>文件：redis_commands.c 行：3980</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> REDIS_OPT_READ_TIMEOUT:</span><br><span class="line">    redis_sock-&gt;read_timeout = zval_get_double(val);</span><br><span class="line">    <span class="keyword">if</span> (redis_sock-&gt;stream) &#123;</span><br><span class="line">        read_tv.tv_sec  = (<span class="keyword">time_t</span>)redis_sock-&gt;read_timeout;</span><br><span class="line">        read_tv.tv_usec = (<span class="keyword">int</span>)((redis_sock-&gt;read_timeout -</span><br><span class="line">                                    read_tv.tv_sec) * <span class="number">1000000</span>);</span><br><span class="line">        php_stream_set_option(redis_sock-&gt;stream,</span><br><span class="line">                                PHP_STREAM_OPTION_READ_TIMEOUT, <span class="number">0</span>,</span><br><span class="line">                                &amp;read_tv);</span><br><span class="line">    &#125;</span><br><span class="line">    RETURN_TRUE;</span><br></pre></td></tr></table></figure>
+<h2 id="pconnect的原理是什么？"><a href="#pconnect的原理是什么？" class="headerlink" title="pconnect的原理是什么？"></a>pconnect的原理是什么？</h2><p>文件：redis.c 行：947</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">PHP_METHOD(Redis, pconnect)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (redis_connect(INTERNAL_FUNCTION_PARAM_PASSTHRU, <span class="number">1</span>) == FAILURE) &#123;</span><br><span class="line">        RETURN_FALSE;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        RETURN_TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>建立连接时，先到<code>连接池</code>获取连接（最后一个），并移除最后一个连接实例。如果连接是活跃的（PHP_STREAM_OPTION_CHECK_LIVENESS），则直接返回。如果连接已失效，则建立新的连接。</p>
+<p>文件：library.c 行：1828</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (redis_sock-&gt;persistent) &#123;</span><br><span class="line">    <span class="keyword">if</span> (INI_INT(<span class="string">"redis.pconnect.pooling_enabled"</span>)) &#123;</span><br><span class="line">        p = redis_sock_get_connection_pool(redis_sock);</span><br><span class="line">        <span class="keyword">if</span> (zend_llist_count(&amp;p-&gt;<span class="built_in">list</span>) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            redis_sock-&gt;stream = *(php_stream **)zend_llist_get_last(&amp;p-&gt;<span class="built_in">list</span>);</span><br><span class="line">            zend_llist_remove_tail(&amp;p-&gt;<span class="built_in">list</span>);</span><br><span class="line">            <span class="comment">/* Check socket liveness using 0 second timeout */</span></span><br><span class="line">            <span class="keyword">if</span> (php_stream_set_option(redis_sock-&gt;stream, PHP_STREAM_OPTION_CHECK_LIVENESS, <span class="number">0</span>, <span class="literal">NULL</span>) == PHP_STREAM_OPTION_RETURN_OK) &#123;</span><br><span class="line">                redis_sock-&gt;status = REDIS_SOCK_STATUS_CONNECTED;</span><br><span class="line">                <span class="keyword">return</span> SUCCESS;</span><br><span class="line">            &#125;</span><br><span class="line">            php_stream_pclose(redis_sock-&gt;stream);</span><br><span class="line">            p-&gt;nb_active--;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> limit = INI_INT(<span class="string">"redis.pconnect.connection_limit"</span>);</span><br><span class="line">        <span class="keyword">if</span> (limit &gt; <span class="number">0</span> &amp;&amp; p-&gt;nb_active &gt;= limit) &#123;</span><br><span class="line">            redis_sock_set_err(redis_sock, <span class="string">"Connection limit reached"</span>, <span class="keyword">sizeof</span>(<span class="string">"Connection limit reached"</span>) - <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">return</span> FAILURE;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        gettimeofday(&amp;tv, <span class="literal">NULL</span>);</span><br><span class="line">        persistent_id = strpprintf(<span class="number">0</span>, <span class="string">"phpredis_%ld%ld"</span>, tv.tv_sec, tv.tv_usec);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (redis_sock-&gt;persistent_id) &#123;</span><br><span class="line">            persistent_id = strpprintf(<span class="number">0</span>, <span class="string">"phpredis:%s:%s"</span>, host, ZSTR_VAL(redis_sock-&gt;persistent_id));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            persistent_id = strpprintf(<span class="number">0</span>, <span class="string">"phpredis:%s:%f"</span>, host, redis_sock-&gt;timeout);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    tv.tv_sec  = (<span class="keyword">time_t</span>)redis_sock-&gt;timeout;</span><br><span class="line">    tv.tv_usec = (<span class="keyword">int</span>)((redis_sock-&gt;timeout - tv.tv_sec) * <span class="number">1000000</span>);</span><br><span class="line">    <span class="keyword">if</span> (tv.tv_sec != <span class="number">0</span> || tv.tv_usec != <span class="number">0</span>) &#123;</span><br><span class="line">        tv_ptr = &amp;tv;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    redis_sock-&gt;stream = php_stream_xport_create(host, host_len,</span><br><span class="line">        <span class="number">0</span>, STREAM_XPORT_CLIENT | STREAM_XPORT_CONNECT,</span><br><span class="line">        persistent_id ? ZSTR_VAL(persistent_id) : <span class="literal">NULL</span>,</span><br><span class="line">        tv_ptr, <span class="literal">NULL</span>, &amp;estr, &amp;err);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (persistent_id) &#123;</span><br><span class="line">        zend_string_release(persistent_id);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!redis_sock-&gt;stream) &#123;</span><br><span class="line">        <span class="keyword">if</span> (estr) &#123;</span><br><span class="line">            redis_sock_set_err(redis_sock, ZSTR_VAL(estr), ZSTR_LEN(estr));</span><br><span class="line">            zend_string_release(estr);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (p) p-&gt;nb_active++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Attempt to set TCP_NODELAY/TCP_KEEPALIVE if we're not using a unix socket. */</span></span><br><span class="line">    <span class="keyword">if</span> (!usocket) &#123;</span><br><span class="line">        <span class="keyword">php_netstream_data_t</span> *sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">        err = setsockopt(sock-&gt;socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span>*) &amp;tcp_flag, <span class="keyword">sizeof</span>(tcp_flag));</span><br><span class="line">        PHPREDIS_NOTUSED(err);</span><br><span class="line">        err = setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*) &amp;redis_sock-&gt;tcp_keepalive, <span class="keyword">sizeof</span>(redis_sock-&gt;tcp_keepalive));</span><br><span class="line">        PHPREDIS_NOTUSED(err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    php_stream_auto_cleanup(redis_sock-&gt;stream);</span><br><span class="line"></span><br><span class="line">    read_tv.tv_sec  = (<span class="keyword">time_t</span>)redis_sock-&gt;read_timeout;</span><br><span class="line">    read_tv.tv_usec = (<span class="keyword">int</span>)((redis_sock-&gt;read_timeout - read_tv.tv_sec) * <span class="number">1000000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (read_tv.tv_sec != <span class="number">0</span> || read_tv.tv_usec != <span class="number">0</span>) &#123;</span><br><span class="line">        php_stream_set_option(redis_sock-&gt;stream,PHP_STREAM_OPTION_READ_TIMEOUT,</span><br><span class="line">            <span class="number">0</span>, &amp;read_tv);</span><br><span class="line">    &#125;</span><br><span class="line">    php_stream_set_option(redis_sock-&gt;stream,</span><br><span class="line">        PHP_STREAM_OPTION_WRITE_BUFFER, PHP_STREAM_BUFFER_NONE, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    redis_sock-&gt;status = REDIS_SOCK_STATUS_CONNECTED;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重点来了，注意看上面代码中这一段，先卖个关子，后面聊<code>tcp_keepalive</code>的时候会着重分析</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Attempt to set TCP_NODELAY/TCP_KEEPALIVE if we're not using a unix socket. */</span></span><br><span class="line"><span class="keyword">if</span> (!usocket) &#123;</span><br><span class="line">    <span class="keyword">php_netstream_data_t</span> *sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">    err = setsockopt(sock-&gt;socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span>*) &amp;tcp_flag, <span class="keyword">sizeof</span>(tcp_flag));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">    err = setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*) &amp;redis_sock-&gt;tcp_keepalive, <span class="keyword">sizeof</span>(redis_sock-&gt;tcp_keepalive));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="redis-server为什么会移除client？"><a href="#redis-server为什么会移除client？" class="headerlink" title="redis-server为什么会移除client？"></a>redis-server为什么会移除client？</h2><p>先回顾一下TCP协议是怎么<code>keepalive</code>（保活）的。</p>
+<h3 id="模拟tcp-keepalive"><a href="#模拟tcp-keepalive" class="headerlink" title="模拟tcp keepalive"></a>模拟tcp keepalive</h3><ul>
+<li>服务端：nc</li>
+<li>客户端：<a href="https://github.com/cyberelf/netcat-keepalive" target="_blank" rel="noopener">netcat-keepalive</a></li>
+</ul>
+<h3 id="开始通信"><a href="#开始通信" class="headerlink" title="开始通信"></a>开始通信</h3><p>开启一个TCP服务端</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lp 9999</span><br></pre></td></tr></table></figure>
+<p>启动一个客户端，连接服务端</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./nckl-linux -K -O 15 -I 5 -P 5 127.0.0.1 9999</span><br></pre></td></tr></table></figure>
+<p>netcat-keepalive的使用参数</p>
+<ul>
+<li>-K Turn on TCP Keepalive</li>
+<li>-O secs TCP keepalive timeout</li>
+<li>-I secs TCP keepalive interval</li>
+<li>-P count TCP keepalive probe count</li>
+</ul>
+<p>如果不设置，默认为<code>系统的默认配置</code>，如linux下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -a | grep keepalive</span><br></pre></td></tr></table></figure>
+<ul>
+<li>net.ipv4.tcp_keepalive_time = 7200</li>
+<li>net.ipv4.tcp_keepalive_probes = 9</li>
+<li>net.ipv4.tcp_keepalive_intvl = 75</li>
+</ul>
+<p>使用tcpdump查看发包情况</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">24.852471</span> IP localhost.<span class="number">45698</span> &gt; localhost.<span class="number">9999</span>: Flags [S], seq <span class="number">253066745</span>, win <span class="number">43690</span>, <span class="keyword">options</span> [mss <span class="number">65495</span>,sackOK,TS val <span class="number">23438901</span> ecr <span class="number">0</span>,nop,wscale <span class="number">7</span>], length <span class="number">0</span></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">24.852510</span> IP localhost.<span class="number">9999</span> &gt; localhost.<span class="number">45698</span>: Flags [S.], seq <span class="number">2889588682</span>, ack <span class="number">253066746</span>, win <span class="number">43690</span>, <span class="keyword">options</span> [mss <span class="number">65495</span>,sackOK,TS val <span class="number">23438901</span> ecr <span class="number">23438901</span>,nop,wscale <span class="number">7</span>], length <span class="number">0</span></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">24.852542</span> IP localhost.<span class="number">45698</span> &gt; localhost.<span class="number">9999</span>: Flags [.], ack <span class="number">1</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23438901</span> ecr <span class="number">23438901</span>], length <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">32.933719</span> IP localhost.<span class="number">45698</span> &gt; localhost.<span class="number">9999</span>: Flags [<span class="keyword">P</span>.], seq <span class="number">1</span>:<span class="number">3</span>, ack <span class="number">1</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23439709</span> ecr <span class="number">23438901</span>], length <span class="number">2</span></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">32.933814</span> IP localhost.<span class="number">9999</span> &gt; localhost.<span class="number">45698</span>: Flags [.], ack <span class="number">3</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23439709</span> ecr <span class="number">23439709</span>], length <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">47.962915</span> IP localhost.<span class="number">45698</span> &gt; localhost.<span class="number">9999</span>: Flags [.], ack <span class="number">1</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23441216</span> ecr <span class="number">23439709</span>], length <span class="number">0</span></span><br><span class="line"><span class="number">18</span>:<span class="number">15</span>:<span class="number">47.962992</span> IP localhost.<span class="number">9999</span> &gt; localhost.<span class="number">45698</span>: Flags [.], ack <span class="number">3</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23441216</span> ecr <span class="number">23439709</span>], length <span class="number">0</span></span><br><span class="line"><span class="number">18</span>:<span class="number">16</span>:<span class="number">03.321743</span> IP localhost.<span class="number">45698</span> &gt; localhost.<span class="number">9999</span>: Flags [.], ack <span class="number">1</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23442752</span> ecr <span class="number">23441216</span>], length <span class="number">0</span></span><br><span class="line"><span class="number">18</span>:<span class="number">16</span>:<span class="number">03.321802</span> IP localhost.<span class="number">9999</span> &gt; localhost.<span class="number">45698</span>: Flags [.], ack <span class="number">3</span>, win <span class="number">342</span>, <span class="keyword">options</span> [nop,nop,TS val <span class="number">23442752</span> ecr <span class="number">23439709</span>], length <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>分三段来看，</p>
+<ul>
+<li>第一段：三次握手，建立连接</li>
+<li>第二段：客户端发包，服务端应答（这里是我在客户端发了一个数字1）</li>
+<li>第三段：每隔15秒发一个<code>keepalive</code>包</li>
+</ul>
+<h2 id="使用docker重现问题"><a href="#使用docker重现问题" class="headerlink" title="使用docker重现问题"></a>使用docker重现问题</h2><h3 id="docker-compose建立本地网络"><a href="#docker-compose建立本地网络" class="headerlink" title="docker-compose建立本地网络"></a>docker-compose建立本地网络</h3><h3 id="断开服务端容器的网络"><a href="#断开服务端容器的网络" class="headerlink" title="断开服务端容器的网络"></a>断开服务端容器的网络</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network disconnect docker_network docker_redis</span><br></pre></td></tr></table></figure>
+<h3 id="phpredis客户端"><a href="#phpredis客户端" class="headerlink" title="phpredis客户端"></a>phpredis客户端</h3><p>这里出现了两种情况，分别是「已发完PSH包」和「正在发PSH包」</p>
+<ol>
+<li>已发完PSH包，过一段时间，然后连续发几次<code>FIN_WAIT1</code>包，最后断开与服务端的单边连接</li>
+<li>正在发PSH包，不断重试，重试几次后，如果没有得到服务端的确认，直接发一个F包，然后断开与服务端的单边连接</li>
+</ol>
+<p>无论是哪一种情况，当客户端主动断开与服务端的连接时，都会返回一个异常 —— <code>read error on connection</code>，这是可以捕获的。但是，如果在执行<code>brpop</code>操作，当断开后，的确会返回该异常，然而，下一次再执行<code>brpop</code>的时候，就不走网络了，因为连接已经断开，所以redis客户端会直接返回<code>false</code>。</p>
+<h3 id="网络恢复？"><a href="#网络恢复？" class="headerlink" title="网络恢复？"></a>网络恢复？</h3><h4 id="docker模拟"><a href="#docker模拟" class="headerlink" title="docker模拟"></a>docker模拟</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network connect docker_network docker_redis</span><br></pre></td></tr></table></figure>
+<p>网络恢复的时机也分为两种情况，分别对应断开的时机</p>
+<ol>
+<li>已发完PSH包，此时网络中断，客户端等待1分钟，然后开始发F包。这时，网络恢复了！</li>
+<li>正在发PSH包，此时网络中断，客户端不断重试，在重试结束前，网络恢复了！</li>
+</ol>
+<p>第一种情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">16:50:53.555004 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885306 ecr 19879304], length 0</span><br><span class="line">16:50:53.774621 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885328 ecr 19879304], length 0</span><br><span class="line">16:50:53.995675 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885350 ecr 19879304], length 0</span><br><span class="line">16:50:54.425041 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885393 ecr 19879304], length 0</span><br><span class="line">16:50:55.296710 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885480 ecr 19879304], length 0</span><br><span class="line">16:50:57.055424 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19885656 ecr 19879304], length 0</span><br><span class="line">16:51:00.495806 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 155, ack 21, win 229, options [nop,nop,TS val 19886000 ecr 19879304], length 0</span><br><span class="line">16:51:00.496113 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38658: Flags [P.], seq 21:26, ack 156, win 227, options [nop,nop,TS val 19886000 ecr 19886000], length 5: RESP null</span><br><span class="line">16:51:00.496207 IP 2388ad577c4b.38658 &gt; web_docker_redis.web_docker_web_network.6379: Flags [R], seq 721889775, win 0, length 0</span><br></pre></td></tr></table></figure>
+<p><strong>因为客户端已经发了F包，就算这时候网络恢复了，也会断开连接，最终结果为，客户端异常</strong></p>
+<p>第二种情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">16:59:45.126281 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 123:155, ack 21, win 229, options [nop,nop,TS val 19938525 ecr 19938424], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:45.126422 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [.], ack 155, win 227, options [nop,nop,TS val 19938525 ecr 19938525], length 0</span><br><span class="line">16:59:48.191229 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [P.], seq 21:26, ack 155, win 227, options [nop,nop,TS val 19938831 ecr 19938525], length 5: RESP null</span><br><span class="line">16:59:48.191365 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [.], ack 26, win 229, options [nop,nop,TS val 19938831 ecr 19938831], length 0</span><br><span class="line">16:59:49.196785 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 155:187, ack 26, win 229, options [nop,nop,TS val 19938932 ecr 19938831], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:49.196919 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [.], ack 187, win 227, options [nop,nop,TS val 19938932 ecr 19938932], length 0</span><br><span class="line">16:59:52.276131 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [P.], seq 26:31, ack 187, win 227, options [nop,nop,TS val 19939240 ecr 19938932], length 5: RESP null</span><br><span class="line">16:59:52.276197 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [.], ack 31, win 229, options [nop,nop,TS val 19939240 ecr 19939240], length 0</span><br><span class="line">16:59:53.156963 IP 2388ad577c4b.38662 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 219, ack 31, win 229, options [nop,nop,TS val 19939328 ecr 19930202], length 0</span><br><span class="line">16:59:53.279121 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939340 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:53.496082 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939362 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:53.715753 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939384 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:54.147245 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939427 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:54.997751 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939512 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">16:59:56.756647 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19939688 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">17:00:00.197701 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19940032 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">17:00:07.238143 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19940736 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">17:00:21.282035 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19942144 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">17:00:48.768290 IP 2388ad577c4b.38666 &gt; web_docker_redis.web_docker_web_network.6379: Flags [P.], seq 187:219, ack 31, win 229, options [nop,nop,TS val 19944896 ecr 19939240], length 32: RESP <span class="string">"BRPOP"</span> <span class="string">"test"</span> <span class="string">"3"</span></span><br><span class="line">17:00:48.768815 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [.], ack 219, win 227, options [nop,nop,TS val 19944896 ecr 19944896], length 0</span><br><span class="line">17:00:51.830821 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38666: Flags [P.], seq 31:36, ack 219, win 227, options [nop,nop,TS val 19945202 ecr 19944896], length 5: RESP null</span><br></pre></td></tr></table></figure>
+<p><strong>在客户端重试发PSH包的时候，网络恢复了，连接还在，服务端也会继续返回结果，客户端不再阻塞，继续运行</strong></p>
+<h2 id="解决方案：忙连接"><a href="#解决方案：忙连接" class="headerlink" title="解决方案：忙连接"></a>解决方案：忙连接</h2><ol>
+<li>设置connect函数的timeout为10s</li>
+<li>在客户端断开连接并报异常<code>read error on connection</code>时，进行异常捕获，开启一个阻塞循环，不断的重连redis，只有连接成功后才返回</li>
+</ol>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PopData</span> </span>&#123;</span><br><span class="line">    <span class="comment">/** <span class="doctag">@var</span> Redis */</span></span><br><span class="line">    <span class="keyword">private</span> $redis = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">start</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;newRedis();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            $data = <span class="keyword">$this</span>-&gt;popData();</span><br><span class="line">            var_dump([<span class="string">'data'</span> =&gt; $data, <span class="string">'time'</span> =&gt; date(<span class="string">'Y-m-d H:i:s'</span>, time())]);</span><br><span class="line">            sleep(<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 连接Redis</span></span><br><span class="line"><span class="comment">     */</span> </span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">newRedis</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;redis = <span class="keyword">new</span> \Redis();</span><br><span class="line">        <span class="keyword">$this</span>-&gt;redis-&gt;connect(<span class="string">'192.168.48.4'</span>, <span class="number">6379</span>, <span class="number">3</span>);</span><br><span class="line">        <span class="keyword">$this</span>-&gt;redis-&gt;auth(<span class="number">123456</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * brpop</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> array</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">popData</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 发完Fin包后，直接从redis返回，不走网络请求。这里已经结束socket连接了，所以，即使网络情况好了也不会重连</span></span><br><span class="line">            $data = <span class="keyword">$this</span>-&gt;redis-&gt;brPop([<span class="string">'test'</span>], <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> $data;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (\<span class="keyword">Exception</span> $e) &#123;</span><br><span class="line">            <span class="comment">// 只打印了一次</span></span><br><span class="line">            var_dump( $e-&gt;getMessage() );</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 进入重连逻辑</span></span><br><span class="line">            <span class="keyword">$this</span>-&gt;reconnect();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 重连成功，返回结果</span></span><br><span class="line">            <span class="keyword">return</span> [];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 重连redis</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">reconnect</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        $isLostConnect = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">while</span>($isLostConnect) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;newRedis();</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 重连成功</span></span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;redis-&gt;ping() === <span class="string">'+PONG'</span>) &#123;</span><br><span class="line">                    $isLostConnect = <span class="keyword">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (\<span class="keyword">Exception</span> $e) &#123;</span><br><span class="line">                var_dump($e-&gt;getMessage());</span><br><span class="line"></span><br><span class="line">                sleep(<span class="number">3</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="系统与网络情况"><a href="#系统与网络情况" class="headerlink" title="系统与网络情况"></a>系统与网络情况</h3><p>tcpdump看下，在定时重连期间，客户端的发包情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">7:33:18.326086 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140076 ecr 20134070], length 0</span><br><span class="line">17:33:18.326556 IP 2388ad577c4b.38702 &gt; web_docker_redis.web_docker_web_network.6379: Flags [S], seq 3300121440, win 29200, options [mss 1460,sackOK,TS val 20140076 ecr 0,nop,wscale 7], length 0</span><br><span class="line">17:33:18.544393 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140098 ecr 20134070], length 0</span><br><span class="line">17:33:18.767654 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140120 ecr 20134070], length 0</span><br><span class="line">17:33:19.194564 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140163 ecr 20134070], length 0</span><br><span class="line">17:33:19.404336 IP 2388ad577c4b.38702 &gt; web_docker_redis.web_docker_web_network.6379: Flags [S], seq 3300121440, win 29200, options [mss 1460,sackOK,TS val 20140184 ecr 0,nop,wscale 7], length 0</span><br><span class="line">17:33:20.044337 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140248 ecr 20134070], length 0</span><br><span class="line">17:33:21.807982 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140424 ecr 20134070], length 0</span><br><span class="line">17:33:24.329065 IP 2388ad577c4b.38704 &gt; web_docker_redis.web_docker_web_network.6379: Flags [S], seq 717381143, win 29200, options [mss 1460,sackOK,TS val 20140676 ecr 0,nop,wscale 7], length 0</span><br><span class="line">17:33:25.255734 IP 2388ad577c4b.38700 &gt; web_docker_redis.web_docker_web_network.6379: Flags [F.], seq 91, ack 11, win 229, options [nop,nop,TS val 20140769 ecr 20134070], length 0</span><br><span class="line">17:33:25.403884 IP 2388ad577c4b.38704 &gt; web_docker_redis.web_docker_web_network.6379: Flags [S], seq 717381143, win 29200, options [mss 1460,sackOK,TS val 20140784 ecr 0,nop,wscale 7], length 0</span><br><span class="line">17:34:59.783849 IP 2388ad577c4b.38738 &gt; web_docker_redis.web_docker_web_network.6379: Flags [S], seq 1730851263, win 29200, options [mss 1460,sackOK,TS val 20150126 ecr 0,nop,wscale 7], length 0</span><br><span class="line">17:34:59.784023 IP web_docker_redis.web_docker_web_network.6379 &gt; 2388ad577c4b.38738: Flags [S.], seq 1414026707, ack 1730851264, win 28960, options [mss 1460,sackOK,TS val 20150232 ecr 20150126,nop,wscale 7], length 0</span><br></pre></td></tr></table></figure>
+<p>可以发现，有两个线程正在疯狂的“试探”，一个想要结束，一个想要连接。</p>
+<p>netstat看下，在定时重连期间，客户端的连接状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tcp        0      1 192.168.48.5:38700      192.168.48.4:6379       FIN_WAIT1   -</span><br><span class="line">tcp        0      1 192.168.48.5:38728      192.168.48.4:6379       SYN_SENT    682/php</span><br></pre></td></tr></table></figure>
+<p>由于“连接线程”是通过<code>new Redis</code>来实现的，所以端口会一直变化。</p>
+<h2 id="OPT-TCP-KEEPALIVE-到底是什么？怎么用？"><a href="#OPT-TCP-KEEPALIVE-到底是什么？怎么用？" class="headerlink" title="OPT_TCP_KEEPALIVE 到底是什么？怎么用？"></a>OPT_TCP_KEEPALIVE 到底是什么？怎么用？</h2><p>在官方文档中，根本找不到这个选项的说明。查看源码发现，phpredis在建立连接时，<code>tcp_keepalive</code>参数默认为 <code>0</code></p>
+<p>文件：library.c 行：1783</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis_sock-&gt;tcp_keepalive = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>可以通过函数<code>setOption</code>来设置<code>tcp_keepalive</code>的值</p>
+<p>文件：redis_commands.c 行：3991</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> REDIS_OPT_TCP_KEEPALIVE:</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Don't set TCP_KEEPALIVE if we're using a unix socket. */</span></span><br><span class="line">    <span class="keyword">if</span> (ZSTR_VAL(redis_sock-&gt;host)[<span class="number">0</span>] == <span class="string">'/'</span> &amp;&amp; redis_sock-&gt;port &lt; <span class="number">1</span>) &#123;</span><br><span class="line">        RETURN_FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    tcp_keepalive = zval_get_long(val) &gt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (redis_sock-&gt;tcp_keepalive == tcp_keepalive) &#123;</span><br><span class="line">        RETURN_TRUE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (redis_sock-&gt;stream) &#123;</span><br><span class="line">        <span class="comment">/* set TCP_KEEPALIVE */</span></span><br><span class="line">        sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">        <span class="keyword">if</span> (setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*)&amp;tcp_keepalive,</span><br><span class="line">                    <span class="keyword">sizeof</span>(tcp_keepalive)) == <span class="number">-1</span>) &#123;</span><br><span class="line">            RETURN_FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        redis_sock-&gt;tcp_keepalive = tcp_keepalive;</span><br><span class="line">    &#125;</span><br><span class="line">    RETURN_TRUE;</span><br></pre></td></tr></table></figure>
+<p>刚刚谈pconnect的时候，聊到下面这个地方，现在着重看看</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Attempt to set TCP_NODELAY/TCP_KEEPALIVE if we're not using a unix socket. */</span></span><br><span class="line"><span class="keyword">if</span> (!usocket) &#123;</span><br><span class="line">    <span class="keyword">php_netstream_data_t</span> *sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">    err = setsockopt(sock-&gt;socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span>*) &amp;tcp_flag, <span class="keyword">sizeof</span>(tcp_flag));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">    err = setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*) &amp;redis_sock-&gt;tcp_keepalive, <span class="keyword">sizeof</span>(redis_sock-&gt;tcp_keepalive));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在连接的时候，会通过判断<code>host</code>来看是否开启<code>TCP_KEEPALIVE</code>，前面在说connect函数的时候了解到，host由下面几种：</p>
+<p><em>host</em>: string. can be </p>
+<ul>
+<li>a host（ip/域名）</li>
+<li>or the path to a unix domain socket. （本地域socket）</li>
+<li>Starting from version 5.0.0 it is possible to specify schema</li>
+</ul>
+<p>我把这句话拆开来看会比较清晰，上面这段代码中可以看到，如果是<code>unix domain socket</code>，则不会启用<code>TCP_KEEPALIVE</code>。然而，在<code>connect</code>阶段，根本没有这个配置项，也就是说，真正设置该配置的地方在别处..</p>
+<h3 id="docker模拟-1"><a href="#docker模拟-1" class="headerlink" title="docker模拟"></a>docker模拟</h3><h4 id="代码-1"><a href="#代码-1" class="headerlink" title="代码"></a>代码</h4><p><strong>test.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$redis = <span class="keyword">new</span> \Redis();</span><br><span class="line">$redis-&gt;connect(<span class="string">'192.168.80.2'</span>, <span class="number">6379</span>);</span><br><span class="line">$redis-&gt;auth(<span class="number">123456</span>);</span><br><span class="line">$redis-&gt;setOption(\Redis::OPT_TCP_KEEPALIVE, <span class="number">10</span>);</span><br><span class="line">var_dump($redis-&gt;ping());</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过<code>host</code>方式连接服务端，并设置选项<code>OPT_TCP_KEEPALIVE</code>为<code>10s</code>，通过ping查看连通性，然后进行<code>阻塞</code>操作。<code>lsof</code>看下，确实使用<code>TCP</code>方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php     899 root    3u  IPv4 741397      0t0     TCP 2388ad577c4b:38782-&gt;web_docker_redis.web_docker_web_network:6379 (ESTABLISHED)</span><br></pre></td></tr></table></figure>
+<p>断开服务端容器的网络发现，在设定条件下，并不会发keepalive包，可能与docker的实现机制有关，自动转化为unix domain socket?目前不确定是<code>phpredis</code>的问题还是<code>docker网络机制</code>的问题。接下来，先看看phpredis究竟有没有执行到相应的逻辑。</p>
+<h4 id="非debug模式"><a href="#非debug模式" class="headerlink" title="非debug模式"></a>非debug模式</h4><p>为了看这段代码是否被执行到，我改一下phpredis的源码，在这里打印一下日志，再重新编译。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -O http://pecl.php.net/get/redis-4.0.2.tgz</span><br><span class="line">tar zxvf redis-4.0.2.tgz</span><br><span class="line"><span class="built_in">cd</span> redis-4.0.2</span><br><span class="line">vim library.c</span><br></pre></td></tr></table></figure>
+<p>找到<code>redis_sock_connect</code>函数，在下面的代码中，加入<code>打印日志</code>的代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Attempt to set TCP_NODELAY/TCP_KEEPALIVE if we're not using a unix socket. */</span></span><br><span class="line"><span class="keyword">if</span> (!usocket) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"open keepalive"</span>);</span><br><span class="line">    <span class="keyword">php_netstream_data_t</span> *sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">    err = setsockopt(sock-&gt;socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span>*) &amp;tcp_flag, <span class="keyword">sizeof</span>(tcp_flag));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">    err = setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*) &amp;redis_sock-&gt;tcp_keepalive, <span class="keyword">sizeof</span>(redis_sock-&gt;tcp_keepalive));</span><br><span class="line">    PHPREDIS_NOTUSED(err);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"not open keepalive"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样做发现，打印的结果是<code>open keepalive</code>。要想得到整个<code>调用栈</code>以及<code>打印变量</code>，不是很方便。下面使用gdb来调试，设置断点。</p>
+<h4 id="debug模式"><a href="#debug模式" class="headerlink" title="debug模式"></a>debug模式</h4><p>为了使用<code>gdb</code>断点调试PHP扩展，需要把PHP编译为<code>debug</code>模式，然后再把phpredis重新编译一次</p>
+<p><strong>编译php</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">wget -c https://github.com/php/php-src/archive/php-7.1.30.tar.gz</span><br><span class="line">tar zxvf php-7.1.30.tar.gz</span><br><span class="line"><span class="built_in">cd</span> php-src-php-7.1.30</span><br><span class="line">./buildconf --force</span><br><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php7.1.30 \</span><br><span class="line">--<span class="built_in">exec</span>-prefix=/usr/<span class="built_in">local</span>/php7.1.30 \</span><br><span class="line">--bindir=/usr/<span class="built_in">local</span>/php7.1.30/bin \</span><br><span class="line">--sbindir=/usr/<span class="built_in">local</span>/php7.1.30/sbin \</span><br><span class="line">--includedir=/usr/<span class="built_in">local</span>/php7.1.30/include \</span><br><span class="line">--libdir=/usr/<span class="built_in">local</span>/php7.1.30/lib/php \</span><br><span class="line">--mandir=/usr/<span class="built_in">local</span>/php7.1.30/php/man \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php7.1.30/etc \</span><br><span class="line">--<span class="built_in">enable</span>-pcntl \</span><br><span class="line">--with-curl \</span><br><span class="line">--<span class="built_in">enable</span>-debug \</span><br><span class="line">--<span class="built_in">enable</span>-cli</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line">cp php-src-php-7.1.30/php.ini-development /usr/<span class="built_in">local</span>/php7.1.30/etc/php.ini</span><br></pre></td></tr></table></figure>
+<p><strong>编译phpredis</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">curl -O http://pecl.php.net/get/redis-4.0.2.tgz</span><br><span class="line">tar zxvf redis-4.0.2.tgz</span><br><span class="line">/usr/<span class="built_in">local</span>/php7.1.30/bin/phpize</span><br><span class="line">./configure --with-php-config=/usr/<span class="built_in">local</span>/php7.1.30/bin/php-config</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line">vim /usr/<span class="built_in">local</span>/php7.1.30/etc/php.ini</span><br><span class="line">// 添加extension=redis.so到文件尾</span><br></pre></td></tr></table></figure>
+<p>编译完成后，会发现安装目录为 <code>/usr/local/php7.1.30/lib/php/extensions/debug-non-zts-20160303</code></p>
+<p><strong>开始gdb调试</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">gdb /usr/<span class="built_in">local</span>/php7.1.30/bin/php</span><br><span class="line"></span><br><span class="line">Reading symbols from /usr/<span class="built_in">local</span>/php7.1.30/bin/php...done.</span><br><span class="line">(gdb) b redis_sock_connect</span><br><span class="line">Function <span class="string">"redis_sock_connect"</span> not defined.</span><br><span class="line">Make breakpoint pending on future shared library load? (y or [n]) y</span><br><span class="line">Breakpoint 1 (redis_sock_connect) pending.</span><br><span class="line">(gdb) run test.php</span><br><span class="line">Starting program: /usr/<span class="built_in">local</span>/php7.1.30/bin/php test.php</span><br><span class="line">95337</span><br><span class="line">Breakpoint 1, redis_sock_connect (redis_sock=0x7ffff687e0e0) at /data/tools/redis-4.0.2/library.c:1416</span><br><span class="line">1416	&#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1417	    struct timeval tv, read_tv, *tv_ptr = NULL;</span><br><span class="line">(gdb) n</span><br><span class="line">1418	    char host[1024], *persistent_id = NULL;</span><br><span class="line">(gdb) n</span><br><span class="line">1419	    const char *fmtstr = <span class="string">"%s:%d"</span>;</span><br><span class="line">(gdb) n</span><br><span class="line">1420	    int host_len, usocket = 0, err = 0;</span><br><span class="line">(gdb) n</span><br><span class="line">1422	    int tcp_flag = 1;</span><br><span class="line">(gdb) n</span><br><span class="line">1426	    zend_string *estr = NULL;</span><br><span class="line">(gdb) n</span><br><span class="line">1429	    <span class="keyword">if</span> (redis_sock-&gt;stream != NULL) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1433	    tv.tv_sec  = (time_t)redis_sock-&gt;timeout;</span><br><span class="line">(gdb) n</span><br><span class="line">1434	    tv.tv_usec = (int)((redis_sock-&gt;timeout - tv.tv_sec) * 1000000);</span><br><span class="line">(gdb) n</span><br><span class="line">1435	    <span class="keyword">if</span>(tv.tv_sec != 0 || tv.tv_usec != 0) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1439	    read_tv.tv_sec  = (time_t)redis_sock-&gt;read_timeout;</span><br><span class="line">(gdb) n</span><br><span class="line">1440	    read_tv.tv_usec = (int)((redis_sock-&gt;read_timeout-read_tv.tv_sec)*1000000);</span><br><span class="line">(gdb) n</span><br><span class="line">1442	    <span class="keyword">if</span> (ZSTR_VAL(redis_sock-&gt;host)[0] == <span class="string">'/'</span> &amp;&amp; redis_sock-&gt;port &lt; 1) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1446	        <span class="keyword">if</span>(redis_sock-&gt;port == 0)</span><br><span class="line">(gdb) n</span><br><span class="line">1452	        <span class="keyword">if</span> (strchr(ZSTR_VAL(redis_sock-&gt;host), <span class="string">':'</span>) != NULL) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1456	        host_len = snprintf(host, sizeof(host), fmtstr, ZSTR_VAL(redis_sock-&gt;host), redis_sock-&gt;port);</span><br><span class="line">(gdb) n</span><br><span class="line">1459	    <span class="keyword">if</span> (redis_sock-&gt;persistent) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1469	    redis_sock-&gt;stream = php_stream_xport_create(host, host_len,</span><br><span class="line">(gdb) n</span><br><span class="line">1473	    <span class="keyword">if</span> (persistent_id) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1477	    <span class="keyword">if</span> (!redis_sock-&gt;stream) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">1491	    sock = (php_netstream_data_t*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">(gdb) p persistent_id</span><br><span class="line"><span class="variable">$1</span> = 0x0</span><br><span class="line">(gdb) n</span><br><span class="line">1492	    <span class="keyword">if</span> (!usocket) &#123;</span><br><span class="line">(gdb) p usocket</span><br><span class="line"><span class="variable">$2</span> = 0</span><br><span class="line">(gdb) n</span><br><span class="line">1493		<span class="built_in">printf</span>(<span class="string">"open keepalive"</span>);</span><br><span class="line">(gdb) n</span><br><span class="line">1494	        err = setsockopt(sock-&gt;socket, IPPROTO_TCP, TCP_NODELAY, (char*) &amp;tcp_flag, sizeof(tcp_flag));</span><br><span class="line">(gdb) n</span><br><span class="line">1496	        err = setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (char*) &amp;redis_sock-&gt;tcp_keepalive, sizeof(redis_sock-&gt;tcp_keepalive));</span><br><span class="line">(gdb) p redis_sock-&gt;tcp_keepalive</span><br><span class="line"><span class="variable">$5</span> = 0</span><br></pre></td></tr></table></figure>
+<p>通过上面的gdb调试纪录可以发现，</p>
+<ol>
+<li><code>usocket</code>的值为<code>0</code>，说明docker没有做什么“小动作”，host模式没问题。</li>
+<li>在<code>connect</code>阶段，<code>tcp_keepalive</code>默认为<code>0</code></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b redis_setoption_handler</span><br><span class="line">Function <span class="string">"redis_setoption_handler"</span> not defined.</span><br><span class="line">Make breakpoint pending on future shared library load? (y or [n]) y</span><br><span class="line">Breakpoint 1 (redis_setoption_handler) pending.</span><br><span class="line">(gdb) run /data/webapp/<span class="built_in">test</span>/test.php</span><br><span class="line">Starting program: /usr/<span class="built_in">local</span>/php7.1.30/bin/php /data/webapp/<span class="built_in">test</span>/test.php</span><br><span class="line">6</span><br><span class="line">open keepalive</span><br><span class="line">Breakpoint 1, redis_setoption_handler (execute_data=0x7ffff6814160, return_value=0x7fffffffb000, redis_sock=0x7ffff687e0e0, c=0x0)</span><br><span class="line">    at /data/tools/redis-4.0.2/redis_commands.c:3089</span><br><span class="line">3089	&#123;</span><br><span class="line">(gdb) n</span><br><span class="line">3095	    int tcp_keepalive = 0;</span><br><span class="line">(gdb) n</span><br><span class="line">3098	    <span class="keyword">if</span> (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, <span class="string">"ls"</span>, &amp;option,</span><br><span class="line">(gdb) n</span><br><span class="line">3104	    switch(option) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">3150	            <span class="keyword">if</span> (ZSTR_VAL(redis_sock-&gt;host)[0] == <span class="string">'/'</span> &amp;&amp; redis_sock-&gt;port &lt; 1) &#123;</span><br><span class="line">(gdb) p option</span><br><span class="line"><span class="variable">$1</span> = 6</span><br><span class="line">(gdb) n</span><br><span class="line">3153	            tcp_keepalive = atol(val_str) &gt; 0 ? 1 : 0;</span><br><span class="line">(gdb) p val_str</span><br><span class="line"><span class="variable">$2</span> = 0x7ffff6802bd8 <span class="string">"10"</span></span><br><span class="line">(gdb) n</span><br><span class="line">3154	            <span class="keyword">if</span> (redis_sock-&gt;tcp_keepalive == tcp_keepalive) &#123;</span><br><span class="line">(gdb) p tcp_keepalive</span><br><span class="line"><span class="variable">$3</span> = 1</span><br><span class="line">(gdb) p redis_sock-&gt;tcp_keepalive</span><br><span class="line"><span class="variable">$4</span> = 0</span><br><span class="line">(gdb) n</span><br><span class="line">3157	            <span class="keyword">if</span> (redis_sock-&gt;stream) &#123;</span><br><span class="line">(gdb) n</span><br><span class="line">3159	                sock = (php_netstream_data_t*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">(gdb) n</span><br><span class="line">3160	                <span class="keyword">if</span> (setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (char*)&amp;tcp_keepalive,</span><br><span class="line">(gdb) n</span><br><span class="line">3164	                redis_sock-&gt;tcp_keepalive = tcp_keepalive;</span><br><span class="line">(gdb) p redis_sock-&gt;tcp_keepalive</span><br><span class="line"><span class="variable">$5</span> = 0</span><br><span class="line">(gdb) p tcp_keepalive</span><br><span class="line"><span class="variable">$6</span> = 1</span><br><span class="line">(gdb) n</span><br><span class="line">3166	            RETURN_TRUE;</span><br></pre></td></tr></table></figure>
+<p>通过上面的调试可以知道，</p>
+<ul>
+<li>在调用<code>setOption</code>函数阶段，成功设置了<code>tcp_keepalive</code>为<code>1</code>。</li>
+</ul>
+<h3 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h3><p>前面我们通过docker模拟，gdb断点排查，现在进行小结：</p>
+<ol>
+<li>版本问题：一开始怀疑是phpredis没有<code>TCP_KEEPALIVE</code>的配置项，查看源码发现4.0以上的版本都支持了。</li>
+<li>环境问题：通过gdb断点发现，host是没问题的，并没有采用<code>unix domain socket</code>模式，在docker环境下模拟没问题。</li>
+<li>逻辑问题：通过gdb断点发现，在<code>connect</code>阶段，sock-&gt;tcp_keepalive默认为<code>0</code>，在<code>setOption</code>阶段，sock-&gt;tcp_keepalive被设置为<code>1</code>，逻辑也没问题</li>
+</ol>
+<p>到现在，几乎任何关于代码的地方都“似乎”没问题，所以走不通了，只能回头再看看，有什么细节遗漏了。前面，我们在<code>setOption</code>阶段，把<code>OPT_TCP_KEEPALIVE</code>设置为<code>10</code>，当时我说，把时间设置为<code>10s</code>，因为我把这里理所当然的理解为<code>tcp_keepalive_time</code>，我希望在断网后10秒内，能给服务端发<code>keepalive</code>包。可是，查看源码发现，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp_keepalive = zval_get_long(val) &gt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>这里传入的值，似乎被当作了另一种用法，<code>只要是正整数，就把tcp_keepalive设置为1，否则设置为0</code>。也就是说，这里并没有<code>tcp_keepalive_time</code>的功能，仅作为开关！！！</p>
+<p>但是，我找不到任何提供的API可以设置了…</p>
+<h3 id="设置系统默认TCP-KEEPALIVE各参数值"><a href="#设置系统默认TCP-KEEPALIVE各参数值" class="headerlink" title="设置系统默认TCP_KEEPALIVE各参数值"></a>设置系统默认TCP_KEEPALIVE各参数值</h3><p>前面我们知道，系统有一个全局默认的TCP_KEEPALIVE配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sysctl -a | grep keepalive</span><br><span class="line"></span><br><span class="line">net.ipv4.tcp_keepalive_intvl = 75</span><br><span class="line">net.ipv4.tcp_keepalive_probes = 9</span><br><span class="line">net.ipv4.tcp_keepalive_time = 7200</span><br></pre></td></tr></table></figure>
+<p>上面这个配置是两个小时（7200s）后才发包，现在我把这些设置改一下，改短一点</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.tcp_keepalive_time=15 net.ipv4.tcp_keepalive_probes=3 net.ipv4.tcp_keepalive_intvl=10</span><br></pre></td></tr></table></figure>
+<ul>
+<li>net.ipv4.tcp_keepalive_time：15</li>
+<li>net.ipv4.tcp_keepalive_probes：3</li>
+<li>net.ipv4.tcp_keepalive_intvl：10</li>
+</ul>
+<p>重新跑一遍代码，断开服务端网络，tcpdump看发包情况。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">15:38:24.862503 IP web_docker_php.web_docker_web_network.42480 &gt; ce6e2fa39930.6379: Flags [.], ack 13, win 229, options [nop,nop,TS val 35239808 ecr 35238270], length 0</span><br><span class="line">15:38:24.862592 IP ce6e2fa39930.6379 &gt; web_docker_php.web_docker_web_network.42480: Flags [.], ack 41, win 227, options [nop,nop,TS val 35239808 ecr 35238275], length 0</span><br><span class="line">15:38:39.866247 IP web_docker_php.web_docker_web_network.42480 &gt; ce6e2fa39930.6379: Flags [.], ack 13, win 229, options [nop,nop,TS val 35241312 ecr 35239808], length 0</span><br><span class="line">15:38:39.866290 IP ce6e2fa39930.6379 &gt; web_docker_php.web_docker_web_network.42480: Flags [.], ack 41, win 227, options [nop,nop,TS val 35241312 ecr 35238275], length 0</span><br><span class="line">15:38:54.907073 IP web_docker_php.web_docker_web_network.42480 &gt; ce6e2fa39930.6379: Flags [.], ack 13, win 229, options [nop,nop,TS val 35242816 ecr 35241312], length 0</span><br><span class="line">15:38:54.907178 IP ce6e2fa39930.6379 &gt; web_docker_php.web_docker_web_network.42480: Flags [.], ack 41, win 227, options [nop,nop,TS val 35242816 ecr 35238275], length 0</span><br></pre></td></tr></table></figure>
+<p>重新试一下发现，竟然没问题了！确实每隔15秒发一次<code>keepalive包</code>。也就是说，我一直对phpredis的<code>TCP_KEEPALIVE</code>用法理解错了。先入为主的认为这个就是<code>tcp_keepalive_time</code>。其实，之前的程序一直没有问题，只不过，因为系统默认的时间太久了，程序一直阻塞着，所以我才觉得这个参数没有正确被设置。</p>
+<h2 id="更简单的方案"><a href="#更简单的方案" class="headerlink" title="更简单的方案?"></a>更简单的方案?</h2><p>前面讨论了解决<code>brpop</code>在网络抖动的情况下，使用<code>忙连接</code>的方案。后来，我们了解了<code>OPT_TCP_KEEPALIVE</code>的用法，能不能有更简单的方案？要是phpredis客户端能定时发<code>keepalive包</code>，如果网络中断，直接报异常，然后进行异常捕获，重新连接。岂不是更佳？</p>
+<p>然而，在实测过程中（使用test.php），当网络中断后，客户端便不再发送<code>keepalive包</code>，通过netstat看，客户端在<strong>短时间内自动断开客户端与服务端的单边连接</strong>，然后也没有报异常:(</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/07/02/xhprof性能分析/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/08/14/PHP与结巴分词的最佳实践/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
