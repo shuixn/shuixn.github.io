@@ -1,5 +1,5 @@
 ---
-title: 【Redis】排查 read error on connection 小记
+title: Redis：排查 read error on connection 小记
 date: 2019-08-13
 categories:
   - 技术
@@ -360,8 +360,9 @@ docker network connect docker_network docker_redis
 
 ## 解决方案：忙连接
 
-1. 设置connect函数的timeout为10s
-2. 在客户端断开连接并报异常``read error on connection``时，进行异常捕获，开启一个阻塞循环，不断的重连redis，只有连接成功后才返回
+1. 使用php.ini的``default_socket_timeout``，或者phpredis的``OPT_READ_TIMEOUT``,设置一个自定义值，比如``60s``
+2. 设置connect函数的``timeout``为一个自定义值，如``10s``
+3. 在客户端断开连接并报异常``read error on connection``时，进行异常捕获，开启一个阻塞循环，不断的重连redis，只有连接成功后才返回
 
 ### 代码
 
@@ -389,6 +390,7 @@ class PopData {
         $this->redis = new \Redis();
         $this->redis->connect('192.168.48.4', 6379, 3);
         $this->redis->auth(123456);
+        $this-redis->setOption(\Redis::OPT_READ_TIMEOUT, 60)
     }
 
     /**
@@ -814,3 +816,14 @@ sysctl -w net.ipv4.tcp_keepalive_time=15 net.ipv4.tcp_keepalive_probes=3 net.ipv
 前面讨论了解决``brpop``在网络抖动的情况下，使用``忙连接``的方案。后来，我们了解了``OPT_TCP_KEEPALIVE``的用法，能不能有更简单的方案？要是phpredis客户端能定时发``keepalive包``，如果网络中断，直接报异常，然后进行异常捕获，重新连接。岂不是更佳？
 
 然而，在实测过程中（使用test.php），当网络中断后，客户端便不再发送``keepalive包``，通过netstat看，客户端在**短时间内自动断开客户端与服务端的单边连接**，然后也没有报异常:(
+
+## 总结
+
+1. 使用nc和netcat-keepalive工具，回顾TCP_KEEPALIVE机制
+2. 理清redis几个关于timeout的API，以及结合使用时它们的优先级
+3. 理清phpredis客户端keepalive用法，没有开放TCP_KEEPALIVE的三个关键配置，而是仅作为开关，使用系统环境的参数配置
+4. 把网络异常当作常态，在应用层做更健壮的长连接检测
+
+## 最后
+
+本文使用Redis的brpop做消息获取，这只是其中一种情况，还有其他网络API也是需要长连接的，如subscribe，针对其他API，解决方案是否如出一辙呢？留到下一次继续分析～
