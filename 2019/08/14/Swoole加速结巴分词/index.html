@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>Swoole加速结巴分词 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Swoole,结巴分词,">
+  
+
+  <meta name="description" content="中文分词对于英文句子来说，可以通过空格来切分单词，如 12// 今天天气不错the weather is nice today 可以很简单的把该句子中的单词区分出来 1the/weather/is/nice/today 在中文里面，就没有那么方便的区分方法了。当然，如果你习惯这样说话： 1今天 天气 不错 大家也不会打你，只会觉得你像个“结巴”（点题了！） 为什么需要分词？在中文里面的字和英文单词">
+<meta name="keywords" content="PHP,Swoole,结巴分词">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swoole加速结巴分词">
+<meta property="og:url" content="http://funsoul.org/2019/08/14/Swoole加速结巴分词/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="中文分词对于英文句子来说，可以通过空格来切分单词，如 12// 今天天气不错the weather is nice today 可以很简单的把该句子中的单词区分出来 1the/weather/is/nice/today 在中文里面，就没有那么方便的区分方法了。当然，如果你习惯这样说话： 1今天 天气 不错 大家也不会打你，只会觉得你像个“结巴”（点题了！） 为什么需要分词？在中文里面的字和英文单词">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-09-26T03:52:36.853Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swoole加速结巴分词">
+<meta name="twitter:description" content="中文分词对于英文句子来说，可以通过空格来切分单词，如 12// 今天天气不错the weather is nice today 可以很简单的把该句子中的单词区分出来 1the/weather/is/nice/today 在中文里面，就没有那么方便的区分方法了。当然，如果你习惯这样说话： 1今天 天气 不错 大家也不会打你，只会觉得你像个“结巴”（点题了！） 为什么需要分词？在中文里面的字和英文单词">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#中文分词"><span class="toc-text">中文分词</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么需要分词？"><span class="toc-text">为什么需要分词？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结巴分词是什么？"><span class="toc-text">结巴分词是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#特点"><span class="toc-text">特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例子"><span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法实现"><span class="toc-text">算法实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP结巴分词库（扩展）"><span class="toc-text">PHP结巴分词库（扩展）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用方法"><span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP-FPM模式"><span class="toc-text">PHP-FPM模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CLI模式"><span class="toc-text">CLI模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#性能测试"><span class="toc-text">性能测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Base-模式、1-Worker"><span class="toc-text">Base 模式、1 Worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Base-模式、2-Worker"><span class="toc-text">Base 模式、2 Worker</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Swoole加速结巴分词" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Swoole加速结巴分词</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.08.14</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="中文分词"><a href="#中文分词" class="headerlink" title="中文分词"></a>中文分词</h2><p>对于英文句子来说，可以通过<code>空格</code>来切分单词，如</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 今天天气不错</span><br><span class="line">the weather is nice today</span><br></pre></td></tr></table></figure>
+<p>可以很简单的把该句子中的单词区分出来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">the/weather/is/nice/today</span><br></pre></td></tr></table></figure>
+<p>在中文里面，就没有那么方便的区分方法了。当然，如果你习惯这样说话：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">今天 天气 不错</span><br></pre></td></tr></table></figure>
+<p>大家也不会打你，只会觉得你像个<code>“结巴”</code>（点题了！）</p>
+<h3 id="为什么需要分词？"><a href="#为什么需要分词？" class="headerlink" title="为什么需要分词？"></a>为什么需要分词？</h3><p>在中文里面的<code>字</code>和<code>英文单词</code>是两个不同的东西。在读书的时候，最痛苦的一件事就是学习文言文，我想了一下，有大于等于三个原因：</p>
+<ol>
+<li>不知道在哪里断句</li>
+<li>字或词的含义很多</li>
+<li>这个字是通假字（它不是这个它，它是那个它），或者说纯粹就是写错了，但是细想一下也能读的通。</li>
+</ol>
+<p>我们常说中文博大精深，历史原因就不细究了，简单来说就是，我们的祖先在中文上的造诣非常高，好几层楼那么高，研究非常透彻，一句话能说出几个意思。我们自小在中文环境下成长，经过千锤百炼，读写是没问题的，但是计算机要怎么理解一句话呢？先从分词开始。</p>
+<p>计算机学习分词的过程，和人类是很像的（或许这是局限性），目前有几种：</p>
+<ol>
+<li>基于字符串匹配。按一定的策略在一个已分好词的大词典中搜寻，若找到则视为一个词。</li>
+<li>统计。大量已经分词的文本，利用统计机器学习模型学习词语切分的规律（训练），从而实现对未知文本的切分。</li>
+<li>组合。结合1、2点，如<code>结巴分词</code>。</li>
+</ol>
+<p>我们学习中文的时候，也有这样的过程，</p>
+<ol>
+<li>积累词语（建立词典）</li>
+<li>训练不同词语在不同句子中的含义的概率（权重），选择具有最大概率（权重）的含义的词语（动态规划，寻找切分组合）</li>
+</ol>
+<h2 id="结巴分词是什么？"><a href="#结巴分词是什么？" class="headerlink" title="结巴分词是什么？"></a>结巴分词是什么？</h2><p><code>结巴分词</code>是国内程序员用<code>python</code>开发的一个<code>中文</code>分词模块, 源码被托管在<a href="https://github.com/fxsjy/jieba" target="_blank" rel="noopener">Github</a></p>
+<p>为了方便说明，下面截取了部分文档和例子。</p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ul>
+<li>精确模式，试图将句子最精确地切开，适合文本分析</li>
+<li>全模式，把句子中所有可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义</li>
+<li>搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词</li>
+<li>支持繁体分词</li>
+<li>支持自定义词典</li>
+<li>MIT 授权协议</li>
+</ul>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"我来到北京清华大学"</span>, cut_all=<span class="literal">True</span>)</span><br><span class="line">print(<span class="string">"Full Mode: "</span> + <span class="string">"/ "</span>.join(seg_list))  <span class="comment"># 全模式</span></span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"我来到北京清华大学"</span>, cut_all=<span class="literal">False</span>)</span><br><span class="line">print(<span class="string">"Default Mode: "</span> + <span class="string">"/ "</span>.join(seg_list))  <span class="comment"># 精确模式</span></span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut(<span class="string">"他来到了网易杭研大厦"</span>)  <span class="comment"># 默认是精确模式</span></span><br><span class="line">print(<span class="string">", "</span>.join(seg_list))</span><br><span class="line"></span><br><span class="line">seg_list = jieba.cut_for_search(<span class="string">"小明硕士毕业于中国科学院计算所，后在日本京都大学深造"</span>)  <span class="comment"># 搜索引擎模式</span></span><br><span class="line">print(<span class="string">", "</span>.join(seg_list))</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">【全模式】: 我/ 来到/ 北京/ 清华/ 清华大学/ 华大/ 大学</span><br><span class="line"></span><br><span class="line">【精确模式】: 我/ 来到/ 北京/ 清华大学</span><br><span class="line"></span><br><span class="line">【新词识别】：他, 来到, 了, 网易, 杭研, 大厦    (此处，“杭研”并没有在词典中，但是也被Viterbi算法识别出来了)</span><br><span class="line"></span><br><span class="line">【搜索引擎模式】： 小明, 硕士, 毕业, 于, 中国, 科学, 学院, 科学院, 中国科学院, 计算, 计算所, 后, 在, 日本, 京都, 大学, 日本京都大学, 深造</span><br></pre></td></tr></table></figure>
+<h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h3><ol>
+<li>基于前缀词典实现高效的词图扫描，生成句子中汉字所有可能成词情况所构成的有向无环图 (DAG)</li>
+<li>采用了动态规划查找最大概率路径, 找出基于词频的最大切分组合</li>
+<li>对于未登录词，采用了基于汉字成词能力的 <code>HMM</code> 模型，使用了 <code>Viterbi</code> 算法</li>
+</ol>
+<p>针对结巴分词的原理，网上的文章写的非常详细了，这里就不再赘述了。有兴趣的读者可以看看</p>
+<ol>
+<li><a href="https://blog.csdn.net/John_xyz/article/details/54645527" target="_blank" rel="noopener">中文分词的基本原理以及jieba分词的用法</a></li>
+<li><a href="https://blog.csdn.net/u014365862/article/details/54891582" target="_blank" rel="noopener">一个隐马尔科夫模型的应用实例：中文分词</a></li>
+</ol>
+<h2 id="PHP结巴分词库（扩展）"><a href="#PHP结巴分词库（扩展）" class="headerlink" title="PHP结巴分词库（扩展）"></a>PHP结巴分词库（扩展）</h2><p>有国人实现了PHP版本：</p>
+<ol>
+<li>PHP扩展：<a href="https://github.com/jonnywang/phpjieba" target="_blank" rel="noopener">jonnywang/phpjieba</a></li>
+<li>PHP类库：<a href="https://github.com/fukuball/jieba-php" target="_blank" rel="noopener">fukuball/jieba-php</a></li>
+</ol>
+<p>尤其是这个扩展<code>jonnywang/phpjieba</code>实现，<strong>支持PHP7</strong>，果断安装了。</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="PHP-FPM模式"><a href="#PHP-FPM模式" class="headerlink" title="PHP-FPM模式"></a>PHP-FPM模式</h3><p>PHP的LNMP架构在Web开发领域常年占据一定的市场，那么是否可以使用结巴分词呢？当然可以，不过，我们知道在FPM模式下，PHP的生命周期非常短，前面我们了解到，结巴分词使用<code>前缀字典树</code>建立词库，该操作需要一定的时间和耗费内存（默认词典dict.txt占用将近1G）。那么，在常规FPM模式下，假设开启8个worker，那就需要大约8G内存分配。而且，在应对大量请求时，频繁的申请/销毁操作并不合理。所以，在FPM模式下，使用结巴分词不合适。</p>
+<h3 id="CLI模式"><a href="#CLI模式" class="headerlink" title="CLI模式"></a>CLI模式</h3><p>我们想到，和应用强耦合在一起不是个好办法，把结巴分词独立出来作为一个公共服务，通过不同的接口（HTTP，unixsocket）给其他应用提供服务是个不错的方案。</p>
+<p>在考察该方案前，我们需要解决几个问题：</p>
+<ol>
+<li>进程拉起才初始化词典</li>
+<li>为其他应用提供分词服务，需要应对高并发</li>
+<li>更新用户自定义词库</li>
+</ol>
+<p>我们第一时间想到了<a href="https://www.swoole.com/" target="_blank" rel="noopener">Swoole</a>，有下面的优势：</p>
+<ol>
+<li>假设提供HTTP服务，可以在Worker进程启动时（onWorkerStart）初始化词典，当服务启动后，字典树就完全载入到内存中了，由于常驻内存，后面我们只需要处理请求（onRequest）即可。</li>
+<li>使用HTTP服务，可以为其他应用提供服务，而不需要每一个需要分词服务的应用都写一个类似的分词库。</li>
+<li>用户自定义词库需要在初始化词典阶段载入，因此，如果需要添加/删除自定义词库，需要做下面几步：<ul>
+<li>Process模式<ol>
+<li>服务启动时，记录Master进程ID到本地文件</li>
+<li>提供给外部应用增加/删除词的接口，写入用户自定义词库（user_dict.txt）文件</li>
+<li>Worker进程给Master进程发<code>SIGUSR1</code>信号，进行<strong>柔性重启</strong>（重启Worker进程）</li>
+</ol>
+</li>
+<li>Base模式<ul>
+<li>只有一个Worker进程，默认不开启Manager进程，所以需要自己终止掉，由外部来重启，如Supervisor</li>
+<li>大于等于两个Worker进程<ol>
+<li>服务启动时，记录Manager进程ID到本地文件</li>
+<li>同Process模式第2点</li>
+<li>同Process模式第3点</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>Base模式比Process模式少了两次ipc的过程，性能会更好些。</p>
+<h2 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h2><ul>
+<li>4c</li>
+<li>2g</li>
+</ul>
+<h3 id="Base-模式、1-Worker"><a href="#Base-模式、1-Worker" class="headerlink" title="Base 模式、1 Worker"></a>Base 模式、1 Worker</h3><ul>
+<li>请求：10000</li>
+<li>并发：1000</li>
+<li>api：a=2&amp;s=我爱中华民族、广东、美食</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">Benchmarking 127.0.0.1 (be patient)</span><br><span class="line">Completed 1000 requests</span><br><span class="line">Completed 2000 requests</span><br><span class="line">Completed 3000 requests</span><br><span class="line">Completed 4000 requests</span><br><span class="line">Completed 5000 requests</span><br><span class="line">Completed 6000 requests</span><br><span class="line">Completed 7000 requests</span><br><span class="line">Completed 8000 requests</span><br><span class="line">Completed 9000 requests</span><br><span class="line">Completed 10000 requests</span><br><span class="line">Finished 10000 requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Server Software:        swoole-http-server</span><br><span class="line">Server Hostname:        127.0.0.1</span><br><span class="line">Server Port:            9501</span><br><span class="line"></span><br><span class="line">Document Path:          /</span><br><span class="line">Document Length:        204 bytes</span><br><span class="line"></span><br><span class="line">Concurrency Level:      1000</span><br><span class="line">Time taken <span class="keyword">for</span> tests:   8.499 seconds</span><br><span class="line">Complete requests:      10000</span><br><span class="line">Failed requests:        0</span><br><span class="line">Keep-Alive requests:    10000</span><br><span class="line">Total transferred:      3580000 bytes</span><br><span class="line">Total body sent:        2180000</span><br><span class="line">HTML transferred:       2040000 bytes</span><br><span class="line">Requests per second:    1176.63 [<span class="comment">#/sec] (mean)</span></span><br><span class="line">Time per request:       849.883 [ms] (mean)</span><br><span class="line">Time per request:       0.850 [ms] (mean, across all concurrent requests)</span><br><span class="line">Transfer rate:          411.36 [Kbytes/sec] received</span><br><span class="line">                        250.49 kb/s sent</span><br><span class="line">                        661.86 kb/s total</span><br><span class="line"></span><br><span class="line">Connection Times (ms)</span><br><span class="line">              min  mean[+/-sd] median   max</span><br><span class="line">Connect:        0    5  14.1      0      69</span><br><span class="line">Processing:    29  800 181.2    840    1260</span><br><span class="line">Waiting:        4  800 181.2    840    1260</span><br><span class="line">Total:         30  805 174.0    840    1275</span><br><span class="line"></span><br><span class="line">Percentage of the requests served within a certain time (ms)</span><br><span class="line">  50%    840</span><br><span class="line">  66%    855</span><br><span class="line">  75%    866</span><br><span class="line">  80%    870</span><br><span class="line">  90%    894</span><br><span class="line">  95%    912</span><br><span class="line">  98%   1139</span><br><span class="line">  99%   1214</span><br><span class="line"> 100%   1275 (longest request)</span><br></pre></td></tr></table></figure>
+<h3 id="Base-模式、2-Worker"><a href="#Base-模式、2-Worker" class="headerlink" title="Base 模式、2 Worker"></a>Base 模式、2 Worker</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">Benchmarking 127.0.0.1 (be patient)</span><br><span class="line">Completed 1000 requests</span><br><span class="line">Completed 2000 requests</span><br><span class="line">Completed 3000 requests</span><br><span class="line">Completed 4000 requests</span><br><span class="line">Completed 5000 requests</span><br><span class="line">Completed 6000 requests</span><br><span class="line">Completed 7000 requests</span><br><span class="line">Completed 8000 requests</span><br><span class="line">Completed 9000 requests</span><br><span class="line">Completed 10000 requests</span><br><span class="line">Finished 10000 requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Server Software:        swoole-http-server</span><br><span class="line">Server Hostname:        127.0.0.1</span><br><span class="line">Server Port:            9501</span><br><span class="line"></span><br><span class="line">Document Path:          /</span><br><span class="line">Document Length:        204 bytes</span><br><span class="line"></span><br><span class="line">Concurrency Level:      1000</span><br><span class="line">Time taken <span class="keyword">for</span> tests:   4.746 seconds</span><br><span class="line">Complete requests:      10000</span><br><span class="line">Failed requests:        0</span><br><span class="line">Keep-Alive requests:    10000</span><br><span class="line">Total transferred:      3580000 bytes</span><br><span class="line">Total body sent:        2180000</span><br><span class="line">HTML transferred:       2040000 bytes</span><br><span class="line">Requests per second:    2106.85 [<span class="comment">#/sec] (mean)</span></span><br><span class="line">Time per request:       474.643 [ms] (mean)</span><br><span class="line">Time per request:       0.475 [ms] (mean, across all concurrent requests)</span><br><span class="line">Transfer rate:          736.57 [Kbytes/sec] received</span><br><span class="line">                        448.53 kb/s sent</span><br><span class="line">                        1185.10 kb/s total</span><br><span class="line"></span><br><span class="line">Connection Times (ms)</span><br><span class="line">              min  mean[+/-sd] median   max</span><br><span class="line">Connect:        0    9  28.0      0     148</span><br><span class="line">Processing:     0  415 407.8    421    1270</span><br><span class="line">Waiting:        0  415 407.8    421    1270</span><br><span class="line">Total:          0  423 409.2    443    1282</span><br><span class="line"></span><br><span class="line">Percentage of the requests served within a certain time (ms)</span><br><span class="line">  50%    443</span><br><span class="line">  66%    822</span><br><span class="line">  75%    827</span><br><span class="line">  80%    830</span><br><span class="line">  90%    838</span><br><span class="line">  95%    850</span><br><span class="line">  98%   1157</span><br><span class="line">  99%   1225</span><br><span class="line"> 100%   1282 (longest request)</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/08/13/【Redis】排查read error on connection/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2019/08/18/《黑客与画家》遇上了《闻香识女人》/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>

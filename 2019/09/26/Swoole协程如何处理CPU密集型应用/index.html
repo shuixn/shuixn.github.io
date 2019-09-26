@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>Swoole协程如何处理CPU密集型应用 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Swoole,">
+  
+
+  <meta name="description" content="前言存档，待完善.. 正文想要做抢占式调度，对于PHP来说，有两个途径  当前执行协程在一定条件下主动让出 额外开线程，监控当前执行协程时间，超过设定值则让出当前执行协程  当前执行协程在一定条件下主动让出Swoole版本：4.3.x PHP是单线程运行的，可以参考这篇文章协程 CPU 密集场景调度实现，在脚本开始处注入逻辑declare(tick=N)，配合Swoole协程。逻辑是每次触发tic">
+<meta name="keywords" content="PHP,Swoole">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swoole协程如何处理CPU密集型应用">
+<meta property="og:url" content="http://funsoul.org/2019/09/26/Swoole协程如何处理CPU密集型应用/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="前言存档，待完善.. 正文想要做抢占式调度，对于PHP来说，有两个途径  当前执行协程在一定条件下主动让出 额外开线程，监控当前执行协程时间，超过设定值则让出当前执行协程  当前执行协程在一定条件下主动让出Swoole版本：4.3.x PHP是单线程运行的，可以参考这篇文章协程 CPU 密集场景调度实现，在脚本开始处注入逻辑declare(tick=N)，配合Swoole协程。逻辑是每次触发tic">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2019-09-26T03:44:13.321Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swoole协程如何处理CPU密集型应用">
+<meta name="twitter:description" content="前言存档，待完善.. 正文想要做抢占式调度，对于PHP来说，有两个途径  当前执行协程在一定条件下主动让出 额外开线程，监控当前执行协程时间，超过设定值则让出当前执行协程  当前执行协程在一定条件下主动让出Swoole版本：4.3.x PHP是单线程运行的，可以参考这篇文章协程 CPU 密集场景调度实现，在脚本开始处注入逻辑declare(tick=N)，配合Swoole协程。逻辑是每次触发tic">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#当前执行协程在一定条件下主动让出"><span class="toc-text">当前执行协程在一定条件下主动让出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#额外开线程，负责检查当前执行协程的执行时间"><span class="toc-text">额外开线程，负责检查当前执行协程的执行时间</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-Swoole协程如何处理CPU密集型应用" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">Swoole协程如何处理CPU密集型应用</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.09.26</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>存档，待完善..</p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>想要做抢占式调度，对于PHP来说，有两个途径</p>
+<ol>
+<li>当前执行协程在一定条件下主动让出</li>
+<li>额外开线程，监控当前执行协程时间，超过设定值则让出当前执行协程</li>
+</ol>
+<h3 id="当前执行协程在一定条件下主动让出"><a href="#当前执行协程在一定条件下主动让出" class="headerlink" title="当前执行协程在一定条件下主动让出"></a>当前执行协程在一定条件下主动让出</h3><p>Swoole版本：4.3.x</p>
+<p>PHP是单线程运行的，可以参考这篇文章<a href="https://wiki.swoole.com/wiki/page/p-tick_scheduler.html" target="_blank" rel="noopener">协程 CPU 密集场景调度实现</a>，在脚本开始处注入逻辑<code>declare(tick=N)</code>，配合Swoole协程。逻辑是每次触发<code>tick handler</code>的时候，判断当前协程相对最近一次调度时间是否大于<code>协程最大执行时间(max_exec_msec)</code>，这样就可以将当前超出执行时间后的协程主动让出。</p>
+<h3 id="额外开线程，负责检查当前执行协程的执行时间"><a href="#额外开线程，负责检查当前执行协程的执行时间" class="headerlink" title="额外开线程，负责检查当前执行协程的执行时间"></a>额外开线程，负责检查当前执行协程的执行时间</h3><p>Swoole版本：4.4.x</p>
+<p>参考这篇文章<a href="https://segmentfault.com/a/1190000019253487" target="_blank" rel="noopener">Swoole 4.4 协程抢占式调度器详解</a>，利用<code>PHP-7.1.0</code>引入的<code>VM interrupt</code>机制，默认每隔<code>5ms</code>检查一下当前协程是否达到最大执行时间，默认为10ms，如果超过，则让出当前协程，达到被其他协程抢占的目的。</p>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/09/26/odbc connect return false/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
