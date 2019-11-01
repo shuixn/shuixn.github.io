@@ -1,12 +1,12 @@
 ---
-title: 【翻译】Modding Minecraft with PHP – Buildings from Code!
+title: 【译】Modding Minecraft with PHP – Buildings from Code!
 date: 2016-10-28
 categories:
   - 技术
+  - 翻译
 tags: 
   - PHP
   - 翻译
-  - 
 ---
 
 使用PHP修改《我的世界》——从代码层构建
