@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,PHP-ML,机器学习,翻译,">
+  
+
+  <meta name="description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+<meta name="keywords" content="PHP,PHP-ML,机器学习,翻译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning">
+<meta property="og:url" content="http://funsoul.org/2019/11/01/【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="http://funsoul.org/images/php-ml/all-dinos-grey.jpg">
+<meta property="og:image" content="http://funsoul.org/images/php-ml/dino.jpg">
+<meta property="og:image" content="http://funsoul.org/images/php-ml/crime-notebook.png">
+<meta property="og:updated_time" content="2019-11-01T06:12:55.718Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning">
+<meta name="twitter:description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+<meta name="twitter:image" content="http://funsoul.org/images/php-ml/all-dinos-grey.jpg">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#可视化的可能性几乎为零"><span class="toc-text">可视化的可能性几乎为零</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP不支持Jupyter-Notebook"><span class="toc-text">PHP不支持Jupyter Notebook</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不支持GPU"><span class="toc-text">不支持GPU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.11.01</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/技术/">技术</a> / <a class="article-category-link" href="/categories/技术/翻译/">翻译</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <p><a href="https://arkadiuszkondas.com/3-reasons-why-php-is-not-yet-perfect-for-machine-learning/" target="_blank" rel="noopener">原文链接</a></p>
+<p>为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点：</p>
+<h2 id="可视化的可能性几乎为零"><a href="#可视化的可能性几乎为零" class="headerlink" title="可视化的可能性几乎为零"></a>可视化的可能性几乎为零</h2><blockquote>
+<p>…无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973</p>
+</blockquote>
+<p>让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)</p>
+<p><img src="/images/php-ml/all-dinos-grey.jpg" alt></p>
+<p>答案非常简单与令人惊讶:一套共同的指标。这些图都非常相似(小数点准确到第二位):</p>
+<ul>
+<li>X 平均值: 54.26</li>
+<li>Y 平均值: 47.83</li>
+<li>X 标准差: 16.76</li>
+<li>Y 标准差: 26.93</li>
+<li>相关系数: -0.06</li>
+</ul>
+<p>惊讶吗?还没完。向<code>datasaurus</code>问好:</p>
+<p><img src="/images/php-ml/dino.jpg" alt></p>
+<p>是的，那些点在这张图上面显示是相同的指标</p>
+<p>我希望能让你相信，机器学习过程的一个基本组成部分是数据可视化。</p>
+<p>目前，与丰富的<code>Python生态</code>相比，在PHP中我们没有任何图表支持。下面我给你展示一下，画一个图去查看你的已预测数据是多么简单！别忘了那只恐龙～</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">data = pd.read_csv(<span class="string">'dino.csv'</span>,header=<span class="literal">None</span>)</span><br><span class="line">plt.scatter(data[<span class="number">0</span>], data[<span class="number">1</span>], color=<span class="string">'red'</span>);</span><br></pre></td></tr></table></figure>
+<p>好了，4行代码，完美～</p>
+<p>比分：PHP: 0 - Python: 1</p>
+<h2 id="PHP不支持Jupyter-Notebook"><a href="#PHP不支持Jupyter-Notebook" class="headerlink" title="PHP不支持Jupyter Notebook"></a>PHP不支持Jupyter Notebook</h2><p><a href="https://jupyter.org/" target="_blank" rel="noopener">Jupyter Notebook</a>是一个无与伦比的学习机器学习的工具。你可以只使用浏览器准备、检查、可视化数据和训练你的模型。</p>
+<p>所有这一切都归功于这些强大的能力：混合代码（Juila、Python和R）、文档（markdown）、可视化（img）</p>
+<p>下面是一个例子，一个Notebook片段:</p>
+<p><img src="/images/php-ml/crime-notebook.png" alt></p>
+<p>在机器学习的世界里，你会花大量的时间来分析数据。你会一直想要保留笔记、实验和训练各种类型的模型。当然，最好是能可视化。</p>
+<p>这是一个有趣的犯罪数据分析的例子：<a href="https://www.kaggle.com/fahd09/eda-of-crime-in-chicago-2005-2016" target="_blank" rel="noopener">Understanding Crime in Chicago</a></p>
+<p>对了，我不会刻意说，这个笔记本还有<code>版本控制</code>的功能。</p>
+<p>比分：PHP: 0 - Python: 2</p>
+<h2 id="不支持GPU"><a href="#不支持GPU" class="headerlink" title="不支持GPU"></a>不支持GPU</h2><p>在你的数据集还未达到GB级别时，你不会想到使用深度学习，你更不会使用GPU。但是，这一天终将到来不是吗，到时候我们能做些什么呢？</p>
+<p>比如说<a href="https://www.tensorflow.org/" target="_blank" rel="noopener">TensorFlow</a>，相比其他环境的神经网络，它以优秀的分布式计算闻名。它给了你更多的可能性，去完全掌控计算组件（GPU、CPU），毫无疑问有了更多的选择。</p>
+<p>例如，你可以决定把变量放在哪，下面，我们把变量<code>a</code>放在GPU上运行，把常量<code>b</code>放在<code>CPU</code>上运行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.device(<span class="string">'/gpu:0'</span>):</span><br><span class="line">    a = tf.Variable(<span class="number">15.12</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.device(<span class="string">'/cpu:0'</span>):</span><br><span class="line">    b = tf.constant(<span class="number">3.14</span>)</span><br></pre></td></tr></table></figure>
+<p>这仅仅是开始。你可以设置一个服务器集群来运行。你还可以使用TPU（张量处理组件）。专用的计算组件，可以加速机器学习进度。</p>
+<p>在PHP里面，我们发现一个有趣的仓库：<a href="https://github.com/dnishiyama85/PHPMatrix" target="_blank" rel="noopener">dnishiyama85/PHPMatrix</a></p>
+<blockquote>
+<p>这是一个PHP扩展，支持浮点数矩阵运算，同时，它还支持 OpenBLAS sgemm 和 cuBLAS sgemm 函数</p>
+</blockquote>
+<p>但是在我看来，在GPU上面的探索还任重道远(crawls like a baby)</p>
+<p>我不知道这里有什么比较的意义，但还是让我们和平地做总结吧：</p>
+<p>比分：PHP: 0 - Python: 3</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>正如你看到的那样，上面我选择的三个主要原因足以说明，为什么PHP不是学习和使用机器学习的理想语言。但是，这不意味着情况会一直如此。</p>
+<p>我想再一次提醒，PHP在创造之始是为了在网站上展示HTML，现在，你可以使用它来构建企业级应用。让我们看看一个例子：Spotify</p>
+<blockquote>
+<p>通过网页和巨大的移动设备流量，这个音乐流媒体服务使用symfony来支撑7500万活跃用户、每秒几乎60万请求</p>
+</blockquote>
+<p>具有讽刺意味的是，Spotify有一个用于机器学习的服务器集群：<a href="https://medium.com/s/story/spotifys-discover-weekly-how-machine-learning-finds-your-new-music-19a41ab76efe" target="_blank" rel="noopener">Spotify怎么如此懂你？</a></p>
+<p>也许未来，PHP写机器学习的需求会到来，但只要上述问题不解决，我们没有什么指望。</p>
+<p>但请不要悲伤。下面是我最喜欢的一句名言:</p>
+<blockquote>
+<p>Those who are crazy enough to think they can change the world usually do.</p>
+</blockquote>
+
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/09/26/Swoole协程如何处理CPU密集型应用/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
