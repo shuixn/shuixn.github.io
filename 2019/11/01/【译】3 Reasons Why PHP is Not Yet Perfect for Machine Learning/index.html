@@ -15,21 +15,21 @@
     <meta name="keywords" content="PHP,PHP-ML,机器学习,翻译,">
   
 
-  <meta name="description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+  <meta name="description" content="前言最近做了一些数据分析、机器学习的工作，使用的是php-ml这个库，前期还算不错，不得不佩服作者arkadiuszkondas的API设计能力和算法功底。但是，随着数据量越来越大，发现训练时长剧增、内存利用率不高，于是翻了翻作者的博客找到了这篇文章，故译之。 正文为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几">
 <meta name="keywords" content="PHP,PHP-ML,机器学习,翻译">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning">
 <meta property="og:url" content="http://funsoul.org/2019/11/01/【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning/index.html">
 <meta property="og:site_name" content="funsoul">
-<meta property="og:description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+<meta property="og:description" content="前言最近做了一些数据分析、机器学习的工作，使用的是php-ml这个库，前期还算不错，不得不佩服作者arkadiuszkondas的API设计能力和算法功底。但是，随着数据量越来越大，发现训练时长剧增、内存利用率不高，于是翻了翻作者的博客找到了这篇文章，故译之。 正文为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几">
 <meta property="og:locale" content="chinese">
 <meta property="og:image" content="http://funsoul.org/images/php-ml/all-dinos-grey.jpg">
 <meta property="og:image" content="http://funsoul.org/images/php-ml/dino.jpg">
 <meta property="og:image" content="http://funsoul.org/images/php-ml/crime-notebook.png">
-<meta property="og:updated_time" content="2019-11-01T06:12:55.718Z">
+<meta property="og:updated_time" content="2019-11-01T06:33:11.208Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning">
-<meta name="twitter:description" content="原文链接 为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几乎为零 …无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973  让我们问自己一个简单的问题：下面这些图形有什么共同点呢？(这些都是简单的集合点:x和y)  答案非常简单与令人惊讶:一套共同的">
+<meta name="twitter:description" content="前言最近做了一些数据分析、机器学习的工作，使用的是php-ml这个库，前期还算不错，不得不佩服作者arkadiuszkondas的API设计能力和算法功底。但是，随着数据量越来越大，发现训练时长剧增、内存利用率不高，于是翻了翻作者的博客找到了这篇文章，故译之。 正文为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点： 可视化的可能性几">
 <meta name="twitter:image" content="http://funsoul.org/images/php-ml/all-dinos-grey.jpg">
 
   
@@ -160,7 +160,7 @@ ga('send', 'pageview');
 
   <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#可视化的可能性几乎为零"><span class="toc-text">可视化的可能性几乎为零</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP不支持Jupyter-Notebook"><span class="toc-text">PHP不支持Jupyter Notebook</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不支持GPU"><span class="toc-text">不支持GPU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可视化的可能性几乎为零"><span class="toc-text">可视化的可能性几乎为零</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP不支持Jupyter-Notebook"><span class="toc-text">PHP不支持Jupyter Notebook</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不支持GPU"><span class="toc-text">不支持GPU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
   </div>
 
 
@@ -200,8 +200,8 @@ ga('send', 'pageview');
 
   <div class="article-content">
     
-      <p><a href="https://arkadiuszkondas.com/3-reasons-why-php-is-not-yet-perfect-for-machine-learning/" target="_blank" rel="noopener">原文链接</a></p>
-<p>为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点：</p>
+      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近做了一些数据分析、机器学习的工作，使用的是php-ml这个库，前期还算不错，不得不佩服作者<a href="https://arkadiuszkondas.com/" target="_blank" rel="noopener">arkadiuszkondas</a>的API设计能力和算法功底。但是，随着数据量越来越大，发现训练时长剧增、内存利用率不高，于是翻了翻作者的博客找到了这篇文章，故译之。</p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>为什么说目前的PHP生态还不能够普遍落地机器学习框架，我认为主要有三个原因造成当今这种状况。下面我将陈述这几个观点：</p>
 <h2 id="可视化的可能性几乎为零"><a href="#可视化的可能性几乎为零" class="headerlink" title="可视化的可能性几乎为零"></a>可视化的可能性几乎为零</h2><blockquote>
 <p>…无论是以计算还是以图表的输出方式都应该学习，这样的呈现才是易于理解的 —— F. J. Anscombe, 1973</p>
 </blockquote>
