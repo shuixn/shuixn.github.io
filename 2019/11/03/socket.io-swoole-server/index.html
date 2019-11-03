@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>socket.io-swoole-server：基于swoole实现socket.io协议 | funsoul</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="PHP,Swoole,Socket.io,">
+  
+
+  <meta name="description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+<meta name="keywords" content="PHP,Swoole,Socket.io">
+<meta property="og:type" content="article">
+<meta property="og:title" content="socket.io-swoole-server：基于swoole实现socket.io协议">
+<meta property="og:url" content="http://funsoul.org/2019/11/03/socket.io-swoole-server/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+<meta property="og:locale" content="chinese">
+<meta property="og:image" content="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master">
+<meta property="og:image" content="https://img.shields.io/badge/PHP-%3E%3D7.1.0-green">
+<meta property="og:image" content="https://img.shields.io/badge/Swoole-%3E%3D4.0.3-green">
+<meta property="og:image" content="https://img.shields.io/github/license/funsoul/socket.io-swoole-server">
+<meta property="og:updated_time" content="2019-11-03T08:26:26.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="socket.io-swoole-server：基于swoole实现socket.io协议">
+<meta name="twitter:description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+<meta name="twitter:image" content="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-118289850-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+
+  
+
+
+  
+
+  
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/categories/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tags/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/links/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#框架获取"><span class="toc-text">框架获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Server"><span class="toc-text">Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Server-Config"><span class="toc-text">Server Config</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Examples"><span class="toc-text">Examples</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-socket.io-swoole-server" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">socket.io-swoole-server：基于swoole实现socket.io协议</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2019.11.03</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>funsoul</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/项目/">项目</a>
+  </span>
+
+
+
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h2 id="框架获取"><a href="#框架获取" class="headerlink" title="框架获取"></a>框架获取</h2><p><a href="https://github.com/funsoul/socket.io-swoole-server" target="_blank" rel="noopener">socket.io-swoole-server</a></p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p><img src="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master" alt="Build Status"><br><img src="https://img.shields.io/badge/PHP-%3E%3D7.1.0-green" alt><br><img src="https://img.shields.io/badge/Swoole-%3E%3D4.0.3-green" alt><br><img src="https://img.shields.io/github/license/funsoul/socket.io-swoole-server" alt></p>
+<h2 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h2><h3 id="Server-Config"><a href="#Server-Config" class="headerlink" title="Server Config"></a>Server Config</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$config = <span class="keyword">new</span> SocketIO\Engine\Server\ConfigPayload();</span><br><span class="line">$config</span><br><span class="line">    <span class="comment">// server worker_num</span></span><br><span class="line">    -&gt;setWorkerNum(<span class="number">2</span>)</span><br><span class="line">    <span class="comment">// server daemonize</span></span><br><span class="line">    -&gt;setDaemonize(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$io = <span class="keyword">new</span> SocketIO\Server(<span class="number">9501</span>, $config, <span class="function"><span class="keyword">function</span><span class="params">(SocketIO\Server $io)</span> </span>&#123;</span><br><span class="line">    $io-&gt;on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">        $socket-&gt;on(<span class="string">'new message'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'new message'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        $socket-&gt;on(<span class="string">'new user'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'login'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        $socket-&gt;on(<span class="string">'disconnect'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'user left'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">$io-&gt;start();</span><br></pre></td></tr></table></figure>
+    
+  </div>
+
+  
+      <div class="git"></div>
+  
+
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">请我喝一杯咖啡</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持funsoul</div>
+        <ul>
+        
+          <li class="item">
+            <span>微信扫一扫</span>
+            <img src="/images/wechat.jpg" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="show pull-left" href="/2019/11/01/【译】3 Reasons Why PHP is Not Yet Perfect for Machine Learning/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="hide pull-right" href="/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/categories/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tags/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/links/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
