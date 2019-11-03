@@ -1,5 +1,5 @@
 ---
-title: 【funtask】又一个多任务处理框架
+title: funtask：又一个多任务处理框架
 date: 2018-07-29
 categories:
   - 项目
