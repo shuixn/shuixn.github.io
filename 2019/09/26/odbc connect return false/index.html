@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-
-
-  <html class="light page-post">
-
-
+<html lang=ch>
 <head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>odbc connect return false | funsoul</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  
-    <meta name="keywords" content="PHP,ODBC,">
-  
-
-  <meta name="description" content="前言odbc在connect的时候会返回资源句柄，但是如果返回false就蒙蔽了。如果有记录php错误日志，会得到下面的内容 1odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate SQLGetPrivateProfileString function., SQL state S1000 in">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言odbc在connect的时候会返回资源句柄，但是如果返回false就蒙蔽了。如果有记录php错误日志，会得到下面的内容 1odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate SQLGetPrivateProfileString function., SQL state S1000 in">
 <meta name="keywords" content="PHP,ODBC">
 <meta property="og:type" content="article">
 <meta property="og:title" content="odbc connect return false">
@@ -27,364 +18,260 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="odbc connect return false">
 <meta name="twitter:description" content="前言odbc在connect的时候会返回资源句柄，但是如果返回false就蒙蔽了。如果有记录php错误日志，会得到下面的内容 1odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate SQLGetPrivateProfileString function., SQL state S1000 in">
-
-  
-
-  
-    <link rel="icon" href="/favicon.ico">
-  
-
-  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
-
-
-  
-
-  
-<!-- Google Analytics -->
-<script type="text/javascript">
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118289850-1', 'auto');
-ga('send', 'pageview');
-
-</script>
-<!-- End Google Analytics -->
-
-
-  
-
-  
-
-
-  
-
-  
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>odbc connect return false</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
 </head>
-</html>
+
 <body>
-
-
-  
-    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
-  
-
-  <div class="post-header CENTER">
-   
-  <div class="toolbox">
-    <a class="toolbox-entry" href="/">
-      <span class="toolbox-entry-text">盒子</span>
-      <i class="icon-angle-down"></i>
-      <i class="icon-home"></i>
-    </a>
-    <ul class="list-toolbox">
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/archives/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            博客
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/categories/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            分类
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/tags/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            标签
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/links/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            友链
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/about/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            关于
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/search/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            搜索
-          </a>
-        </li>
-      
-    </ul>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
   </div>
-
-
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
 </div>
 
-
-  <div id="toc" class="toc-article">
-    <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#strace-php-进程"><span class="toc-text">strace php 进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装库文件"><span class="toc-text">安装库文件</span></a></li></ol>
-  </div>
-
-
-
-<div class="content content-post CENTER">
-   <article id="post-odbc connect return false" class="article article-type-post" itemprop="blogPost">
-  <header class="article-header">
-    <h1 class="post-title">odbc connect return false</h1>
-
-    <div class="article-meta">
-      <span>
-        <i class="icon-calendar"></i>
-        <span>2019.09.26</span>
-      </span>
-
+    <div class="background">
       
-        <span class="article-author">
-          <i class="icon-user"></i>
-          <span>funsoul</span>
-        </span>
-      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/09/26/Swoole协程如何处理CPU密集型应用/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/08/18/《黑客与画家》遇上了《闻香识女人》/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/09/26/odbc connect return false/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/09/26/odbc connect return false/&text=odbc connect return false"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/09/26/odbc connect return false/&is_video=false&description=odbc connect return false"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=odbc connect return false&body=Check out this article: http://funsoul.org/2019/09/26/odbc connect return false/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/09/26/odbc connect return false/&name=odbc connect return false&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
 
-      
-  <span class="article-category">
-    <i class="icon-list"></i>
-    <a class="article-category-link" href="/categories/技术/">技术</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#strace-php-进程"><span class="toc-number">2.</span> <span class="toc-text">strace php 进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装库文件"><span class="toc-number">3.</span> <span class="toc-text">安装库文件</span></a></li></ol>
+    </div>
   </span>
+</div>
 
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        odbc connect return false
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-09-25T16:00:00.000Z" itemprop="datePublished">2019-09-26</time>
+    </div>
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/ODBC/">ODBC</a>, <a class="tag-link" href="/tags/PHP/">PHP</a>
+    </div>
 
-      
-      
+
     </div>
   </header>
+  
 
-  <div class="article-content">
-    
-      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>odbc在connect的时候会返回<code>资源句柄</code>，但是如果返回<code>false</code>就蒙蔽了。如果有记录php错误日志，会得到下面的内容</p>
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>odbc在connect的时候会返回<code>资源句柄</code>，但是如果返回<code>false</code>就蒙蔽了。如果有记录php错误日志，会得到下面的内容</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (<span class="number">11560</span>) Unable <span class="keyword">to</span> locate SQLGetPrivateProfileString <span class="function"><span class="keyword">function</span>., <span class="title">SQL</span> <span class="title">state</span> <span class="title">S1000</span> <span class="title">in</span> <span class="title">SQLConnect</span></span></span><br></pre></td></tr></table></figure>
 <p>google一下发现和动态库有点关系，只好看下系统调用情况</p>
 <h2 id="strace-php-进程"><a href="#strace-php-进程" class="headerlink" title="strace php 进程"></a>strace php 进程</h2><p>找到下面的信息，看来是这个库<code>libiodbcinst.so</code>缺失了</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span>(<span class="string">"/home/.odbcinst.ini"</span>, O_RDONLY)   = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/etc/ld.so.cache"</span>, O_RDONLY)      = <span class="number">7</span></span><br><span class="line">fstat(<span class="number">7</span>, &#123;st_mode=S_IFREG|<span class="number">0644</span>, st_size=<span class="number">31742</span>, ...&#125;) = <span class="number">0</span></span><br><span class="line">mmap(NULL, <span class="number">31742</span>, PROT_READ, MAP_PRIVATE, <span class="number">7</span>, <span class="number">0</span>) = <span class="number">0</span>x7f779b219000</span><br><span class="line"><span class="keyword">close</span>(<span class="number">7</span>)                                = <span class="number">0</span></span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/lib64/tls/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/lib64/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/usr/lib64/tls/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/usr/lib64/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line">munmap(<span class="number">0</span>x7f779b219000, <span class="number">31742</span>)           = <span class="number">0</span></span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/data/logs/php/php_error.log"</span>, O_WRONLY|O_CREAT|O_APPEND, <span class="number">0644</span>) = <span class="number">7</span></span><br><span class="line"><span class="keyword">write</span>(<span class="number">7</span>, <span class="string">"[26-Sep-2019 10:52:47 Asia/Shang"</span>..., <span class="number">304</span>) = <span class="number">304</span></span><br><span class="line"><span class="keyword">close</span>(<span class="number">7</span>)                                = <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <h2 id="安装库文件"><a href="#安装库文件" class="headerlink" title="安装库文件"></a>安装库文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh https://rpmfind.net/linux/epel/6/x86_64/Packages/l/libiodbc-3.52.7-1.el6.x86_64.rpm</span><br><span class="line"></span><br><span class="line">ln -sv /usr/lib64/libiodbcinst.so.2 /usr/lib64/libiodbcinst.so</span><br></pre></td></tr></table></figure>
-    
   </div>
-
-  
-      <div class="git"></div>
-  
-
 </article>
 
 
-   
-  <div class="text-center donation">
-    <div class="inner-donation">
-      <span class="btn-donation">请我喝一杯咖啡</span>
-      <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持funsoul</div>
-        <ul>
-        
-          <li class="item">
-            <span>微信扫一扫</span>
-            <img src="/images/wechat.jpg" alt="">
-          </li>
-        
-        </ul>
+
       </div>
-    </div>
-  </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
 
-
-   
-  <div class="box-prev-next clearfix">
-    <a class="show pull-left" href="/2019/08/18/《黑客与画家》遇上了《闻香识女人》/">
-        <i class="icon icon-angle-left"></i>
-    </a>
-    <a class="show pull-right" href="/2019/09/26/Swoole协程如何处理CPU密集型应用/">
-        <i class="icon icon-angle-right"></i>
-    </a>
-  </div>
-
-
-
-
-</div>
-
-
-  <a id="backTop" class="back-top">
-    <i class="icon-angle-up"></i>
-  </a>
-
-
-
-
-  <div class="modal" id="modal">
-  <span id="cover" class="cover hide"></span>
-  <div id="modal-dialog" class="modal-dialog hide-dialog">
-    <div class="modal-header">
-      <span id="close" class="btn-close">关闭</span>
-    </div>
-    <hr>
-    <div class="modal-body">
-      <ul class="list-toolbox">
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/archives/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              博客
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/categories/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              分类
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/tags/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              标签
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/links/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              友链
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/about/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              关于
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/search/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              搜索
-            </a>
-          </li>
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
         
       </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#strace-php-进程"><span class="toc-number">2.</span> <span class="toc-text">strace php 进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装库文件"><span class="toc-number">3.</span> <span class="toc-text">安装库文件</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/09/26/odbc connect return false/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/09/26/odbc connect return false/&text=odbc connect return false"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/09/26/odbc connect return false/&is_video=false&description=odbc connect return false"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=odbc connect return false&body=Check out this article: http://funsoul.org/2019/09/26/odbc connect return false/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/09/26/odbc connect return false/&title=odbc connect return false"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/09/26/odbc connect return false/&name=odbc connect return false&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
 
     </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
   </div>
 </div>
 
-
-
-  
-      <div class="fexo-comments comments-post">
-    
-
-    
-
-    
-    
-
-    
-
-    
-    
-
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 funsoul
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
 
-  
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
 
-  <script type="text/javascript">
-  function loadScript(url, callback) {
-    var script = document.createElement('script')
-    script.type = 'text/javascript';
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 
-    if (script.readyState) { //IE
-      script.onreadystatechange = function() {
-        if (script.readyState == 'loaded' ||
-          script.readyState == 'complete') {
-          script.onreadystatechange = null;
-          callback();
-        }
-      };
-    } else { //Others
-      script.onload = function() {
-        callback();
-      };
-    }
+<!-- Disqus Comments -->
 
-    script.src = url;
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
 
-  window.onload = function() {
-    loadScript('/js/bundle.js?235683', function() {
-      // load success
-    });
-  }
-</script>
-
+    </div>
 </body>
 </html>

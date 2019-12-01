@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-
-
-  <html class="light page-post">
-
-
+<html lang=ch>
 <head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>redis的对端心跳检测 | funsoul</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  
-    <meta name="keywords" content="PHP,Redis,TCP,">
-  
-
-  <meta name="description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
 <meta name="keywords" content="PHP,Redis,TCP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="redis的对端心跳检测">
@@ -30,176 +21,161 @@
 <meta name="twitter:title" content="redis的对端心跳检测">
 <meta name="twitter:description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
 <meta name="twitter:image" content="http://funsoul.org/images/发布订阅.png">
-
-  
-
-  
-    <link rel="icon" href="/favicon.ico">
-  
-
-  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
-
-
-  
-
-  
-<!-- Google Analytics -->
-<script type="text/javascript">
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118289850-1', 'auto');
-ga('send', 'pageview');
-
-</script>
-<!-- End Google Analytics -->
-
-
-  
-
-  
-
-
-  
-
-  
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>redis的对端心跳检测</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
 </head>
-</html>
+
 <body>
-
-
-  
-    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
-  
-
-  <div class="post-header CENTER">
-   
-  <div class="toolbox">
-    <a class="toolbox-entry" href="/">
-      <span class="toolbox-entry-text">盒子</span>
-      <i class="icon-angle-down"></i>
-      <i class="icon-home"></i>
-    </a>
-    <ul class="list-toolbox">
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/archives/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            博客
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/categories/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            分类
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/tags/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            标签
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/links/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            友链
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/about/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            关于
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/search/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            搜索
-          </a>
-        </li>
-      
-    </ul>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
   </div>
-
-
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
 </div>
 
-
-  <div id="toc" class="toc-article">
-    <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于redis的发布订阅程序"><span class="toc-text">基于redis的发布订阅程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现订阅者-Subscriber-php"><span class="toc-text">php实现订阅者(Subscriber.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现发布者-Publisher-php"><span class="toc-text">php实现发布者(Publisher.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么我说不是客户端的问题"><span class="toc-text">为什么我说不是客户端的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis扩展的问题？"><span class="toc-text">phpredis扩展的问题？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转移目标"><span class="toc-text">转移目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP心跳检测"><span class="toc-text">TCP心跳检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再说发布订阅"><span class="toc-text">再说发布订阅</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol>
-  </div>
-
-
-
-<div class="content content-post CENTER">
-   <article id="post-redis的对端心跳检测" class="article article-type-post" itemprop="blogPost">
-  <header class="article-header">
-    <h1 class="post-title">redis的对端心跳检测</h1>
-
-    <div class="article-meta">
-      <span>
-        <i class="icon-calendar"></i>
-        <span>2019.03.24</span>
-      </span>
-
+    <div class="background">
       
-        <span class="article-author">
-          <i class="icon-user"></i>
-          <span>funsoul</span>
-        </span>
-      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/04/21/一段诡异的文本（notepad++）/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/02/14/【nginx】fastcgi_max_tmp_file_size/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=redis的对端心跳检测"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=redis的对端心跳检测"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis的对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=redis的对端心跳检测&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
 
-      
-  <span class="article-category">
-    <i class="icon-list"></i>
-    <a class="article-category-link" href="/categories/技术/">技术</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-number">1.</span> <span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于redis的发布订阅程序"><span class="toc-number">2.</span> <span class="toc-text">基于redis的发布订阅程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现订阅者-Subscriber-php"><span class="toc-number">3.</span> <span class="toc-text">php实现订阅者(Subscriber.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现发布者-Publisher-php"><span class="toc-number">4.</span> <span class="toc-text">php实现发布者(Publisher.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么我说不是客户端的问题"><span class="toc-number">5.</span> <span class="toc-text">为什么我说不是客户端的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis扩展的问题？"><span class="toc-number">6.</span> <span class="toc-text">phpredis扩展的问题？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转移目标"><span class="toc-number">7.</span> <span class="toc-text">转移目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP心跳检测"><span class="toc-number">8.</span> <span class="toc-text">TCP心跳检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再说发布订阅"><span class="toc-number">9.</span> <span class="toc-text">再说发布订阅</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">10.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
   </span>
+</div>
 
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        redis的对端心跳检测
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-03-23T16:00:00.000Z" itemprop="datePublished">2019-03-24</time>
+    </div>
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/PHP/">PHP</a>, <a class="tag-link" href="/tags/Redis/">Redis</a>, <a class="tag-link" href="/tags/TCP/">TCP</a>
+    </div>
 
-      
-      
+
     </div>
   </header>
+  
 
-  <div class="article-content">
-    
-      <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>这段时间在做<code>基于Redis的发布订阅</code>时遇到一个有意思的问题，客户端无论使用php扩展<code>phpredis</code>还是原生php写的库<code>predis</code>做subscribe时，都会在一段时间后（30min左右），当发生一次<code>publish</code>后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH）</p>
+  <div class="content" itemprop="articleBody">
+    <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>这段时间在做<code>基于Redis的发布订阅</code>时遇到一个有意思的问题，客户端无论使用php扩展<code>phpredis</code>还是原生php写的库<code>predis</code>做subscribe时，都会在一段时间后（30min左右），当发生一次<code>publish</code>后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH）</p>
 <p>一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题，最后在师兄在帮助下，找到了redis-server的一个配置<code>tcp-keepalive</code>，这个值当时为0，后来我们设置为300，程序正常了。</p>
 <h2 id="基于redis的发布订阅程序"><a href="#基于redis的发布订阅程序" class="headerlink" title="基于redis的发布订阅程序"></a>基于redis的发布订阅程序</h2><p><img src="/images/发布订阅.png" alt="发布订阅"></p>
 <p>这个服务非常简单，从上图可知，以Redis-Server为界分为上下两部分，上部分通过Web程序下指令，发布消息到指定的Channel，下部分是一个常驻进程服务，在Redis-Server订阅了某个Channel，并阻塞在Subscribe事件回调中，当有消息来，进行消息处理。</p>
@@ -252,189 +228,100 @@ ga('send', 'pageview');
 <li>发布订阅的一点健壮性思考</li>
 </ul>
 
-    
   </div>
-
-  
-      <div class="git"></div>
-  
-
 </article>
 
 
-   
-  <div class="text-center donation">
-    <div class="inner-donation">
-      <span class="btn-donation">请我喝一杯咖啡</span>
-      <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持funsoul</div>
-        <ul>
-        
-          <li class="item">
-            <span>微信扫一扫</span>
-            <img src="/images/wechat.jpg" alt="">
-          </li>
-        
-        </ul>
+
       </div>
-    </div>
-  </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
 
-
-   
-  <div class="box-prev-next clearfix">
-    <a class="show pull-left" href="/2019/02/14/【nginx】fastcgi_max_tmp_file_size/">
-        <i class="icon icon-angle-left"></i>
-    </a>
-    <a class="show pull-right" href="/2019/04/21/一段诡异的文本（notepad++）/">
-        <i class="icon icon-angle-right"></i>
-    </a>
-  </div>
-
-
-
-
-</div>
-
-
-  <a id="backTop" class="back-top">
-    <i class="icon-angle-up"></i>
-  </a>
-
-
-
-
-  <div class="modal" id="modal">
-  <span id="cover" class="cover hide"></span>
-  <div id="modal-dialog" class="modal-dialog hide-dialog">
-    <div class="modal-header">
-      <span id="close" class="btn-close">关闭</span>
-    </div>
-    <hr>
-    <div class="modal-body">
-      <ul class="list-toolbox">
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/archives/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              博客
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/categories/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              分类
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/tags/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              标签
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/links/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              友链
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/about/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              关于
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/search/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              搜索
-            </a>
-          </li>
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
         
       </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前"><span class="toc-number">1.</span> <span class="toc-text">写在前</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于redis的发布订阅程序"><span class="toc-number">2.</span> <span class="toc-text">基于redis的发布订阅程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现订阅者-Subscriber-php"><span class="toc-number">3.</span> <span class="toc-text">php实现订阅者(Subscriber.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php实现发布者-Publisher-php"><span class="toc-number">4.</span> <span class="toc-text">php实现发布者(Publisher.php)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么我说不是客户端的问题"><span class="toc-number">5.</span> <span class="toc-text">为什么我说不是客户端的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis扩展的问题？"><span class="toc-number">6.</span> <span class="toc-text">phpredis扩展的问题？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转移目标"><span class="toc-number">7.</span> <span class="toc-text">转移目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP心跳检测"><span class="toc-number">8.</span> <span class="toc-text">TCP心跳检测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再说发布订阅"><span class="toc-number">9.</span> <span class="toc-text">再说发布订阅</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">10.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=redis的对端心跳检测"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=redis的对端心跳检测"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=redis的对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=redis的对端心跳检测&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
 
     </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
   </div>
 </div>
 
-
-
-  
-      <div class="fexo-comments comments-post">
-    
-
-    
-
-    
-    
-
-    
-
-    
-    
-
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 funsoul
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
 
-  
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
 
-  <script type="text/javascript">
-  function loadScript(url, callback) {
-    var script = document.createElement('script')
-    script.type = 'text/javascript';
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 
-    if (script.readyState) { //IE
-      script.onreadystatechange = function() {
-        if (script.readyState == 'loaded' ||
-          script.readyState == 'complete') {
-          script.onreadystatechange = null;
-          callback();
-        }
-      };
-    } else { //Others
-      script.onload = function() {
-        callback();
-      };
-    }
+<!-- Disqus Comments -->
 
-    script.src = url;
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
 
-  window.onload = function() {
-    loadScript('/js/bundle.js?235683', function() {
-      // load success
-    });
-  }
-</script>
-
+    </div>
 </body>
 </html>

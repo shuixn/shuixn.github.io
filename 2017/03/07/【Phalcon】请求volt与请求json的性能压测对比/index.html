@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-
-
-  <html class="light page-post">
-
-
+<html lang=ch>
 <head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>【Phalcon】请求volt与请求json的性能压测对比 | funsoul</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  
-    <meta name="keywords" content="PHP,Phlacon,Apache Bench,">
-  
-
-  <meta name="description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
 <meta name="keywords" content="PHP,Phlacon,Apache Bench">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Phalcon】请求volt与请求json的性能压测对比">
@@ -33,176 +24,161 @@
 <meta name="twitter:title" content="【Phalcon】请求volt与请求json的性能压测对比">
 <meta name="twitter:description" content="前言最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。 使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。 Phalcon的模板渲染流程是这样">
 <meta name="twitter:image" content="http://funsoul.org/images/20170307235446889.jpg">
-
-  
-
-  
-    <link rel="icon" href="/favicon.ico">
-  
-
-  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
-
-
-  
-
-  
-<!-- Google Analytics -->
-<script type="text/javascript">
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118289850-1', 'auto');
-ga('send', 'pageview');
-
-</script>
-<!-- End Google Analytics -->
-
-
-  
-
-  
-
-
-  
-
-  
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>【Phalcon】请求volt与请求json的性能压测对比</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
 </head>
-</html>
+
 <body>
-
-
-  
-    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
-  
-
-  <div class="post-header CENTER">
-   
-  <div class="toolbox">
-    <a class="toolbox-entry" href="/">
-      <span class="toolbox-entry-text">盒子</span>
-      <i class="icon-angle-down"></i>
-      <i class="icon-home"></i>
-    </a>
-    <ul class="list-toolbox">
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/archives/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            博客
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/categories/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            分类
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/tags/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            标签
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/links/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            友链
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/about/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            关于
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/search/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            搜索
-          </a>
-        </li>
-      
-    </ul>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
   </div>
-
-
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
 </div>
 
-
-  <div id="toc" class="toc-article">
-    <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phalcon的模板渲染流程是这样的，"><span class="toc-text">Phalcon的模板渲染流程是这样的，</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#路由"><span class="toc-text">路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请求JSON"><span class="toc-text">请求JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合Volt和JSON"><span class="toc-text">结合Volt和JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完全使用Volt"><span class="toc-text">完全使用Volt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#压测前准备："><span class="toc-text">压测前准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始压测："><span class="toc-text">开始压测：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、请求Volt"><span class="toc-text">一、请求Volt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、请求Json"><span class="toc-text">二、请求Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2000请求，并发200对比"><span class="toc-text">2000请求，并发200对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-text">结论</span></a></li></ol>
-  </div>
-
-
-
-<div class="content content-post CENTER">
-   <article id="post-【Phalcon】请求volt与请求json的性能压测对比" class="article article-type-post" itemprop="blogPost">
-  <header class="article-header">
-    <h1 class="post-title">【Phalcon】请求volt与请求json的性能压测对比</h1>
-
-    <div class="article-meta">
-      <span>
-        <i class="icon-calendar"></i>
-        <span>2017.03.07</span>
-      </span>
-
+    <div class="background">
       
-        <span class="article-author">
-          <i class="icon-user"></i>
-          <span>funsoul</span>
-        </span>
-      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2017/11/15/PHP中两个数组怎样才算相等？/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2016/12/15/【Phalcon】路由拆分/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&text=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&is_video=false&description=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【Phalcon】请求volt与请求json的性能压测对比&body=Check out this article: http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&name=【Phalcon】请求volt与请求json的性能压测对比&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
 
-      
-  <span class="article-category">
-    <i class="icon-list"></i>
-    <a class="article-category-link" href="/categories/技术/">技术</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phalcon的模板渲染流程是这样的，"><span class="toc-number">2.</span> <span class="toc-text">Phalcon的模板渲染流程是这样的，</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#路由"><span class="toc-number">2.1.</span> <span class="toc-text">路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请求JSON"><span class="toc-number">3.</span> <span class="toc-text">请求JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合Volt和JSON"><span class="toc-number">4.</span> <span class="toc-text">结合Volt和JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完全使用Volt"><span class="toc-number">5.</span> <span class="toc-text">完全使用Volt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">6.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#压测前准备："><span class="toc-number">7.</span> <span class="toc-text">压测前准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始压测："><span class="toc-number">8.</span> <span class="toc-text">开始压测：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、请求Volt"><span class="toc-number">8.1.</span> <span class="toc-text">一、请求Volt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、请求Json"><span class="toc-number">8.2.</span> <span class="toc-text">二、请求Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2000请求，并发200对比"><span class="toc-number">8.3.</span> <span class="toc-text">2000请求，并发200对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-number">9.</span> <span class="toc-text">结论</span></a></li></ol>
+    </div>
   </span>
+</div>
 
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        【Phalcon】请求volt与请求json的性能压测对比
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2017-03-06T16:00:00.000Z" itemprop="datePublished">2017-03-07</time>
+    </div>
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Apache-Bench/">Apache Bench</a>, <a class="tag-link" href="/tags/PHP/">PHP</a>, <a class="tag-link" href="/tags/Phlacon/">Phlacon</a>
+    </div>
 
-      
-      
+
     </div>
   </header>
+  
 
-  <div class="article-content">
-    
-      <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。</p>
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近比较忙，没有太多时间更新博客。不过，公司要求实习生每天都写日报，一周完结的时候还要写周报。我便把每天遇到的问题和思考都记在了日志中，也算是小型博客了。在最近的工作中，遇到了一些痛点。我想把解决这些痛点的经过写下来。</p>
 <p>使用Phalcon，模板引擎Volt是一个亮点，我们不需要写原生的PHP代码，当然如果逻辑很复杂，Volt无法满足我们的需求，可以使用原生。</p>
 <h2 id="Phalcon的模板渲染流程是这样的，"><a href="#Phalcon的模板渲染流程是这样的，" class="headerlink" title="Phalcon的模板渲染流程是这样的，"></a>Phalcon的模板渲染流程是这样的，</h2><h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p> =&gt; 控制器(如indexController) ，使用setVars把变量发到视图</p>
 <p> =&gt; views，存放所有视图</p>
@@ -294,189 +270,100 @@ ga('send', 'pageview');
 </ol>
 <p>考虑到网络延时情况，实时性，数据量大、效率要求高的地方，如时间线，应该优先使用JSON传输数据。其他的可以考虑使用请求volt方法，提高开发效率。</p>
 
-    
   </div>
-
-  
-      <div class="git"></div>
-  
-
 </article>
 
 
-   
-  <div class="text-center donation">
-    <div class="inner-donation">
-      <span class="btn-donation">请我喝一杯咖啡</span>
-      <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持funsoul</div>
-        <ul>
-        
-          <li class="item">
-            <span>微信扫一扫</span>
-            <img src="/images/wechat.jpg" alt="">
-          </li>
-        
-        </ul>
+
       </div>
-    </div>
-  </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
 
-
-   
-  <div class="box-prev-next clearfix">
-    <a class="show pull-left" href="/2016/12/15/【Phalcon】路由拆分/">
-        <i class="icon icon-angle-left"></i>
-    </a>
-    <a class="show pull-right" href="/2017/11/15/PHP中两个数组怎样才算相等？/">
-        <i class="icon icon-angle-right"></i>
-    </a>
-  </div>
-
-
-
-
-</div>
-
-
-  <a id="backTop" class="back-top">
-    <i class="icon-angle-up"></i>
-  </a>
-
-
-
-
-  <div class="modal" id="modal">
-  <span id="cover" class="cover hide"></span>
-  <div id="modal-dialog" class="modal-dialog hide-dialog">
-    <div class="modal-header">
-      <span id="close" class="btn-close">关闭</span>
-    </div>
-    <hr>
-    <div class="modal-body">
-      <ul class="list-toolbox">
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/archives/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              博客
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/categories/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              分类
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/tags/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              标签
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/links/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              友链
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/about/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              关于
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/search/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              搜索
-            </a>
-          </li>
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
         
       </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phalcon的模板渲染流程是这样的，"><span class="toc-number">2.</span> <span class="toc-text">Phalcon的模板渲染流程是这样的，</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#路由"><span class="toc-number">2.1.</span> <span class="toc-text">路由</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请求JSON"><span class="toc-number">3.</span> <span class="toc-text">请求JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合Volt和JSON"><span class="toc-number">4.</span> <span class="toc-text">结合Volt和JSON</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完全使用Volt"><span class="toc-number">5.</span> <span class="toc-text">完全使用Volt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">6.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#压测前准备："><span class="toc-number">7.</span> <span class="toc-text">压测前准备：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始压测："><span class="toc-number">8.</span> <span class="toc-text">开始压测：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、请求Volt"><span class="toc-number">8.1.</span> <span class="toc-text">一、请求Volt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、请求Json"><span class="toc-number">8.2.</span> <span class="toc-text">二、请求Json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2000请求，并发200对比"><span class="toc-number">8.3.</span> <span class="toc-text">2000请求，并发200对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-number">9.</span> <span class="toc-text">结论</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&text=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&is_video=false&description=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【Phalcon】请求volt与请求json的性能压测对比&body=Check out this article: http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&title=【Phalcon】请求volt与请求json的性能压测对比"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2017/03/07/【Phalcon】请求volt与请求json的性能压测对比/&name=【Phalcon】请求volt与请求json的性能压测对比&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
 
     </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
   </div>
 </div>
 
-
-
-  
-      <div class="fexo-comments comments-post">
-    
-
-    
-
-    
-    
-
-    
-
-    
-    
-
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 funsoul
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
 
-  
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
 
-  <script type="text/javascript">
-  function loadScript(url, callback) {
-    var script = document.createElement('script')
-    script.type = 'text/javascript';
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 
-    if (script.readyState) { //IE
-      script.onreadystatechange = function() {
-        if (script.readyState == 'loaded' ||
-          script.readyState == 'complete') {
-          script.onreadystatechange = null;
-          callback();
-        }
-      };
-    } else { //Others
-      script.onload = function() {
-        callback();
-      };
-    }
+<!-- Disqus Comments -->
 
-    script.src = url;
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
 
-  window.onload = function() {
-    loadScript('/js/bundle.js?235683', function() {
-      // load success
-    });
-  }
-</script>
-
+    </div>
 </body>
 </html>

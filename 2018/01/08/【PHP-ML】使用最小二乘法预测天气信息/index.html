@@ -1,21 +1,12 @@
 <!DOCTYPE html>
-
-
-  <html class="light page-post">
-
-
+<html lang=ch>
 <head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>【PHP-ML】使用最小二乘法预测天气信息 | funsoul</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  
-    <meta name="keywords" content="PHP,学习笔记,PHP-ML,机器学习,">
-  
-
-  <meta name="description" content="项目地址Github 训练数据客运站网的历史天气信息 采集工具QueryList output 总结1、结合实际业务学习PHP-ML，这个demo抓取客运站网上前一周的最高气温作为样本数据进行训练，预测未来一天的最高气温。2、写的很简单，可以继续扩展结合更多的因素寻求最优解，当然预测结果不可尽信，毕竟天气是综合多方因素得到的结果：）3、最小二乘法是统计学中的一种回归分析，根据已知的确定的数据，求得">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="项目地址Github 训练数据客运站网的历史天气信息 采集工具QueryList output 总结1、结合实际业务学习PHP-ML，这个demo抓取客运站网上前一周的最高气温作为样本数据进行训练，预测未来一天的最高气温。2、写的很简单，可以继续扩展结合更多的因素寻求最优解，当然预测结果不可尽信，毕竟天气是综合多方因素得到的结果：）3、最小二乘法是统计学中的一种回归分析，根据已知的确定的数据，求得">
 <meta name="keywords" content="PHP,学习笔记,PHP-ML,机器学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【PHP-ML】使用最小二乘法预测天气信息">
@@ -30,363 +21,259 @@
 <meta name="twitter:title" content="【PHP-ML】使用最小二乘法预测天气信息">
 <meta name="twitter:description" content="项目地址Github 训练数据客运站网的历史天气信息 采集工具QueryList output 总结1、结合实际业务学习PHP-ML，这个demo抓取客运站网上前一周的最高气温作为样本数据进行训练，预测未来一天的最高气温。2、写的很简单，可以继续扩展结合更多的因素寻求最优解，当然预测结果不可尽信，毕竟天气是综合多方因素得到的结果：）3、最小二乘法是统计学中的一种回归分析，根据已知的确定的数据，求得">
 <meta name="twitter:image" content="data:image/png;base64,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">
-
-  
-
-  
-    <link rel="icon" href="/favicon.ico">
-  
-
-  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
-
-
-  
-
-  
-<!-- Google Analytics -->
-<script type="text/javascript">
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-118289850-1', 'auto');
-ga('send', 'pageview');
-
-</script>
-<!-- End Google Analytics -->
-
-
-  
-
-  
-
-
-  
-
-  
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>【PHP-ML】使用最小二乘法预测天气信息</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
 </head>
-</html>
+
 <body>
-
-
-  
-    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
-  
-
-  <div class="post-header CENTER">
-   
-  <div class="toolbox">
-    <a class="toolbox-entry" href="/">
-      <span class="toolbox-entry-text">盒子</span>
-      <i class="icon-angle-down"></i>
-      <i class="icon-home"></i>
-    </a>
-    <ul class="list-toolbox">
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/archives/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            博客
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/categories/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            分类
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/tags/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            标签
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/links/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            友链
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/about/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            关于
-          </a>
-        </li>
-      
-        <li class="item-toolbox">
-          <a
-            class="CIRCLE"
-            href="/search/"
-            rel="noopener noreferrer"
-            target="_self"
-            >
-            搜索
-          </a>
-        </li>
-      
-    </ul>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
   </div>
-
-
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
 </div>
 
-
-  <div id="toc" class="toc-article">
-    <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-text">项目地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-text">训练数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-text">采集工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-text">output</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-text">总结</span></a></li></ol>
-  </div>
-
-
-
-<div class="content content-post CENTER">
-   <article id="post-【PHP-ML】使用最小二乘法预测天气信息" class="article article-type-post" itemprop="blogPost">
-  <header class="article-header">
-    <h1 class="post-title">【PHP-ML】使用最小二乘法预测天气信息</h1>
-
-    <div class="article-meta">
-      <span>
-        <i class="icon-calendar"></i>
-        <span>2018.01.08</span>
-      </span>
-
+    <div class="background">
       
-        <span class="article-author">
-          <i class="icon-user"></i>
-          <span>funsoul</span>
-        </span>
-      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/01/12/【PHP-ML】使用Apriori算法挖掘用户购物习惯/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/12/27/【重构Hue】大数据处理的一些总结/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&text=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&is_video=false&description=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【PHP-ML】使用最小二乘法预测天气信息&body=Check out this article: http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&name=【PHP-ML】使用最小二乘法预测天气信息&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
 
-      
-  <span class="article-category">
-    <i class="icon-list"></i>
-    <a class="article-category-link" href="/categories/技术/">技术</a>
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">项目地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">训练数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">采集工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">output</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
   </span>
+</div>
 
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        【PHP-ML】使用最小二乘法预测天气信息
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-01-07T16:00:00.000Z" itemprop="datePublished">2018-01-08</time>
+    </div>
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/PHP/">PHP</a>, <a class="tag-link" href="/tags/PHP-ML/">PHP-ML</a>, <a class="tag-link" href="/tags/学习笔记/">学习笔记</a>, <a class="tag-link" href="/tags/机器学习/">机器学习</a>
+    </div>
 
-      
-      
+
     </div>
   </header>
+  
 
-  <div class="article-content">
-    
-      <p></p><h3>项目地址</h3><br><a href="https://github.com/funsoul/php-ml/blob/master/LeastSquares.php" target="_blank" rel="noopener">Github</a><p></p>
+  <div class="content" itemprop="articleBody">
+    <p></p><h3>项目地址</h3><br><a href="https://github.com/funsoul/php-ml/blob/master/LeastSquares.php" target="_blank" rel="noopener">Github</a><p></p>
 <p></p><h3>训练数据</h3><br><a href="https://www.keyunzhan.com/lishitianqi/" target="_blank" rel="noopener">客运站网</a>的历史天气信息<p></p>
 <p></p><h3>采集工具</h3><br><a href="https://querylist.cc/" target="_blank" rel="noopener">QueryList</a><p></p>
 <p></p><h3 style="font-family: arial, helvetica, sans-serif; font-size: 12pt; color: #000000;"><strong>output</strong></h3><p></p>
 <div style="font-family: arial, helvetica, sans-serif; font-size: 12pt; color: #000000;"><img id="DWT170" src="data:image/png;base64,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" data-zim-uri="DWT170"></div><br><h3>总结</h3><br><div data-marker="__QUOTED_TEXT__">1、结合实际业务学习PHP-ML，这个demo抓取客运站网上前一周的最高气温作为样本数据进行训练，预测未来一天的最高气温。</div><br><div data-marker="__QUOTED_TEXT__">2、写的很简单，可以继续扩展结合更多的因素寻求最优解，当然预测结果不可尽信，毕竟天气是综合多方因素得到的结果：）</div><br><div data-marker="__QUOTED_TEXT__">3、最小二乘法是统计学中的一种回归分析，根据已知的确定的数据，求得未知的近似值。如下图，蓝色点为支撑分析的数据，红色线为拟合后的结果。</div><br><div data-marker="__QUOTED_TEXT__"><img id="DWT133" src="data:image/png;base64,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" data-zim-uri="DWT133"></div><br><div data-marker="__QUOTED_TEXT__">4、PHP-ML必须使用PHP7.1+，看了下源码，确实使用了强类型，declare(strict_types=1)。</div>
-    
   </div>
-
-  
-      <div class="git"></div>
-  
-
 </article>
 
 
-   
-  <div class="text-center donation">
-    <div class="inner-donation">
-      <span class="btn-donation">请我喝一杯咖啡</span>
-      <div class="donation-body">
-        <div class="tip text-center">扫一扫，支持funsoul</div>
-        <ul>
-        
-          <li class="item">
-            <span>微信扫一扫</span>
-            <img src="/images/wechat.jpg" alt="">
-          </li>
-        
-        </ul>
+
       </div>
-    </div>
-  </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
 
-
-   
-  <div class="box-prev-next clearfix">
-    <a class="show pull-left" href="/2017/12/27/【重构Hue】大数据处理的一些总结/">
-        <i class="icon icon-angle-left"></i>
-    </a>
-    <a class="show pull-right" href="/2018/01/12/【PHP-ML】使用Apriori算法挖掘用户购物习惯/">
-        <i class="icon icon-angle-right"></i>
-    </a>
-  </div>
-
-
-
-
-</div>
-
-
-  <a id="backTop" class="back-top">
-    <i class="icon-angle-up"></i>
-  </a>
-
-
-
-
-  <div class="modal" id="modal">
-  <span id="cover" class="cover hide"></span>
-  <div id="modal-dialog" class="modal-dialog hide-dialog">
-    <div class="modal-header">
-      <span id="close" class="btn-close">关闭</span>
-    </div>
-    <hr>
-    <div class="modal-body">
-      <ul class="list-toolbox">
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/archives/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              博客
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/categories/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              分类
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/tags/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              标签
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/links/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              友链
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/about/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              关于
-            </a>
-          </li>
-        
-          <li class="item-toolbox">
-            <a
-              class="CIRCLE"
-              href="/search/"
-              rel="noopener noreferrer"
-              target="_self"
-              >
-              搜索
-            </a>
-          </li>
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
         
       </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">1.</span> <span class="toc-text">项目地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">2.</span> <span class="toc-text">训练数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">3.</span> <span class="toc-text">采集工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">4.</span> <span class="toc-text">output</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#null"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&text=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&is_video=false&description=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=【PHP-ML】使用最小二乘法预测天气信息&body=Check out this article: http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&title=【PHP-ML】使用最小二乘法预测天气信息"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2018/01/08/【PHP-ML】使用最小二乘法预测天气信息/&name=【PHP-ML】使用最小二乘法预测天气信息&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
 
     </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
   </div>
 </div>
 
-
-
-  
-      <div class="fexo-comments comments-post">
-    
-
-    
-
-    
-    
-
-    
-
-    
-    
-
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 funsoul
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
 
-  
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
 
-  <script type="text/javascript">
-  function loadScript(url, callback) {
-    var script = document.createElement('script')
-    script.type = 'text/javascript';
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 
-    if (script.readyState) { //IE
-      script.onreadystatechange = function() {
-        if (script.readyState == 'loaded' ||
-          script.readyState == 'complete') {
-          script.onreadystatechange = null;
-          callback();
-        }
-      };
-    } else { //Others
-      script.onload = function() {
-        callback();
-      };
-    }
+<!-- Disqus Comments -->
 
-    script.src = url;
-    document.getElementsByTagName('head')[0].appendChild(script);
-  }
 
-  window.onload = function() {
-    loadScript('/js/bundle.js?235683', function() {
-      // load success
-    });
-  }
-</script>
-
+    </div>
 </body>
 </html>
