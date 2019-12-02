@@ -149,10 +149,14 @@ $vectorizer->getVocabulary();
 
 ### TF-IDF
 
+>>tf-idf是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。
+
 ```php
 $transformer = new TfIdfTransformer($trainX);
 $transformer->transform($trainX);
 ```
+
+在这里，由于只有一句话，且这句话里面所有的字词都只有一个，所以权重是一样的。
 
 ```php
 [[0.40824829 0.40824829 0.40824829 0.40824829 0.40824829 0.40824829]]
@@ -233,7 +237,7 @@ ConfusionMatrix::compute($testY, $predictY, $categoryIds);
 
 ### Classification Report
 
-通过``ClassificationReport``得到整体的指标（score、f1、recall）
+通过``ClassificationReport``得到整体分类报告（score、f1、recall）
 
 ```php
 $report = new ClassificationReport($testY, $predictY);
@@ -242,7 +246,10 @@ $report->getAverage();
 
 ## Pipeline
 
-还可以使用``Pipeline``来管线化工作流，代码看起来会少很多。
+还可以使用``Pipeline``来管线化工作流，有两个好处：
+
+1. 代码少很多，阅读更清晰
+2. 内存占用更低
 
 ```php
 $transformers = [
