@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="php-mlphp-ml是波兰开发者Arkadiusz Kondas的作品，前段时间刚翻译了他关于PHP在机器学习领域的看法「3 Reasons Why PHP is Not Yet Perfect for Machine Learning」。php-ml的出现丰富了PHP生态，让PHP开发者也能写机器学习应用，这篇文章讲一讲文本分类问题在php-ml中是怎么解决的。 本文的实践例子已经放在Git">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-12-02T07:25:53.725Z">
+<meta property="og:updated_time" content="2019-12-02T07:55:40.235Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【PHP-ML】解决NLP中文文本分类问题">
 <meta name="twitter:description" content="php-mlphp-ml是波兰开发者Arkadiusz Kondas的作品，前段时间刚翻译了他关于PHP在机器学习领域的看法「3 Reasons Why PHP is Not Yet Perfect for Machine Learning」。php-ml的出现丰富了PHP生态，让PHP开发者也能写机器学习应用，这篇文章讲一讲文本分类问题在php-ml中是怎么解决的。 本文的实践例子已经放在Git">
@@ -221,7 +221,13 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$vectorizer-&gt;getVocabulary();</span><br><span class="line"><span class="comment">// ['之旅', '京城', '值得', '博物馆', '文化', '来场']</span></span><br></pre></td></tr></table></figure>
 <p>语料库</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
-<h3 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$transformer = <span class="keyword">new</span> TfIdfTransformer($trainX);</span><br><span class="line">$transformer-&gt;transform($trainX);</span><br></pre></td></tr></table></figure>
+<h3 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h3><blockquote>
+<blockquote>
+<p>tf-idf是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。</p>
+</blockquote>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$transformer = <span class="keyword">new</span> TfIdfTransformer($trainX);</span><br><span class="line">$transformer-&gt;transform($trainX);</span><br></pre></td></tr></table></figure>
+<p>在这里，由于只有一句话，且这句话里面所有的字词都只有一个，所以权重是一样的。</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0.40824829</span> <span class="number">0.40824829</span> <span class="number">0.40824829</span> <span class="number">0.40824829</span> <span class="number">0.40824829</span> <span class="number">0.40824829</span>]]</span><br></pre></td></tr></table></figure>
 <h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><p>进行特征处理后的<code>特征集</code>和<code>类别对象</code>传入模型的构造方法，即可进行训练。注意，这里可以对比<code>未使用tfidf</code>和<code>使用tfidf</code>前后的效果。</p>
 <p>这里使用朴素贝叶斯举例：</p>
@@ -238,9 +244,13 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accuracy::score($testY, $predictY)</span><br></pre></td></tr></table></figure>
 <h3 id="Confusion-Matrix"><a href="#Confusion-Matrix" class="headerlink" title="Confusion Matrix"></a>Confusion Matrix</h3><p>通过<code>ConfusionMatrix</code>得到预测结果的错误情况</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$text = <span class="keyword">new</span> Text($textFile);</span><br><span class="line">$categoryIds = $text-&gt;getCategoryIds();</span><br><span class="line">ConfusionMatrix::compute($testY, $predictY, $categoryIds);</span><br></pre></td></tr></table></figure>
-<h3 id="Classification-Report"><a href="#Classification-Report" class="headerlink" title="Classification Report"></a>Classification Report</h3><p>通过<code>ClassificationReport</code>得到整体的指标（score、f1、recall）</p>
+<h3 id="Classification-Report"><a href="#Classification-Report" class="headerlink" title="Classification Report"></a>Classification Report</h3><p>通过<code>ClassificationReport</code>得到整体分类报告（score、f1、recall）</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$report = <span class="keyword">new</span> ClassificationReport($testY, $predictY);</span><br><span class="line">$report-&gt;getAverage();</span><br></pre></td></tr></table></figure>
-<h2 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a>Pipeline</h2><p>还可以使用<code>Pipeline</code>来管线化工作流，代码看起来会少很多。</p>
+<h2 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a>Pipeline</h2><p>还可以使用<code>Pipeline</code>来管线化工作流，有两个好处：</p>
+<ol>
+<li>代码少很多，阅读更清晰</li>
+<li>内存占用更低</li>
+</ol>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$transformers = [</span><br><span class="line">    <span class="keyword">new</span> TokenCountVectorizer(<span class="keyword">new</span> WhitespaceTokenizer()),</span><br><span class="line">    <span class="keyword">new</span> TfIdfTransformer()</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">$pipeline = <span class="keyword">new</span> Pipeline($transformers, <span class="keyword">new</span> NaiveBayes());</span><br><span class="line">$pipeline-&gt;train($trainX, $trainY);</span><br><span class="line">$predictY = $pipeline-&gt;predict($testX);</span><br><span class="line">Accuracy::score($testY, $predictY);</span><br></pre></td></tr></table></figure>
   </div>
 </article>
