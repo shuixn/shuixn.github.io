@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="php-mlphp-ml是波兰开发者Arkadiusz Kondas的作品，前段时间刚翻译了他关于PHP在机器学习领域的看法「3 Reasons Why PHP is Not Yet Perfect for Machine Learning」。php-ml的出现丰富了PHP生态，让PHP开发者也能写机器学习应用，这篇文章讲一讲文本分类问题在php-ml中是怎么解决的。 本文的实践例子已经放在Git">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-12-02T07:55:40.235Z">
+<meta property="og:updated_time" content="2019-12-02T08:54:53.138Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【PHP-ML】解决NLP中文文本分类问题">
 <meta name="twitter:description" content="php-mlphp-ml是波兰开发者Arkadiusz Kondas的作品，前段时间刚翻译了他关于PHP在机器学习领域的看法「3 Reasons Why PHP is Not Yet Perfect for Machine Learning」。php-ml的出现丰富了PHP生态，让PHP开发者也能写机器学习应用，这篇文章讲一讲文本分类问题在php-ml中是怎么解决的。 本文的实践例子已经放在Git">
@@ -222,9 +222,7 @@
 <p>语料库</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span> <span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
 <h3 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h3><blockquote>
-<blockquote>
 <p>tf-idf是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。</p>
-</blockquote>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$transformer = <span class="keyword">new</span> TfIdfTransformer($trainX);</span><br><span class="line">$transformer-&gt;transform($trainX);</span><br></pre></td></tr></table></figure>
 <p>在这里，由于只有一句话，且这句话里面所有的字词都只有一个，所以权重是一样的。</p>
