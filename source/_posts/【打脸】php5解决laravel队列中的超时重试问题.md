@@ -10,7 +10,7 @@ tags:
 
 ## 写在前
 
-上一篇文章[laravel队列中的timeout参数需要使用php7.1](http://funsoul.org/2018/12/29/%E3%80%90Laravel%E3%80%91laravel%E9%98%9F%E5%88%97%E4%B8%AD%E7%9A%84timeout%E5%8F%82%E6%95%B0%E9%9C%80%E8%A6%81%E4%BD%BF%E7%94%A8php7.1/)，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。
+上一篇文章{% post_link 【Laravel】laravel队列中的timeout参数需要使用php7.1 %}，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。
 
 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数[pcntl_async_signals](http://php.net/manual/en/function.pcntl-async-signals.php)，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库可能在支持上还不完善。当然，大部分时候建议是升级的，PHP5很快就不进行安全维护了啊。
 
