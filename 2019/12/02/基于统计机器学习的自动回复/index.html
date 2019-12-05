@@ -7,27 +7,27 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="description" content="前言这篇文章是最近工作的总结，受到费曼技巧的影响，还有一个简陋的PPT，希望能在简单的语言和尽量少的篇幅下把问题陈述清楚，如没看懂，说明我还有许多未参透的地方，不能以通俗易懂的方式呈现出来。当然，单靠这篇文章无法让你马上击穿迷雾、到达本质，我希望这篇文章能让你有些许体会，建立哪怕最浅薄的联结。共勉：） 背景这篇文章的背景是游戏环境下的客服投诉系统，玩家和游戏开发者的联系不止在游戏中，很多时候，游戏">
-<meta name="keywords" content="机器学习,NLP,文本分类">
+<meta name="keywords" content="机器学习,NLP,文本分类,监督学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基于NLP中文文本分类的自动回复">
-<meta property="og:url" content="http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/index.html">
+<meta property="og:title" content="基于统计机器学习的自动回复">
+<meta property="og:url" content="http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/index.html">
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="前言这篇文章是最近工作的总结，受到费曼技巧的影响，还有一个简陋的PPT，希望能在简单的语言和尽量少的篇幅下把问题陈述清楚，如没看懂，说明我还有许多未参透的地方，不能以通俗易懂的方式呈现出来。当然，单靠这篇文章无法让你马上击穿迷雾、到达本质，我希望这篇文章能让你有些许体会，建立哪怕最浅薄的联结。共勉：） 背景这篇文章的背景是游戏环境下的客服投诉系统，玩家和游戏开发者的联系不止在游戏中，很多时候，游戏">
 <meta property="og:locale" content="chinese">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/基于规则.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/word_cloud_概率.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/word_cloud_举报.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/从规则到统计.jpeg">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/基于统计.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/第一阶段.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/特征分布情况tfidf将维.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/第三阶段.png">
-<meta property="og:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/历史投诉记录准确率.png">
-<meta property="og:updated_time" content="2019-12-04T02:32:26.964Z">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/基于规则.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/word_cloud_概率.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/word_cloud_举报.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/从规则到统计.jpeg">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/基于统计.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/第一阶段.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/特征分布情况tfidf将维.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/第三阶段.png">
+<meta property="og:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/历史投诉记录准确率.png">
+<meta property="og:updated_time" content="2019-12-05T07:12:40.314Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基于NLP中文文本分类的自动回复">
+<meta name="twitter:title" content="基于统计机器学习的自动回复">
 <meta name="twitter:description" content="前言这篇文章是最近工作的总结，受到费曼技巧的影响，还有一个简陋的PPT，希望能在简单的语言和尽量少的篇幅下把问题陈述清楚，如没看懂，说明我还有许多未参透的地方，不能以通俗易懂的方式呈现出来。当然，单靠这篇文章无法让你马上击穿迷雾、到达本质，我希望这篇文章能让你有些许体会，建立哪怕最浅薄的联结。共勉：） 背景这篇文章的背景是游戏环境下的客服投诉系统，玩家和游戏开发者的联系不止在游戏中，很多时候，游戏">
-<meta name="twitter:image" content="http://funsoul.org/images/基于NLP中文文本分类的自动回复/基于规则.png">
+<meta name="twitter:image" content="http://funsoul.org/images/基于统计机器学习的自动回复/基于规则.png">
     
     
         
@@ -47,7 +47,7 @@
         
     
     <!-- title -->
-    <title>基于NLP中文文本分类的自动回复</title>
+    <title>基于统计机器学习的自动回复</title>
     <!-- styles -->
     <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
@@ -127,21 +127,21 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&text=基于NLP中文文本分类的自动回复"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&is_video=false&description=基于NLP中文文本分类的自动回复"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=基于NLP中文文本分类的自动回复&body=Check out this article: http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&name=基于NLP中文文本分类的自动回复&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&text=基于统计机器学习的自动回复"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&is_video=false&description=基于统计机器学习的自动回复"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于统计机器学习的自动回复&body=Check out this article: http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&name=基于统计机器学习的自动回复&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#鸟瞰自然语言处理的历史"><span class="toc-number">3.</span> <span class="toc-text">鸟瞰自然语言处理的历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#句法分析、语义分析"><span class="toc-number">3.1.</span> <span class="toc-text">句法分析、语义分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字"><span class="toc-number">3.2.</span> <span class="toc-text">关键字</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多义性"><span class="toc-number">3.3.</span> <span class="toc-text">多义性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从规则到统计"><span class="toc-number">4.</span> <span class="toc-text">从规则到统计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合基于规则和基于统计的新方案"><span class="toc-number">5.</span> <span class="toc-text">结合基于规则和基于统计的新方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一阶段：样本对象集"><span class="toc-number">5.1.</span> <span class="toc-text">第一阶段：样本对象集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二阶段：新策略"><span class="toc-number">5.2.</span> <span class="toc-text">第二阶段：新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三阶段：正反馈闭环"><span class="toc-number">5.3.</span> <span class="toc-text">第三阶段：正反馈闭环</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习"><span class="toc-number">6.</span> <span class="toc-text">机器学习</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#鸟瞰自然语言处理的历史"><span class="toc-number">3.</span> <span class="toc-text">鸟瞰自然语言处理的历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#句法分析、语义分析"><span class="toc-number">3.1.</span> <span class="toc-text">句法分析、语义分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字"><span class="toc-number">3.2.</span> <span class="toc-text">关键字</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多义性"><span class="toc-number">3.3.</span> <span class="toc-text">多义性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从规则到统计"><span class="toc-number">4.</span> <span class="toc-text">从规则到统计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合基于规则和基于统计的新方案"><span class="toc-number">5.</span> <span class="toc-text">结合基于规则和基于统计的新方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一阶段：样本集"><span class="toc-number">5.1.</span> <span class="toc-text">第一阶段：样本集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二阶段：新策略"><span class="toc-number">5.2.</span> <span class="toc-text">第二阶段：新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三阶段：正反馈闭环"><span class="toc-number">5.3.</span> <span class="toc-text">第三阶段：正反馈闭环</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习"><span class="toc-number">6.</span> <span class="toc-text">机器学习</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -153,7 +153,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        基于NLP中文文本分类的自动回复
+        基于统计机器学习的自动回复
     </h1>
 
 
@@ -171,7 +171,7 @@
       
     <div class="article-tag">
         <i class="fa fa-tag"></i>
-        <a class="tag-link" href="/tags/NLP/">NLP</a>, <a class="tag-link" href="/tags/文本分类/">文本分类</a>, <a class="tag-link" href="/tags/机器学习/">机器学习</a>
+        <a class="tag-link" href="/tags/NLP/">NLP</a>, <a class="tag-link" href="/tags/文本分类/">文本分类</a>, <a class="tag-link" href="/tags/机器学习/">机器学习</a>, <a class="tag-link" href="/tags/监督学习/">监督学习</a>
     </div>
 
 
@@ -206,15 +206,15 @@
 <p>你们合区啊，这区人少的，简直打不掉装备。</p>
 </blockquote>
 <p>我们可以很容易理解，这句话的意思是需要针对「合服」类做回复。但是基于规则的自然语言处理系统能理解吗？</p>
-<p><img src="/images/基于NLP中文文本分类的自动回复/基于规则.png" alt="基于规则的自然语言处理"></p>
+<p><img src="/images/基于统计机器学习的自动回复/基于规则.png" alt="基于规则的自然语言处理"></p>
 <p>基于规则的系统会先进行分词，得到每个词的词性。简单的关键字匹配，可以得到几个有价值的关键词：合区、装备。但是我们怎么知道这是属于「合区」的类别，还是属于「概率」的类别呢？这里，机器开始不明白用户的意图了。</p>
 <p>于是我们想，单靠一个词机器理解不了，那就再来一个。然后，我们得到了组合词规则：「合区 + 人少」、「装备 + 不掉」。我们开始思考词法和语义分析了，希望通过主谓关系来理解用户的意图，接下来你也想到了，<strong>规则的复杂度开始加大了，算法设计的复杂度也开始增加</strong>。</p>
 <p>我们明白：人类语言的句法中含有并列、转折等多重关系，单纯的规则（关键字）无法识别用户真正的意图。</p>
 <h3 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h3><p>下面我们通过<code>词云</code>来呈现每个规则的关键词有多么复杂和庞大。</p>
-<p><img src="/images/基于NLP中文文本分类的自动回复/word_cloud_概率.png" alt="词云-概率类"></p>
+<p><img src="/images/基于统计机器学习的自动回复/word_cloud_概率.png" alt="词云-概率类"></p>
 <center>（概率类）</center>
 
-<p><img src="/images/基于NLP中文文本分类的自动回复/word_cloud_举报.png" alt="词云-举报类"></p>
+<p><img src="/images/基于统计机器学习的自动回复/word_cloud_举报.png" alt="词云-举报类"></p>
 <center>（举报类）</center>
 
 <p>也就是说，人工设计的规则，还带来一个问题，人类语言是演进和繁杂的，而人工无法设计涵盖所有词的程序。</p>
@@ -227,12 +227,12 @@
 <blockquote>
 <p>在20世纪60年代，摆在科学家面前的问题是怎样才能理解自然语言，当时普遍的认识是首先要做好两件事，即分析语句和获取语义，这实际上又是惯性思维的结果，它收到传统语言学的影响。</p>
 </blockquote>
-<h2 id="从规则到统计"><a href="#从规则到统计" class="headerlink" title="从规则到统计"></a>从规则到统计</h2><p><img src="/images/基于NLP中文文本分类的自动回复/从规则到统计.jpeg" alt="从规则到统计"></p>
+<h2 id="从规则到统计"><a href="#从规则到统计" class="headerlink" title="从规则到统计"></a>从规则到统计</h2><p><img src="/images/基于统计机器学习的自动回复/从规则到统计.jpeg" alt="从规则到统计"></p>
 <center>图片来自《深度学习》</center>
 
 <p>最近在读《<a href="https://book.douban.com/subject/27087503/" target="_blank" rel="noopener">深度学习</a>》这本书，业界俗称「花书」。这张图很好地展示了近几十年人工智能发展的趋势。可以发现，基于规则的系统必然会成为历史。从经典机器学习到后面的表示学习，都属于基于统计的范畴。区别在于，谁来挖掘特征？经典机器学习依赖人工挖掘特征，这是大前提。意味着人去告诉/教会机器，什么是系统需要的特征，然后从特征去对应输出。表示学习就不依赖任何东西，但同样需要明确输入和输出，只是挖掘特征的过程交给模型/算法去做。</p>
 <p>回到主题，对于文本分类领域，是否也可以使用基于统计的方法？答案是肯定的。</p>
-<p><img src="/images/基于NLP中文文本分类的自动回复/基于统计.png" alt="基于统计的自然语言处理"></p>
+<p><img src="/images/基于统计机器学习的自动回复/基于统计.png" alt="基于统计的自然语言处理"></p>
 <p>本文使用经典机器学习的方式，将文本分词，但是不使用词性。而是先过滤<code>停用词</code>和<code>单词</code>（单个文字的词）。这里，我们得到了文本的特征。到这里，你也许问，这不是和关键字一样了吗？是的，如果仅仅处理一条文本，和基于规则的方式并无二致。基于统计的精髓在于 —— 统计，这意味着庞大的样本集。</p>
 <p>然后，我们进行特征映射，构造词袋。从词袋中，获取真正的语料，这些语料已经成为数字形式了。也就是说，从最初的文本到现在的语料，我们对文本进行了形式化处理。有了这些语料，就可以使用分类模型了。举个简单的例子，下面使用sklearn的NavieBayes模型中的<code>GaussianNB</code></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> GaussianNB</span><br><span class="line"></span><br><span class="line">data = [[<span class="number">1</span>, <span class="number">1</span>]]</span><br><span class="line">target = [<span class="number">1</span>]    <span class="comment"># 假设「合区」类的ID为1</span></span><br><span class="line"></span><br><span class="line">gnb = GaussianNB()</span><br><span class="line">gnb.fit(data, target)</span><br></pre></td></tr></table></figure>
@@ -242,14 +242,14 @@
 <li>第二阶段：基于充足样本数以及高准确率的机器分类，结合原方案（关键字分类）制定新策略</li>
 <li>第三阶段：完成全部历史记录训练样本，并开始校对匹配记录中的机器判定结果，完成机器分类正反馈闭环</li>
 </ol>
-<h3 id="第一阶段：样本对象集"><a href="#第一阶段：样本对象集" class="headerlink" title="第一阶段：样本对象集"></a>第一阶段：样本对象集</h3><p><img src="/images/基于NLP中文文本分类的自动回复/第一阶段.png" alt="第一阶段"></p>
+<h3 id="第一阶段：样本集"><a href="#第一阶段：样本集" class="headerlink" title="第一阶段：样本集"></a>第一阶段：样本集</h3><p><img src="/images/基于统计机器学习的自动回复/第一阶段.png" alt="第一阶段"></p>
 <p>这里有15W无分类的历史记录，第一阶段也是最耗费人力、时间成本的阶段，需要非常仔细的把每一条数据对应类别，只有这样，才能称之为样本。没有做人工处理的数据，不能用于训练，在经典机器学习中，这一步尤其重要，后面我会说到为什么。总的来说就是<strong>有多少人工，就有多少智能</strong>。</p>
 <p>这一步是值得的，但是能不能缩短人工分类的时间？答案是肯定的。如上图所示，我们先人工分出5k样本，有朋友看到这里，也许会问，为什么是5k？而不是更大的数。这是经过验证的，5k刚好是能让大家接受的人工分类的样本数，对于我们的模型来说，5k的准确率已经相当不错了（超过90%）。为什么这么早就要聊准确率了？</p>
-<p>接下来，我们使用这5k数据做训练，然后，给下一个5k做预测，并保存这个结果。是的，你也想到了。这5k被模型分类了一遍，虽然不是完全正确的，但是也有相当一部分是被正确归类了，相当于多了好几个人帮我们做这件事（分类速度很快，但有点粗心的人）。然后我们只需要做二次校对，把归类错误的找出来放到正确的类别即可。</p>
+<p>接下来，我们使用这5k数据做训练，然后，给下一个5k做预测（对新的未人工分类的数据做泛化），并保存这个结果。是的，你也想到了。这5k被模型分类了一遍，虽然不是完全正确的，但是也有相当一部分是被正确归类了，相当于多了好几个人帮我们做这件事（分类速度很快，但有点粗心的人）。然后我们只需要做二次校对，把归类错误的找出来放到正确的类别即可。</p>
 <p>不断的做增量的循环：<strong>先使用机器分类一遍，然后人工做校对。你会发现，随着数据量越来越大，正确率会非常高，后面基本就不用人工分类了，只需要扫一眼，没啥问题就过了。</strong></p>
 <p>让人振奋的是，这种加速机器学习的方法，原来已经被发表过了，被称为<code>主动学习</code>，链接：<a href="http://www.52nlp.cn/accelerate-machine-learning" target="_blank" rel="noopener">加速机器学习：从主动学习到BERT和流体标注</a>。</p>
 <p>人工分完类后，我们可以得到下面的特征分布散点图（使用PCA降维TF-IDF的结果）。这个图的分布情况在一定程度上，决定了我们的模型与核函数选择</p>
-<p><img src="/images/基于NLP中文文本分类的自动回复/特征分布情况tfidf将维.png" alt="特征分布情况"></p>
+<p><img src="/images/基于统计机器学习的自动回复/特征分布情况tfidf将维.png" alt="特征分布情况"></p>
 <h3 id="第二阶段：新策略"><a href="#第二阶段：新策略" class="headerlink" title="第二阶段：新策略"></a>第二阶段：新策略</h3><ol>
 <li>结合关键字+机器分类做判断</li>
 <li>未训练或样本数较少时，使用关键字分类</li>
@@ -277,14 +277,14 @@
 </tbody>
 </table>
 <p>很快，我们就进入了第二阶段。可以发现，相比基于规则的文本分类，我们的新模型表现的更好。</p>
-<h3 id="第三阶段：正反馈闭环"><a href="#第三阶段：正反馈闭环" class="headerlink" title="第三阶段：正反馈闭环"></a>第三阶段：正反馈闭环</h3><p><img src="/images/基于NLP中文文本分类的自动回复/第三阶段.png" alt="第三阶段"></p>
+<h3 id="第三阶段：正反馈闭环"><a href="#第三阶段：正反馈闭环" class="headerlink" title="第三阶段：正反馈闭环"></a>第三阶段：正反馈闭环</h3><p><img src="/images/基于统计机器学习的自动回复/第三阶段.png" alt="第三阶段"></p>
 <p>很快，我们进入了第三阶段。在第三阶段之前，模型训练的操作也是需要人员去跟进的。其实，整个系统可以产生一个<code>正反馈闭环</code>，模型训练可以使用定时脚本来触发。但是，为了保证模型训练的样本是正确的，还需要加入一个<code>校对</code>的环节。</p>
 <p>每一次产生新的投诉，都会带来一条新的匹配记录，这条新记录是不能作为样本来训练的，需要人工进行校对，校对后的结果才能进行训练。于是，我们可以制定一个模型训练时刻，在这个时刻前，需要保证新记录是经过人工校对后的结果。</p>
 <h2 id="机器学习"><a href="#机器学习" class="headerlink" title="机器学习"></a>机器学习</h2><blockquote>
 <p>数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限。</p>
 </blockquote>
 <p>我们做了一个准确率折线图，记录样本数从最初的1k到最后15W样本集的评估。可以发现，从13W样本集开始，准确率开始放缓，而不是继续往上攀升。</p>
-<p><img src="/images/基于NLP中文文本分类的自动回复/历史投诉记录准确率.png" alt="历史投诉记录准确率"></p>
+<p><img src="/images/基于统计机器学习的自动回复/历史投诉记录准确率.png" alt="历史投诉记录准确率"></p>
 
   </div>
 </article>
@@ -311,21 +311,21 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#鸟瞰自然语言处理的历史"><span class="toc-number">3.</span> <span class="toc-text">鸟瞰自然语言处理的历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#句法分析、语义分析"><span class="toc-number">3.1.</span> <span class="toc-text">句法分析、语义分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字"><span class="toc-number">3.2.</span> <span class="toc-text">关键字</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多义性"><span class="toc-number">3.3.</span> <span class="toc-text">多义性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从规则到统计"><span class="toc-number">4.</span> <span class="toc-text">从规则到统计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合基于规则和基于统计的新方案"><span class="toc-number">5.</span> <span class="toc-text">结合基于规则和基于统计的新方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一阶段：样本对象集"><span class="toc-number">5.1.</span> <span class="toc-text">第一阶段：样本对象集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二阶段：新策略"><span class="toc-number">5.2.</span> <span class="toc-text">第二阶段：新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三阶段：正反馈闭环"><span class="toc-number">5.3.</span> <span class="toc-text">第三阶段：正反馈闭环</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习"><span class="toc-number">6.</span> <span class="toc-text">机器学习</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">2.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#鸟瞰自然语言处理的历史"><span class="toc-number">3.</span> <span class="toc-text">鸟瞰自然语言处理的历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#句法分析、语义分析"><span class="toc-number">3.1.</span> <span class="toc-text">句法分析、语义分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键字"><span class="toc-number">3.2.</span> <span class="toc-text">关键字</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多义性"><span class="toc-number">3.3.</span> <span class="toc-text">多义性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从规则到统计"><span class="toc-number">4.</span> <span class="toc-text">从规则到统计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合基于规则和基于统计的新方案"><span class="toc-number">5.</span> <span class="toc-text">结合基于规则和基于统计的新方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#第一阶段：样本集"><span class="toc-number">5.1.</span> <span class="toc-text">第一阶段：样本集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二阶段：新策略"><span class="toc-number">5.2.</span> <span class="toc-text">第二阶段：新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第三阶段：正反馈闭环"><span class="toc-number">5.3.</span> <span class="toc-text">第三阶段：正反馈闭环</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#机器学习"><span class="toc-number">6.</span> <span class="toc-text">机器学习</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&text=基于NLP中文文本分类的自动回复"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&is_video=false&description=基于NLP中文文本分类的自动回复"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=基于NLP中文文本分类的自动回复&body=Check out this article: http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&title=基于NLP中文文本分类的自动回复"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/12/02/基于NLP中文文本分类的自动回复/&name=基于NLP中文文本分类的自动回复&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&text=基于统计机器学习的自动回复"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&is_video=false&description=基于统计机器学习的自动回复"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于统计机器学习的自动回复&body=Check out this article: http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&title=基于统计机器学习的自动回复"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/12/02/基于统计机器学习的自动回复/&name=基于统计机器学习的自动回复&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
