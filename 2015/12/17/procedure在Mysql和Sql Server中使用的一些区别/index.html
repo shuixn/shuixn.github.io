@@ -14,13 +14,13 @@
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结： 正文下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。 12345678CREATE PROCEDURE getUsersASBEGINSELECT * FROM test_user">
 <meta property="og:locale" content="chinese">
-<meta property="og:image" content="http://funsoul.org/images/20151217113258531.jpg">
-<meta property="og:image" content="http://funsoul.org/images/20151217120502176.jpg">
-<meta property="og:updated_time" content="2019-06-21T03:15:13.772Z">
+<meta property="og:image" content="http://funsoul.org/images/procedure区别/20151217113258531.jpg">
+<meta property="og:image" content="http://funsoul.org/images/procedure区别/20151217120502176.jpg">
+<meta property="og:updated_time" content="2020-01-16T03:50:16.441Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="procedure在Mysql和Sql Server中使用的一些区别">
 <meta name="twitter:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结： 正文下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。 12345678CREATE PROCEDURE getUsersASBEGINSELECT * FROM test_user">
-<meta name="twitter:image" content="http://funsoul.org/images/20151217113258531.jpg">
+<meta name="twitter:image" content="http://funsoul.org/images/procedure区别/20151217113258531.jpg">
     
     
         
@@ -182,11 +182,11 @@
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> getUsers</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> test_user</span><br><span class="line"><span class="keyword">END</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">EXECUTE</span>    getUsers</span><br></pre></td></tr></table></figure>
 <p>将这段代码原封不动的复制到MySQL中执行</p>
-<p><img src="/images/20151217113258531.jpg" alt></p>
+<p><img src="/images/procedure区别/20151217113258531.jpg" alt></p>
 <p>可以看出，很明显是语法不正确出现的问题。经查阅相关文档，得出以下代码段</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> getUsers;</span><br><span class="line">DELIMITER //</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> getUsers()</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> test_user;</span><br><span class="line"></span><br><span class="line"><span class="keyword">END</span></span><br><span class="line">//</span><br><span class="line">DELIMITER ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CALL</span>  getUsers();</span><br></pre></td></tr></table></figure>
 <p>执行结果如下：</p>
-<p><img src="/images/20151217120502176.jpg" alt></p>
+<p><img src="/images/procedure区别/20151217120502176.jpg" alt></p>
 <p>可以看出，procedure 在 <strong>sql server</strong> 和 <strong>mysql</strong> 中使用的差别还是很大的， 有几个重要的区别：</p>
 <ol>
 <li>使用分隔符包含存储过程</li>
@@ -254,7 +254,7 @@
       
       <footer id="footer">
   <div class="footer-left">
-    Copyright &copy; 2019 funsoul
+    Copyright &copy; 2020 funsoul
   </div>
   <div class="footer-right">
     <nav>

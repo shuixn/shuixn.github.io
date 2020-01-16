@@ -9,18 +9,18 @@
     <meta name="description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
 <meta name="keywords" content="PHP,Redis,TCP">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis的对端心跳检测">
+<meta property="og:title" content="Redis对端心跳检测">
 <meta property="og:url" content="http://funsoul.org/2019/03/24/redis的对端心跳检测/index.html">
 <meta property="og:site_name" content="funsoul">
 <meta property="og:description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
 <meta property="og:locale" content="chinese">
-<meta property="og:image" content="http://funsoul.org/images/发布订阅.png">
-<meta property="og:image" content="http://funsoul.org/images/发布订阅-消息队列.png">
-<meta property="og:updated_time" content="2019-06-21T03:15:13.773Z">
+<meta property="og:image" content="http://funsoul.org/images/redis对端心跳检测/发布订阅.png">
+<meta property="og:image" content="http://funsoul.org/images/redis对端心跳检测/发布订阅-消息队列.png">
+<meta property="og:updated_time" content="2020-01-16T04:03:23.556Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis的对端心跳检测">
+<meta name="twitter:title" content="Redis对端心跳检测">
 <meta name="twitter:description" content="写在前这段时间在做基于Redis的发布订阅时遇到一个有意思的问题，客户端无论使用php扩展phpredis还是原生php写的库predis做subscribe时，都会在一段时间后（30min左右），当发生一次publish后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH） 一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题">
-<meta name="twitter:image" content="http://funsoul.org/images/发布订阅.png">
+<meta name="twitter:image" content="http://funsoul.org/images/redis对端心跳检测/发布订阅.png">
     
     
         
@@ -40,7 +40,7 @@
         
     
     <!-- title -->
-    <title>redis的对端心跳检测</title>
+    <title>Redis对端心跳检测</title>
     <!-- styles -->
     <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
@@ -106,7 +106,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" href="/2019/04/21/一段诡异的文本（notepad++）/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
+        <li><a class="icon" href="/2019/07/02/xhprof性能分析/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover='$("#i-prev").toggle();' onmouseout='$("#i-prev").toggle();'></i></a></li>
         
         
         <li><a class="icon" href="/2019/02/14/【nginx】fastcgi_max_tmp_file_size/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
@@ -123,15 +123,15 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=redis的对端心跳检测"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=redis的对端心跳检测"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=redis的对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=redis的对端心跳检测&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=Redis对端心跳检测"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=Redis对端心跳检测"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=Redis对端心跳检测&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -148,7 +148,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        redis的对端心跳检测
+        Redis对端心跳检测
     </h1>
 
 
@@ -177,7 +177,7 @@
   <div class="content" itemprop="articleBody">
     <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>这段时间在做<code>基于Redis的发布订阅</code>时遇到一个有意思的问题，客户端无论使用php扩展<code>phpredis</code>还是原生php写的库<code>predis</code>做subscribe时，都会在一段时间后（30min左右），当发生一次<code>publish</code>后，redis-server断开客户端的socket连接，而客户端没有任何异常（仍为ESTABLISH）</p>
 <p>一开始我以为是客户端的问题，但是在一系列的测试后，确认应该是服务端的问题，最后在师兄在帮助下，找到了redis-server的一个配置<code>tcp-keepalive</code>，这个值当时为0，后来我们设置为300，程序正常了。</p>
-<h2 id="基于redis的发布订阅程序"><a href="#基于redis的发布订阅程序" class="headerlink" title="基于redis的发布订阅程序"></a>基于redis的发布订阅程序</h2><p><img src="/images/发布订阅.png" alt="发布订阅"></p>
+<h2 id="基于redis的发布订阅程序"><a href="#基于redis的发布订阅程序" class="headerlink" title="基于redis的发布订阅程序"></a>基于redis的发布订阅程序</h2><p><img src="/images/redis对端心跳检测/发布订阅.png" alt="发布订阅"></p>
 <p>这个服务非常简单，从上图可知，以Redis-Server为界分为上下两部分，上部分通过Web程序下指令，发布消息到指定的Channel，下部分是一个常驻进程服务，在Redis-Server订阅了某个Channel，并阻塞在Subscribe事件回调中，当有消息来，进行消息处理。</p>
 <h2 id="php实现订阅者-Subscriber-php"><a href="#php实现订阅者-Subscriber-php" class="headerlink" title="php实现订阅者(Subscriber.php)"></a>php实现订阅者(Subscriber.php)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$channel = <span class="string">'test'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">process</span><span class="params">($redis, $chan, $msg)</span></span>&#123;</span><br><span class="line">    var_dump(date(<span class="string">'Y-m-d H:i:s'</span>, time()), $msg);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$redis = <span class="keyword">new</span> \Redis();</span><br><span class="line">$redis-&gt;connect($config[<span class="string">'host'</span>], $config[<span class="string">'port'</span>]);</span><br><span class="line">$redis-&gt;auth($config[<span class="string">'password'</span>]);</span><br><span class="line">$redis-&gt;select($config[<span class="string">'db'</span>]);</span><br><span class="line">$redis-&gt;setOption(Redis::OPT_READ_TIMEOUT, <span class="number">-1</span>);</span><br><span class="line">$redis-&gt;subscribe([$channel], <span class="string">'process'</span>);</span><br></pre></td></tr></table></figure>
 <p>为了减少<code>变量</code>，说明问题，上面是一段非常简单的代码。简单说明下，这是一段cli程序，运行在前台，订阅channel为test，并阻塞在process函数中，当有消息过来，会在前台打印当前时间以及消息。</p>
@@ -220,7 +220,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tcp_keepalive_time // 距离上次传送数据多少时间未收到判断为开始检测</span><br><span class="line">tcp_keepalive_intvl // 检测开始每多少时间发送心跳包</span><br><span class="line">tcp_keepalive_probes // 发送几次心跳包对方未响应则close连接</span><br></pre></td></tr></table></figure>
 <h2 id="再说发布订阅"><a href="#再说发布订阅" class="headerlink" title="再说发布订阅"></a>再说发布订阅</h2><p>前面我们的发布订阅写的非常简单，真实情况还需要考虑更多的问题，简单说一个，如果订阅者无故down了，还在重连中时，发布者发了一个消息，如果没有其他的订阅者，那这个消息就发布失败了，看起来非常不健壮。</p>
 <p>这里可以考虑利用redis加一个消息队列做<code>持久化</code>，每一次发消息时，都push一个消息进队列，如果订阅者没有及时重连也没关系，重连成功后，可以去队列中把消息pop出来继续处理。</p>
-<p><img src="/images/发布订阅-消息队列.png" alt="发布订阅-消息队列"></p>
+<p><img src="/images/redis对端心跳检测/发布订阅-消息队列.png" alt="发布订阅-消息队列"></p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
 <li>redis发布订阅可能会遇到的问题</li>
 <li>排查进程间通信问题的小工具</li>
@@ -259,15 +259,15 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=redis的对端心跳检测"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=redis的对端心跳检测"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=redis的对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=redis的对端心跳检测"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=redis的对端心跳检测&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&text=Redis对端心跳检测"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&is_video=false&description=Redis对端心跳检测"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis对端心跳检测&body=Check out this article: http://funsoul.org/2019/03/24/redis的对端心跳检测/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&title=Redis对端心跳检测"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2019/03/24/redis的对端心跳检测/&name=Redis对端心跳检测&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -287,7 +287,7 @@
       
       <footer id="footer">
   <div class="footer-left">
-    Copyright &copy; 2019 funsoul
+    Copyright &copy; 2020 funsoul
   </div>
   <div class="footer-right">
     <nav>
