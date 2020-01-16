@@ -1,5 +1,5 @@
 ---
-title: redis的对端心跳检测
+title: Redis对端心跳检测
 date: 2019-03-24
 categories:
   - 技术
@@ -17,7 +17,7 @@ tags:
 
 ## 基于redis的发布订阅程序
 
-![发布订阅](/images/发布订阅.png)
+![发布订阅](/images/redis对端心跳检测/发布订阅.png)
 
 这个服务非常简单，从上图可知，以Redis-Server为界分为上下两部分，上部分通过Web程序下指令，发布消息到指定的Channel，下部分是一个常驻进程服务，在Redis-Server订阅了某个Channel，并阻塞在Subscribe事件回调中，当有消息来，进行消息处理。
 
@@ -147,7 +147,7 @@ tcp_keepalive_probes // 发送几次心跳包对方未响应则close连接
 
 这里可以考虑利用redis加一个消息队列做``持久化``，每一次发消息时，都push一个消息进队列，如果订阅者没有及时重连也没关系，重连成功后，可以去队列中把消息pop出来继续处理。
 
-![发布订阅-消息队列](/images/发布订阅-消息队列.png)
+![发布订阅-消息队列](/images/redis对端心跳检测/发布订阅-消息队列.png)
 
 ## 小结
 

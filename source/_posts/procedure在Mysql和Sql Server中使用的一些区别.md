@@ -32,7 +32,7 @@ EXECUTE    getUsers
 
 将这段代码原封不动的复制到MySQL中执行
 
-![](/images/20151217113258531.jpg)
+![](/images/procedure区别/20151217113258531.jpg)
 
 可以看出，很明显是语法不正确出现的问题。经查阅相关文档，得出以下代码段
 
@@ -54,7 +54,7 @@ CALL  getUsers();
 
 执行结果如下：
 
-![](/images/20151217120502176.jpg)
+![](/images/procedure区别/20151217120502176.jpg)
 
 可以看出，procedure 在 **sql server** 和 **mysql** 中使用的差别还是很大的， 有几个重要的区别：
 

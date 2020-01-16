@@ -1,5 +1,5 @@
 ---
-title: 【打脸】php5解决laravel队列中的超时重试问题
+title: php5解决laravel队列中的超时重试问题(hack)
 date: 2019-01-19
 categories:
   - 技术
