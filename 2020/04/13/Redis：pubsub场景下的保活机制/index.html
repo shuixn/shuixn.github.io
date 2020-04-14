@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang=ch>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟（常见情况如redis备份） 问题复现我的环境 php=7.1.">
+<meta name="keywords" content="PHP,Redis,TCP&#x2F;IP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis：pubsub场景下的保活机制">
+<meta property="og:url" content="http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟（常见情况如redis备份） 问题复现我的环境 php=7.1.">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2020-04-14T03:57:25.861Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis：pubsub场景下的保活机制">
+<meta name="twitter:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟（常见情况如redis备份） 问题复现我的环境 php=7.1.">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Redis：pubsub场景下的保活机制</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
+  </div>
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
+</div>
+
+    <div class="background">
+      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2019/12/02/基于统计机器学习的自动回复/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&text=Redis：pubsub场景下的保活机制"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&is_video=false&description=Redis：pubsub场景下的保活机制"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis：pubsub场景下的保活机制&body=Check out this article: http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&name=Redis：pubsub场景下的保活机制&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题复现"><span class="toc-number">1.</span> <span class="toc-text">问题复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#我的环境"><span class="toc-number">1.1.</span> <span class="toc-text">我的环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因为系统的tcp保活机制被kill？"><span class="toc-number">1.2.</span> <span class="toc-text">因为系统的tcp保活机制被kill？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因为redis服务端的保活机制被kill"><span class="toc-number">1.3.</span> <span class="toc-text">因为redis服务端的保活机制被kill?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端选项的OPT-KEEP-ALIVE到底是怎么使用的？"><span class="toc-number">2.</span> <span class="toc-text">客户端选项的OPT_KEEP_ALIVE到底是怎么使用的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis保活机制原理"><span class="toc-number">3.</span> <span class="toc-text">phpredis保活机制原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Redis：pubsub场景下的保活机制
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2020-04-12T16:00:00.000Z" itemprop="datePublished">2020-04-13</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/PHP/">PHP</a>, <a class="tag-link" href="/tags/Redis/">Redis</a>, <a class="tag-link" href="/tags/TCP-IP/">TCP/IP</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>上一篇[<a href="/2019/08/13/【Redis】brpop保活机制/" title="Redis：排查 read error on connection 小记">Redis：排查 read error on connection 小记</a>]，排查了redis pop list场景下断网引发<code>read error on connection</code>错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制）</p>
+<p><strong>在这篇文章，我们假设网络在某时会中断十几分钟（常见情况如redis备份）</strong></p>
+<h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><h3 id="我的环境"><a href="#我的环境" class="headerlink" title="我的环境"></a>我的环境</h3><ul>
+<li>php=7.1.22</li>
+<li>phpredis=5.0.2</li>
+<li>redis-server=4.0.14</li>
+</ul>
+<p>可以通过服务端 <code>client kill ip:port</code>，客户端报异常<code>read error on connection</code>。</p>
+<p>这里抛出疑问：服务端主动kill的？何时会kill？</p>
+<h3 id="因为系统的tcp保活机制被kill？"><a href="#因为系统的tcp保活机制被kill？" class="headerlink" title="因为系统的tcp保活机制被kill？"></a>因为系统的tcp保活机制被kill？</h3><p>先看系统的tcp_keepalive配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.tcp_keepalive_time = 30</span><br><span class="line">net.ipv4.tcp_keepalive_probes = 9</span><br><span class="line">net.ipv4.tcp_keepalive_intvl = 75</span><br></pre></td></tr></table></figure>
+<p>即30+9*75=705s=11min45s，如果网络在<code>12分钟内</code>保持断开状态，服务端就会kill掉客户端。<strong>可以解释的通，但是实测过程中发现，并没有使用系统的设置定时发ack</strong></p>
+<h3 id="因为redis服务端的保活机制被kill"><a href="#因为redis服务端的保活机制被kill" class="headerlink" title="因为redis服务端的保活机制被kill?"></a>因为redis服务端的保活机制被kill?</h3><p>查看服务端redis.conf配置，tcp_keepalive被设置为<code>600</code></p>
+<p>注释：</p>
+<blockquote>
+<p>TCP keepalive.<br>If non-zero, use SO_KEEPALIVE to send TCP ACKs to clients in absence<br>of communication. This is useful for two reasons:<br>1) Detect dead peers.<br>2) Take the connection alive from the point of view of network<br>  equipment in the middle.<br>On Linux, the specified value (in seconds) is the period used to send ACKs.<br>Note that to close the connection the double of the time is needed.<br>On other kernels the period depends on the kernel configuration.<br>A reasonable value for this option is 300 seconds, which is the new<br>Redis default starting with Redis 3.2.1.</p>
+</blockquote>
+<p>含义（<a href="https://redis.io/topics/clients" target="_blank" rel="noopener">官网</a>）</p>
+<blockquote>
+<p>Recent versions of Redis (3.2 or greater) have TCP keepalive (SO_KEEPALIVE socket option) enabled by default and set to about 300 seconds. This option is useful in order to detect dead peers (clients that cannot be reached even if they look connected). Moreover, if there is network equipment between clients and servers that need to see some traffic in order to take the connection open, the option will prevent unexpected connection closed events.</p>
+</blockquote>
+<p>由上面的含义，可以提出三种可能的解释：</p>
+<ol>
+<li>这个参数覆盖系统的tcp_keepalive_time，并结合系统的tcp_keepalive_probes和tcp_keepalive_intvl，即600+9*75=1275s=21min15s（时间长了点）</li>
+<li>每隔600s，进行一次系统的保活机制（600s+11min45s=21min45s，时间长了点）</li>
+<li><strong>服务端在600s后会给客户端发ack。也就是10min。（可以解释，实测中发现是这种）</strong></li>
+</ol>
+<h2 id="客户端选项的OPT-KEEP-ALIVE到底是怎么使用的？"><a href="#客户端选项的OPT-KEEP-ALIVE到底是怎么使用的？" class="headerlink" title="客户端选项的OPT_KEEP_ALIVE到底是怎么使用的？"></a>客户端选项的<code>OPT_KEEP_ALIVE</code>到底是怎么使用的？</h2><p>上篇文章我们已经发现了，它是一个开关，但是有两个疑问：</p>
+<ol>
+<li>它用来启动服务端对客户端的保活？</li>
+<li>它用来启动客户端对服务端的保活？(实测发现，是这个。<strong>使用系统的tcp_keepalive配置，与redis.conf无关</strong>)</li>
+</ol>
+<p>实测发现，如果在12分钟内网络保持断开状态（系统的tcp_keepalive配置为11min45s），客户端subscribe则会抛出<code>read error on connection</code>异常。这很好，我们可以捕获这个异常，重启客户端。但是，由于不清楚网络何时会恢复，或许需要像上一篇文章[<a href="/2019/08/13/【Redis】brpop保活机制/" title="Redis：排查 read error on connection 小记">Redis：排查 read error on connection 小记</a>]那样，做一个<code>忙连接</code>程序，不断去尝试重连服务端。</p>
+<h2 id="phpredis保活机制原理"><a href="#phpredis保活机制原理" class="headerlink" title="phpredis保活机制原理"></a>phpredis保活机制原理</h2><p>phpredis源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Don't set TCP_KEEPALIVE if we're using a unix socket. */</span></span><br><span class="line"><span class="keyword">if</span> (ZSTR_VAL(redis_sock-&gt;host)[<span class="number">0</span>] == <span class="string">'/'</span> &amp;&amp; redis_sock-&gt;port &lt; <span class="number">1</span>) &#123;</span><br><span class="line">    RETURN_FALSE;</span><br><span class="line">&#125;</span><br><span class="line">tcp_keepalive = zval_get_long(val) &gt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (redis_sock-&gt;tcp_keepalive == tcp_keepalive) &#123;</span><br><span class="line">    RETURN_TRUE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (redis_sock-&gt;stream) &#123;</span><br><span class="line">    <span class="comment">/* set TCP_KEEPALIVE */</span></span><br><span class="line">    sock = (<span class="keyword">php_netstream_data_t</span>*)redis_sock-&gt;stream-&gt;abstract;</span><br><span class="line">    <span class="keyword">if</span> (setsockopt(sock-&gt;socket, SOL_SOCKET, SO_KEEPALIVE, (<span class="keyword">char</span>*)&amp;tcp_keepalive,</span><br><span class="line">                <span class="keyword">sizeof</span>(tcp_keepalive)) == <span class="number">-1</span>) &#123;</span><br><span class="line">        RETURN_FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    redis_sock-&gt;tcp_keepalive = tcp_keepalive;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现，phpredis并没有提供<code>SOL_TCP</code>字段选项的配置，即</p>
+<ol>
+<li>TCP_KEEPIDLE</li>
+<li>TCP_KEEPINTVL</li>
+<li>TCP_KEEPCNT</li>
+</ol>
+<p>所以，<strong>phpredis默认使用系统内核提供的tcp_keepalive配置</strong>，这意味着，如果需要修改保活时间，需要更改系统配置…</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ol>
+<li>服务端保活，通过设置redis.conf里面的tcp-keepalive配置，即可定时检测连接是否有效（新版本默认为300s），如果不可达，则移除客户端连接（kill client），移除连接的时候，客户端则保持”Established”(<code>半连接状态</code>)。对pubsub程序来说，客户端无法接收到服务端的消息。</li>
+<li>客户端保活，通过setOption配置<code>OPT_KEEP_ALIVE</code>开启，使用系统tcp_keepalive配置，定时发送ack包验证连接有效，如果不可达，则同样抛出<code>read error on connection</code>异常，程序需要捕获异常并重连服务端，连接成功后，打开subscribe。</li>
+<li>phpredis的客户端保活不支持自定义<code>SOL_TCP</code>，使用系统内核的网络配置。</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+      </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题复现"><span class="toc-number">1.</span> <span class="toc-text">问题复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#我的环境"><span class="toc-number">1.1.</span> <span class="toc-text">我的环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因为系统的tcp保活机制被kill？"><span class="toc-number">1.2.</span> <span class="toc-text">因为系统的tcp保活机制被kill？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#因为redis服务端的保活机制被kill"><span class="toc-number">1.3.</span> <span class="toc-text">因为redis服务端的保活机制被kill?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端选项的OPT-KEEP-ALIVE到底是怎么使用的？"><span class="toc-number">2.</span> <span class="toc-text">客户端选项的OPT_KEEP_ALIVE到底是怎么使用的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpredis保活机制原理"><span class="toc-number">3.</span> <span class="toc-text">phpredis保活机制原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&text=Redis：pubsub场景下的保活机制"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&is_video=false&description=Redis：pubsub场景下的保活机制"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Redis：pubsub场景下的保活机制&body=Check out this article: http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&title=Redis：pubsub场景下的保活机制"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/&name=Redis：pubsub场景下的保活机制&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 funsoul
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+
+    </div>
+</body>
+</html>
