@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang=ch>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="什么是契约式设计Eiffel语言的契约式设计介绍：Building bug-free O-O software: An Introduction to Design by Contract™ 不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：构建无bug面向对象软件：契约式设计简介 为什么要使用契约式设计理解契约式设计前，有一个与之相对的概念，防御性编程。防御性编程不信任任何代码（即使">
+<meta name="keywords" content="PHP,契约式设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP实现契约式设计">
+<meta property="og:url" content="http://funsoul.org/2020/05/22/PHP实现契约式设计/index.html">
+<meta property="og:site_name" content="funsoul">
+<meta property="og:description" content="什么是契约式设计Eiffel语言的契约式设计介绍：Building bug-free O-O software: An Introduction to Design by Contract™ 不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：构建无bug面向对象软件：契约式设计简介 为什么要使用契约式设计理解契约式设计前，有一个与之相对的概念，防御性编程。防御性编程不信任任何代码（即使">
+<meta property="og:locale" content="chinese">
+<meta property="og:updated_time" content="2020-05-22T16:24:52.843Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP实现契约式设计">
+<meta name="twitter:description" content="什么是契约式设计Eiffel语言的契约式设计介绍：Building bug-free O-O software: An Introduction to Design by Contract™ 不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：构建无bug面向对象软件：契约式设计简介 为什么要使用契约式设计理解契约式设计前，有一个与之相对的概念，防御性编程。防御性编程不信任任何代码（即使">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>PHP实现契约式设计</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+    <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- rss -->
+    
+    
+    <!-- jquery -->
+    <script src="/lib/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="banner">
+<div id="blogtitel" class="blogtitel">funsoul</div>
+<ul id="wrapper" class="wrapper">
+  <div class="sun">
+    <div class="star"></div>
+  </div>
+  <div class="mercury">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="venus">
+    <div class="planet">
+      <div class="shadow"></div>
+    </div>
+  </div>
+  <div class="earth">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="mars">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+  <div class="jupiter">
+    <div class="planet"><div class="shadow"></div></div>
+  </div>
+</ul>
+</div>
+
+    <div class="background">
+      
+        <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="https://funsoul.gitbook.io/notebook/">Notebooks</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2020/05/20/如何在impala-shell之外使用特定set变量/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover='$("#i-next").toggle();' onmouseout='$("#i-next").toggle();'></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover='$("#i-top").toggle();' onmouseout='$("#i-top").toggle();'></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover='$("#i-share").toggle();' onmouseout='$("#i-share").toggle();' onclick='$("#share").toggle();return false;'></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2020/05/22/PHP实现契约式设计/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&text=PHP实现契约式设计"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&is_video=false&description=PHP实现契约式设计"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PHP实现契约式设计&body=Check out this article: http://funsoul.org/2020/05/22/PHP实现契约式设计/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&name=PHP实现契约式设计&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是契约式设计"><span class="toc-number">1.</span> <span class="toc-text">什么是契约式设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么要使用契约式设计"><span class="toc-number">2.</span> <span class="toc-text">为什么要使用契约式设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP如何实现契约式设计"><span class="toc-number">3.</span> <span class="toc-text">PHP如何实现契约式设计</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+      
+      <div class="content index width mx-auto px2 my4">
+          
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        PHP实现契约式设计
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">funsoul</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2020-05-21T16:00:00.000Z" itemprop="datePublished">2020-05-22</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/PHP/">PHP</a>, <a class="tag-link" href="/tags/契约式设计/">契约式设计</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="什么是契约式设计"><a href="#什么是契约式设计" class="headerlink" title="什么是契约式设计"></a>什么是契约式设计</h2><p>Eiffel语言的契约式设计介绍：<a href="https://www.eiffel.com/values/design-by-contract/introduction/" target="_blank" rel="noopener">Building bug-free O-O software: An Introduction to Design by Contract™</a></p>
+<p>不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：<a href="https://funsoul.gitbook.io/notebook/she-ji-mo-shi/yi-gou-jian-wu-bug-mian-xiang-dui-xiang-ruan-jian-qi-yue-shi-she-ji-jian-jie" target="_blank" rel="noopener">构建无bug面向对象软件：契约式设计简介</a></p>
+<h2 id="为什么要使用契约式设计"><a href="#为什么要使用契约式设计" class="headerlink" title="为什么要使用契约式设计"></a>为什么要使用契约式设计</h2><p>理解契约式设计前，有一个与之相对的概念，防御性编程。防御性编程不信任任何代码（即使是自己的代码），试图捕获一切可知的异常。</p>
+<p>契约式设计强调“契约”，在函数中，调用方和被调用方需要履行义务和权利，如果一方不满足契约，则主动抛出异常。</p>
+<p>契约式设计使开发人员对代码可靠性的态度更强烈</p>
+<h2 id="PHP如何实现契约式设计"><a href="#PHP如何实现契约式设计" class="headerlink" title="PHP如何实现契约式设计"></a>PHP如何实现契约式设计</h2><p>按照契约式设计思想，可以实现一个简易版的PHP库：<a href="https://github.com/funsoul/contract-php" target="_blank" rel="noopener">contract-php</a>，这个库可以很方便的通过<code>注解</code>的方式定义函数的<code>前置条件</code>和<code>后置条件</code>。</p>
+
+  </div>
+</article>
+
+
+
+      </div>
+      
+       <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="https://funsoul.gitbook.io/notebook/">Notebooks</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是契约式设计"><span class="toc-number">1.</span> <span class="toc-text">什么是契约式设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么要使用契约式设计"><span class="toc-number">2.</span> <span class="toc-text">为什么要使用契约式设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP如何实现契约式设计"><span class="toc-number">3.</span> <span class="toc-text">PHP如何实现契约式设计</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://funsoul.org/2020/05/22/PHP实现契约式设计/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&text=PHP实现契约式设计"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&is_video=false&description=PHP实现契约式设计"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PHP实现契约式设计&body=Check out this article: http://funsoul.org/2020/05/22/PHP实现契约式设计/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&title=PHP实现契约式设计"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://funsoul.org/2020/05/22/PHP实现契约式设计/&name=PHP实现契约式设计&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> TOC</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> Share</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> Menu</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+      
+      <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2020 funsoul
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/funsoul">Projects</a></li>
+         
+          <li><a href="https://funsoul.gitbook.io/notebook/">Notebooks</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+      <script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- Google Analytics -->
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-118289850-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+<!-- Disqus Comments -->
+
+
+    </div>
+</body>
+</html>
