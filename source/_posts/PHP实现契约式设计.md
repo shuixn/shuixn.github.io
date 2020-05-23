@@ -48,4 +48,111 @@ tags:
 
 ## PHP如何实现契约式设计
 
-按照契约式设计思想，可以实现一个简易版的PHP库：[contract-php](https://github.com/funsoul/contract-php)，这个库可以很方便的通过``注解``的方式定义函数的``前置条件``和``后置条件``。
+按照契约式设计思想，可以实现一个简易版的PHP库：[contract-php](https://github.com/funsoul/contract-php)，这个库可以很方便的通过``注解``的方式定义函数的``前置条件``、``不变式``和``后置条件``。
+
+### 安装
+
+```bash
+git clone https://github.com/funsoul/contract-php.git
+cd contract-php
+composer install
+```
+
+### 使用
+
+#### 通过注解来制定契约
+
+```php
+@DbcRequire(condition="a >= 1, a < 10, b >= 1")
+@DbcInvariant(condition="discount = 0.6")
+@DbcEnsure(callback="ContractExamples\MyEnsureCallback")
+```
+
+#### 目前支持的条件
+
+- gt >
+- ge >=
+- lt <
+- le <=
+- e =
+- ne !=
+
+#### 自定义回调 (如果条件不满足你的需求)
+
+MyRequireCallback.php
+
+```php
+use Contract\ContractCallbackInterface;
+
+class MyRequireCallback implements ContractCallbackInterface
+{
+    public function match(array $arguments): bool
+    {
+        list($a, $b) = $arguments;
+
+        return $a >= 1 || $b >= 1;
+    }
+}
+```
+
+#### 供应商
+
+Test.php
+
+```php
+class Test {
+    /** @var float */
+    private $discount = 0.5;
+
+    /**
+     * @DbcRequire(condition="a >= 1, a < 10, b >= 1")
+     * @param int $a
+     * @param int $b
+     * @return int
+     */
+    public function addTwoNums(int $a, int $b): int
+    {
+        return $a + $b;
+    }
+
+    /**
+     * @DbcRequire(callback="ContractExamples\MyRequireCallback")
+     * @DbcEnsure(callback="ContractExamples\MyEnsureCallback")
+     * @param int $a
+     * @param int $b
+     * @return int
+     */
+    public function addTwoNumsCallback(int $a, int $b): int
+    {
+        return $a + $b;
+    }
+
+    /**
+     * @DbcRequire(callback="ContractExamples\MyRequireCallback")
+     * @DbcEnsure(callback="ContractExamples\MyEnsureCallback")
+     * @DbcInvariant(condition="discount = 0.6")
+     * @param int $a
+     * @param int $b
+     * @return float
+     */
+    public function multiplyDiscount(int $a, int $b): float
+    {
+        return ($a + $b) * $this->discount;
+    }
+}
+```
+
+#### 客户
+
+```php
+/** @var ContractExamples\Test $proxy */
+$proxy = new Contract\Proxy(new ContractExamples\Test());
+
+$res1 = $proxy->addTwoNums(1, 1);
+
+$res2 = $proxy->addTwoNumsCallback(1, 1);
+
+$res3 = $proxy->multiplyDiscount(2, 2);
+
+var_dump($res1, $res2, $res3);
+```
