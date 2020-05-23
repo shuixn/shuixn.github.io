@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
   <meta name="description" content="以终为始">
@@ -205,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-23 00:24:52" itemprop="dateModified" datetime="2020-05-23T00:24:52+08:00">2020-05-23</time>
+                <time title="Modified: 2020-05-23 12:34:14" itemprop="dateModified" datetime="2020-05-23T12:34:14+08:00">2020-05-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -214,6 +214,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/技术/项目/" itemprop="url" rel="index"><span itemprop="name">项目</span></a>
                 </span>
             </span>
 
@@ -228,11 +232,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="什么是契约式设计"><a href="#什么是契约式设计" class="headerlink" title="什么是契约式设计"></a>什么是契约式设计</h2><p>Eiffel语言的契约式设计介绍：<a href="https://www.eiffel.com/values/design-by-contract/introduction/" target="_blank" rel="noopener">Building bug-free O-O software: An Introduction to Design by Contract™</a></p>
-<p>不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：<a href="https://funsoul.gitbook.io/notebook/she-ji-mo-shi/yi-gou-jian-wu-bug-mian-xiang-dui-xiang-ruan-jian-qi-yue-shi-she-ji-jian-jie" target="_blank" rel="noopener">构建无bug面向对象软件：契约式设计简介</a></p>
-<h2 id="为什么要使用契约式设计"><a href="#为什么要使用契约式设计" class="headerlink" title="为什么要使用契约式设计"></a>为什么要使用契约式设计</h2><p>理解契约式设计前，有一个与之相对的概念，防御性编程。防御性编程不信任任何代码（即使是自己的代码），试图捕获一切可知的异常。</p>
-<p>契约式设计强调“契约”，在函数中，调用方和被调用方需要履行义务和权利，如果一方不满足契约，则主动抛出异常。</p>
-<p>契约式设计使开发人员对代码可靠性的态度更强烈</p>
+          <h2 id="什么是契约"><a href="#什么是契约" class="headerlink" title="什么是契约"></a>什么是契约</h2><blockquote>
+<p>契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。</p>
+</blockquote>
+<p>—— 来自百度百科</p>
+<p>由上可知，关键词有：信用、双方（或多方）、约定。</p>
+<h2 id="什么是契约式设计"><a href="#什么是契约式设计" class="headerlink" title="什么是契约式设计"></a>什么是契约式设计</h2><blockquote>
+<p>契约式设计（英语：Design by Contract，缩写为 DbC），一种设计计算机软件的方法。这种方法要求软件设计者为软件组件定义正式的，精确的并且可验证的接口，这样，为传统的抽象数据类型又增加了先验条件、后验条件和不变式。这种方法的名字里用到的“契约”或者说“契约”是一种比喻，因为它和商业契约的情况有点类似。</p>
+</blockquote>
+<p>—— 来自WIKI</p>
+<p>由上可知，关键词有：软件方法、可验证、先验条件、后验条件、不变式。</p>
+<p><code>契约式设计</code>最早由伯特兰·迈耶于1986年提出，并在Eiffel语言实现了该设计。</p>
+<p>这是Eiffel语言对契约式设计的官方介绍：<a href="https://www.eiffel.com/values/design-by-contract/introduction/" target="_blank" rel="noopener">Building bug-free O-O software: An Introduction to Design by Contract™</a>，不想看英文版，可以看看我翻译的中文版（如有错误，请不吝赐教）：<a href="https://funsoul.gitbook.io/notebook/she-ji-mo-shi/yi-gou-jian-wu-bug-mian-xiang-dui-xiang-ruan-jian-qi-yue-shi-she-ji-jian-jie" target="_blank" rel="noopener">构建无bug面向对象软件：契约式设计简介</a></p>
+<p>契约一词来源自商业，在客户和供应商之间产生。双方必须针对某一协议（契约）履行义务，如有一方不履行相应的义务（责任），则视为毁约。可见契约在商业社会代表着<code>可靠</code>、<code>信任</code>。</p>
+<p>在面向对象编程范式中，契约式设计由几部分组成</p>
+<ul>
+<li>前置条件（对输入参数的值进行检验，如果不符合契约，则不会进入函数体，而是抛异常）</li>
+<li>后置条件（进入函数体后，针对例程参数做进一步检验，或处理资源释放等情况）</li>
+<li>类的不变式（针对类的整体属性做断言）</li>
+</ul>
+<h2 id="为什么要使用契约式设计"><a href="#为什么要使用契约式设计" class="headerlink" title="为什么要使用契约式设计"></a>为什么要使用契约式设计</h2><p>理解契约式设计前，先看另一种安全编程方法——防御性编程。其做法是，客户在调用供应方代码前，先做好前置检验。契约式设计和防御性编程中，如果客户违反了前置条件，供应方都会抛出异常，然后给到客户。但是契约式设计的做法更简单，不仅如此，还有以下明显的好处：</p>
+<ol>
+<li>面向对象：在编写继承、多态等重用性代码时，不满足契约会提前终止，解决隐性覆盖的问题</li>
+<li>文档化：例程的契约是很好的说明文档</li>
+<li>调试体：契约模块是一种单元测试</li>
+<li>质量保证：容易在调试阶段找出不满足契约的情况</li>
+<li>测试文化：面向契约设计可以引导供应方思考例程的边界条件</li>
+</ol>
 <h2 id="PHP如何实现契约式设计"><a href="#PHP如何实现契约式设计" class="headerlink" title="PHP如何实现契约式设计"></a>PHP如何实现契约式设计</h2><p>按照契约式设计思想，可以实现一个简易版的PHP库：<a href="https://github.com/funsoul/contract-php" target="_blank" rel="noopener">contract-php</a>，这个库可以很方便的通过<code>注解</code>的方式定义函数的<code>前置条件</code>和<code>后置条件</code>。</p>
 
       
@@ -3188,7 +3214,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
