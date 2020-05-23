@@ -1,7 +1,6 @@
 ---
 title: categories
-layout: category
-date: 2018-04-28 16:54:16
+layout: categories
 type: "categories"
 comments: false
 ---

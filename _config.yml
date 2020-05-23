@@ -3,15 +3,15 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: funsoul
-subtitle: :)
-description: “宇宙很大，生活更大，也许以后还有缘相见。”
+title: Funsoul's Blog
+subtitle: 开发日记
+description: 以终为始
 keywords: PHP C
 author: funsoul
 language: chinese
 timezone: 
 favicon: favicon.ico
-  
+
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://funsoul.org
@@ -74,7 +74,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: solar
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
