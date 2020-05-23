@@ -2,7 +2,6 @@
 title: PHP实现契约式设计
 date: 2020-05-22
 categories:
-  - 技术
   - 项目
 tags: 
   - PHP 
