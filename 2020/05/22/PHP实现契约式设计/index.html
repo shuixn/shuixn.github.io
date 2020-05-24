@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。  —— 来自百度百科 由上可知，关键词有：信用、双方（或多方）、约定。 什么是契约式设计 契约式设计（英语：D">
+  <meta name="description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 <meta name="keywords" content="PHP,契约式设计">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP实现契约式设计">
 <meta property="og:url" content="http://funsoul.org/2020/05/22/PHP实现契约式设计/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。  —— 来自百度百科 由上可知，关键词有：信用、双方（或多方）、约定。 什么是契约式设计 契约式设计（英语：D">
+<meta property="og:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2020-05-23T07:55:43.751Z">
+<meta property="og:updated_time" content="2020-05-24T10:02:45.268Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="PHP实现契约式设计">
-<meta name="twitter:description" content="什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。  —— 来自百度百科 由上可知，关键词有：信用、双方（或多方）、约定。 什么是契约式设计 契约式设计（英语：D">
+<meta name="twitter:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 
 <link rel="canonical" href="http://funsoul.org/2020/05/22/PHP实现契约式设计/">
 
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-23 15:55:43" itemprop="dateModified" datetime="2020-05-23T15:55:43+08:00">2020-05-23</time>
+                <time title="Modified: 2020-05-24 18:02:45" itemprop="dateModified" datetime="2020-05-24T18:02:45+08:00">2020-05-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -229,7 +229,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="什么是契约"><a href="#什么是契约" class="headerlink" title="什么是契约"></a>什么是契约</h2><blockquote>
+        <p>前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。</p>
+<h2 id="什么是契约"><a href="#什么是契约" class="headerlink" title="什么是契约"></a>什么是契约</h2><blockquote>
 <p>契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。</p>
 </blockquote>
 <p>—— 来自百度百科</p>
@@ -248,6 +249,7 @@
 <li>后置条件（进入函数体后，针对例程参数做进一步检验，或处理资源释放等情况）</li>
 <li>类的不变式（针对类的整体属性做断言）</li>
 </ul>
+<p>在非面向对象编程语言，不变式可视为一种<code>状态</code></p>
 <h2 id="为什么要使用契约式设计"><a href="#为什么要使用契约式设计" class="headerlink" title="为什么要使用契约式设计"></a>为什么要使用契约式设计</h2><p>理解契约式设计前，先看另一种安全编程方法——防御性编程。其做法是，客户在调用供应方代码前，先做好前置检验。契约式设计和防御性编程中，如果客户违反了前置条件，供应方都会抛出异常，然后给到客户。但是契约式设计的做法更简单，不仅如此，还有以下明显的好处：</p>
 <ol>
 <li>面向对象：在编写继承、多态等重用性代码时，不满足契约会提前终止，解决隐性覆盖的问题</li>
@@ -257,6 +259,7 @@
 <li>测试文化：面向契约设计可以引导供应方思考例程的边界条件</li>
 </ol>
 <h2 id="PHP如何实现契约式设计"><a href="#PHP如何实现契约式设计" class="headerlink" title="PHP如何实现契约式设计"></a>PHP如何实现契约式设计</h2><p>按照契约式设计思想，可以实现一个简易版的PHP库：<a href="https://github.com/funsoul/contract-php" target="_blank" rel="noopener">contract-php</a>，这个库可以很方便的通过<code>注解</code>的方式定义函数的<code>前置条件</code>、<code>不变式</code>和<code>后置条件</code>。</p>
+<p><strong>目前这个库是实验性的玩具，请不要在生产环境中使用，借助这个库，可以对契约式设计进行窥探，丰富我们的软件开发思路。</strong></p>
 <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/funsoul/contract-php.git</span><br><span class="line"><span class="built_in">cd</span> contract-php</span><br><span class="line">composer install</span><br></pre></td></tr></table></figure>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="通过注解来制定契约"><a href="#通过注解来制定契约" class="headerlink" title="通过注解来制定契约"></a>通过注解来制定契约</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@DbcRequire(condition=<span class="string">"a &gt;= 1, a &lt; 10, b &gt;= 1"</span>)</span><br><span class="line">@DbcInvariant(condition=<span class="string">"discount = 0.6"</span>)</span><br><span class="line">@DbcEnsure(callback=<span class="string">"ContractExamples\MyEnsureCallback"</span>)</span><br></pre></td></tr></table></figure>
 <h4 id="目前支持的条件"><a href="#目前支持的条件" class="headerlink" title="目前支持的条件"></a>目前支持的条件</h4><ul>
@@ -272,6 +275,31 @@
 <h4 id="供应商"><a href="#供应商" class="headerlink" title="供应商"></a>供应商</h4><p>Test.php</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="comment">/** <span class="doctag">@var</span> float */</span></span><br><span class="line">    <span class="keyword">private</span> $discount = <span class="number">0.5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcRequire</span>(condition="a &gt;= 1, a &lt; 10, b &gt;= 1")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $a</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $b</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addTwoNums</span><span class="params">(int $a, int $b)</span>: <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $a + $b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcRequire</span>(callback="ContractExamples\MyRequireCallback")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcEnsure</span>(callback="ContractExamples\MyEnsureCallback")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $a</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $b</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addTwoNumsCallback</span><span class="params">(int $a, int $b)</span>: <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> $a + $b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcRequire</span>(callback="ContractExamples\MyRequireCallback")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcEnsure</span>(callback="ContractExamples\MyEnsureCallback")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@DbcInvariant</span>(condition="discount = 0.6")</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $a</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $b</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> float</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">multiplyDiscount</span><span class="params">(int $a, int $b)</span>: <span class="title">float</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ($a + $b) * <span class="keyword">$this</span>-&gt;discount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="客户"><a href="#客户" class="headerlink" title="客户"></a>客户</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** <span class="doctag">@var</span> ContractExamples\Test $proxy */</span></span><br><span class="line">$proxy = <span class="keyword">new</span> Contract\Proxy(<span class="keyword">new</span> ContractExamples\Test());</span><br><span class="line"></span><br><span class="line">$res1 = $proxy-&gt;addTwoNums(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">$res2 = $proxy-&gt;addTwoNumsCallback(<span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">$res3 = $proxy-&gt;multiplyDiscount(<span class="number">2</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">var_dump($res1, $res2, $res3);</span><br></pre></td></tr></table></figure>
+<h2 id="类比"><a href="#类比" class="headerlink" title="类比"></a>类比</h2><h3 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h3><p>断言是一种对逻辑条件运行时检查，属于契约式设计方法的子集，并不能完全实现契约式设计。理由如下</p>
+<ol>
+<li>面向对象编程的继承结构中，断言无法将契约传播，需要手动复制断言逻辑的代码。</li>
+<li>在某些语言中，断言也许会被全局关闭。</li>
+<li>传统的运行时系统和库不是为支持契约而设计的，因此这些调用不会检查。</li>
+</ol>
+<h3 id="测试驱动开发"><a href="#测试驱动开发" class="headerlink" title="测试驱动开发"></a>测试驱动开发</h3><ol>
+<li>测试方法一次只针对一种特定的情况，契约式设计可以定义出参数何时成立、何时失败的所有情况。</li>
+<li>契约式设计和断言在软件开发周期（设计、开发、部署）中永远存在，而测试只发生在“测试环节”。</li>
+<li>测试更多只检查公共接口，没有重点考虑不变式。</li>
+</ol>
+<p><strong>契约式设计和测试都有必要，不可完全替代。</strong></p>
+<h3 id="尽早崩溃理念"><a href="#尽早崩溃理念" class="headerlink" title="尽早崩溃理念"></a>尽早崩溃理念</h3><p>契约式设计非常符合尽早崩溃理念，因为死掉的程序不会说谎，不要让异常传播，而是尽早崩溃，让问题及早暴露出来，这是更务实的做法。如Erlang、Elixir语言的设计哲学：</p>
+<blockquote>
+<p>防御式编程是在浪费时间，让它崩溃！</p>
+</blockquote>
+<p>故障由专门的<code>监控程序</code>掌控，在程序崩溃时进行特定的<code>善后</code>工作。从而形成一种由<code>监管程序树</code>构成的设计。</p>
+<h2 id="模式？规范？"><a href="#模式？规范？" class="headerlink" title="模式？规范？"></a>模式？规范？</h2><p>契约式设计不是一种设计模式，而是规范。除了Eiffel类语言，大多数编程语言（C/C++/C#/Java/PHP/Golang/Python..）都没有实现契约式设计，而是把异常、断言、返回值和程序终止指令交给开发人员，由开发人员自己制定规范。</p>
+<p>喜欢防御性编程的开发人员，会在任何地方编写校验代码，这会编写许多一致的代码（违反DRY原则）。</p>
+<p>契约式设计规范可以防止巧合式编程，通过契约设计，可以在程序运行之前考虑边界条件，对于不符合契约的客户，提前抛出问题。</p>
+<h2 id="尾"><a href="#尾" class="headerlink" title="尾"></a>尾</h2><p>在《程序员修炼之道》一书的第4章“务实的偏执”中，对契约式设计有很好的利弊分析，推荐阅读。</p>
+<blockquote>
+<p>文档化及对主张进行检验是契约式设计的核心</p>
+</blockquote>
+
     </div>
 
     
@@ -391,7 +419,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约"><span class="nav-number">1.</span> <span class="nav-text">什么是契约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约式设计"><span class="nav-number">2.</span> <span class="nav-text">什么是契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用契约式设计"><span class="nav-number">3.</span> <span class="nav-text">为什么要使用契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP如何实现契约式设计"><span class="nav-number">4.</span> <span class="nav-text">PHP如何实现契约式设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过注解来制定契约"><span class="nav-number">4.2.1.</span> <span class="nav-text">通过注解来制定契约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目前支持的条件"><span class="nav-number">4.2.2.</span> <span class="nav-text">目前支持的条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义回调-如果条件不满足你的需求"><span class="nav-number">4.2.3.</span> <span class="nav-text">自定义回调 (如果条件不满足你的需求)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#供应商"><span class="nav-number">4.2.4.</span> <span class="nav-text">供应商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户"><span class="nav-number">4.2.5.</span> <span class="nav-text">客户</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约"><span class="nav-number">1.</span> <span class="nav-text">什么是契约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约式设计"><span class="nav-number">2.</span> <span class="nav-text">什么是契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用契约式设计"><span class="nav-number">3.</span> <span class="nav-text">为什么要使用契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP如何实现契约式设计"><span class="nav-number">4.</span> <span class="nav-text">PHP如何实现契约式设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过注解来制定契约"><span class="nav-number">4.2.1.</span> <span class="nav-text">通过注解来制定契约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目前支持的条件"><span class="nav-number">4.2.2.</span> <span class="nav-text">目前支持的条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义回调-如果条件不满足你的需求"><span class="nav-number">4.2.3.</span> <span class="nav-text">自定义回调 (如果条件不满足你的需求)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#供应商"><span class="nav-number">4.2.4.</span> <span class="nav-text">供应商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户"><span class="nav-number">4.2.5.</span> <span class="nav-text">客户</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类比"><span class="nav-number">5.</span> <span class="nav-text">类比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断言"><span class="nav-number">5.1.</span> <span class="nav-text">断言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试驱动开发"><span class="nav-number">5.2.</span> <span class="nav-text">测试驱动开发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尽早崩溃理念"><span class="nav-number">5.3.</span> <span class="nav-text">尽早崩溃理念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式？规范？"><span class="nav-number">6.</span> <span class="nav-text">模式？规范？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尾"><span class="nav-number">7.</span> <span class="nav-text">尾</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
