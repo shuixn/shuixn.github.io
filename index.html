@@ -174,7 +174,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="chinese">
-    <link itemprop="mainEntityOfPage" href="http://funsoul.org/2020/05/22/PHP实现契约式设计/">
+    <link itemprop="mainEntityOfPage" href="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/about/avatar.jpg">
@@ -188,7 +188,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/05/22/PHP实现契约式设计/" class="post-title-link" itemprop="url">PHP实现契约式设计</a>
+            <a href="/2020/05/22/可靠的PHP：契约式设计/" class="post-title-link" itemprop="url">可靠的PHP：契约式设计</a>
         </h2>
 
         <div class="post-meta">
@@ -205,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-24 18:02:45" itemprop="dateModified" datetime="2020-05-24T18:02:45+08:00">2020-05-24</time>
+                <time title="Modified: 2020-05-25 10:38:13" itemprop="dateModified" datetime="2020-05-25T10:38:13+08:00">2020-05-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,6 +258,8 @@
 <li>测试文化：面向契约设计可以引导供应方思考例程的边界条件</li>
 </ol>
 <h2 id="PHP如何实现契约式设计"><a href="#PHP如何实现契约式设计" class="headerlink" title="PHP如何实现契约式设计"></a>PHP如何实现契约式设计</h2><p>按照契约式设计思想，可以实现一个简易版的PHP库：<a href="https://github.com/funsoul/contract-php" target="_blank" rel="noopener">contract-php</a>，这个库可以很方便的通过<code>注解</code>的方式定义函数的<code>前置条件</code>、<code>不变式</code>和<code>后置条件</code>。</p>
+<h3 id="通过代理和切面"><a href="#通过代理和切面" class="headerlink" title="通过代理和切面"></a>通过代理和切面</h3><p>在Python中，在不改变原功能代码的前提下，我们可以通过装饰器来对类或函数进行<code>切面</code>，提供诸如日志收集、缓存等功能。但PHP就没有那么好用的语法糖了，如果想要管理对象的生命周期，可以像Laravel框架，提供一个依赖管理容器，把对象的控制权交给容器，而容器在程序运行过程中，扮演着<code>代理</code>的角色。这样一来，容器就能在对象的生命周期上“做手脚”，比如在对象方法运行时提供切面功能，在方法执行前、执行后做一些增强的<code>装饰</code>。</p>
+<p><code>contract-php</code>库的存在意义只为说明契约式设计，无意实现一个DI容器，所以仅通过一个代理类来托管原类，在运行时反射原类方法，进而获取契约注解中的前置条件、不变式和后置条件，最后通过切面的方式，进行契约检查。</p>
 <p><strong>目前这个库是实验性的玩具，请不要在生产环境中使用，借助这个库，可以对契约式设计进行窥探，丰富我们的软件开发思路。</strong></p>
 <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/funsoul/contract-php.git</span><br><span class="line"><span class="built_in">cd</span> contract-php</span><br><span class="line">composer install</span><br></pre></td></tr></table></figure>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="通过注解来制定契约"><a href="#通过注解来制定契约" class="headerlink" title="通过注解来制定契约"></a>通过注解来制定契约</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@DbcRequire(condition=<span class="string">"a &gt;= 1, a &lt; 10, b &gt;= 1"</span>)</span><br><span class="line">@DbcInvariant(condition=<span class="string">"discount = 0.6"</span>)</span><br><span class="line">@DbcEnsure(callback=<span class="string">"ContractExamples\MyEnsureCallback"</span>)</span><br></pre></td></tr></table></figure>

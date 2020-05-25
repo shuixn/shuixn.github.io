@@ -23,17 +23,17 @@
   <meta name="description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 <meta name="keywords" content="PHP,契约式设计">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PHP实现契约式设计">
-<meta property="og:url" content="http://funsoul.org/2020/05/22/PHP实现契约式设计/index.html">
+<meta property="og:title" content="可靠的PHP：契约式设计">
+<meta property="og:url" content="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
 <meta property="og:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2020-05-24T10:02:45.268Z">
+<meta property="og:updated_time" content="2020-05-25T02:38:13.820Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PHP实现契约式设计">
+<meta name="twitter:title" content="可靠的PHP：契约式设计">
 <meta name="twitter:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
 
-<link rel="canonical" href="http://funsoul.org/2020/05/22/PHP实现契约式设计/">
+<link rel="canonical" href="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>PHP实现契约式设计 | Funsoul's Blog</title>
+  <title>可靠的PHP：契约式设计 | Funsoul's Blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118289850-1"></script>
     <script>
@@ -176,7 +176,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="chinese">
-    <link itemprop="mainEntityOfPage" href="http://funsoul.org/2020/05/22/PHP实现契约式设计/">
+    <link itemprop="mainEntityOfPage" href="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/about/avatar.jpg">
@@ -189,7 +189,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          PHP实现契约式设计
+          可靠的PHP：契约式设计
         </h1>
 
         <div class="post-meta">
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-24 18:02:45" itemprop="dateModified" datetime="2020-05-24T18:02:45+08:00">2020-05-24</time>
+                <time title="Modified: 2020-05-25 10:38:13" itemprop="dateModified" datetime="2020-05-25T10:38:13+08:00">2020-05-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -259,6 +259,8 @@
 <li>测试文化：面向契约设计可以引导供应方思考例程的边界条件</li>
 </ol>
 <h2 id="PHP如何实现契约式设计"><a href="#PHP如何实现契约式设计" class="headerlink" title="PHP如何实现契约式设计"></a>PHP如何实现契约式设计</h2><p>按照契约式设计思想，可以实现一个简易版的PHP库：<a href="https://github.com/funsoul/contract-php" target="_blank" rel="noopener">contract-php</a>，这个库可以很方便的通过<code>注解</code>的方式定义函数的<code>前置条件</code>、<code>不变式</code>和<code>后置条件</code>。</p>
+<h3 id="通过代理和切面"><a href="#通过代理和切面" class="headerlink" title="通过代理和切面"></a>通过代理和切面</h3><p>在Python中，在不改变原功能代码的前提下，我们可以通过装饰器来对类或函数进行<code>切面</code>，提供诸如日志收集、缓存等功能。但PHP就没有那么好用的语法糖了，如果想要管理对象的生命周期，可以像Laravel框架，提供一个依赖管理容器，把对象的控制权交给容器，而容器在程序运行过程中，扮演着<code>代理</code>的角色。这样一来，容器就能在对象的生命周期上“做手脚”，比如在对象方法运行时提供切面功能，在方法执行前、执行后做一些增强的<code>装饰</code>。</p>
+<p><code>contract-php</code>库的存在意义只为说明契约式设计，无意实现一个DI容器，所以仅通过一个代理类来托管原类，在运行时反射原类方法，进而获取契约注解中的前置条件、不变式和后置条件，最后通过切面的方式，进行契约检查。</p>
 <p><strong>目前这个库是实验性的玩具，请不要在生产环境中使用，借助这个库，可以对契约式设计进行窥探，丰富我们的软件开发思路。</strong></p>
 <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/funsoul/contract-php.git</span><br><span class="line"><span class="built_in">cd</span> contract-php</span><br><span class="line">composer install</span><br></pre></td></tr></table></figure>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="通过注解来制定契约"><a href="#通过注解来制定契约" class="headerlink" title="通过注解来制定契约"></a>通过注解来制定契约</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@DbcRequire(condition=<span class="string">"a &gt;= 1, a &lt; 10, b &gt;= 1"</span>)</span><br><span class="line">@DbcInvariant(condition=<span class="string">"discount = 0.6"</span>)</span><br><span class="line">@DbcEnsure(callback=<span class="string">"ContractExamples\MyEnsureCallback"</span>)</span><br></pre></td></tr></table></figure>
@@ -419,7 +421,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约"><span class="nav-number">1.</span> <span class="nav-text">什么是契约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约式设计"><span class="nav-number">2.</span> <span class="nav-text">什么是契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用契约式设计"><span class="nav-number">3.</span> <span class="nav-text">为什么要使用契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP如何实现契约式设计"><span class="nav-number">4.</span> <span class="nav-text">PHP如何实现契约式设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过注解来制定契约"><span class="nav-number">4.2.1.</span> <span class="nav-text">通过注解来制定契约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目前支持的条件"><span class="nav-number">4.2.2.</span> <span class="nav-text">目前支持的条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义回调-如果条件不满足你的需求"><span class="nav-number">4.2.3.</span> <span class="nav-text">自定义回调 (如果条件不满足你的需求)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#供应商"><span class="nav-number">4.2.4.</span> <span class="nav-text">供应商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户"><span class="nav-number">4.2.5.</span> <span class="nav-text">客户</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类比"><span class="nav-number">5.</span> <span class="nav-text">类比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断言"><span class="nav-number">5.1.</span> <span class="nav-text">断言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试驱动开发"><span class="nav-number">5.2.</span> <span class="nav-text">测试驱动开发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尽早崩溃理念"><span class="nav-number">5.3.</span> <span class="nav-text">尽早崩溃理念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式？规范？"><span class="nav-number">6.</span> <span class="nav-text">模式？规范？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尾"><span class="nav-number">7.</span> <span class="nav-text">尾</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约"><span class="nav-number">1.</span> <span class="nav-text">什么是契约</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是契约式设计"><span class="nav-number">2.</span> <span class="nav-text">什么是契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用契约式设计"><span class="nav-number">3.</span> <span class="nav-text">为什么要使用契约式设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP如何实现契约式设计"><span class="nav-number">4.</span> <span class="nav-text">PHP如何实现契约式设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通过代理和切面"><span class="nav-number">4.1.</span> <span class="nav-text">通过代理和切面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">4.2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">4.3.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过注解来制定契约"><span class="nav-number">4.3.1.</span> <span class="nav-text">通过注解来制定契约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目前支持的条件"><span class="nav-number">4.3.2.</span> <span class="nav-text">目前支持的条件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义回调-如果条件不满足你的需求"><span class="nav-number">4.3.3.</span> <span class="nav-text">自定义回调 (如果条件不满足你的需求)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#供应商"><span class="nav-number">4.3.4.</span> <span class="nav-text">供应商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户"><span class="nav-number">4.3.5.</span> <span class="nav-text">客户</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类比"><span class="nav-number">5.</span> <span class="nav-text">类比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#断言"><span class="nav-number">5.1.</span> <span class="nav-text">断言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试驱动开发"><span class="nav-number">5.2.</span> <span class="nav-text">测试驱动开发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尽早崩溃理念"><span class="nav-number">5.3.</span> <span class="nav-text">尽早崩溃理念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式？规范？"><span class="nav-number">6.</span> <span class="nav-text">模式？规范？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尾"><span class="nav-number">7.</span> <span class="nav-text">尾</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
