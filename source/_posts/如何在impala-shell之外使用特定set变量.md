@@ -16,6 +16,8 @@ tags:
 
 通过查阅[官网](https://docs.cloudera.com/documentation/enterprise/5-7-x/topics/impala_set.html#set)可以知道，用户特定变量无法在除``impala-shell``外使用，这对使用odbc、jdbc或thrift的客户端来说，SQL维护会造成很大困扰 —— 在长SQL中改变一个或多个条件的值
 
+<!-- more -->
+
 在impala-shell中，可以通过``set``语句或``--var``参数设置会话上下文中的变量，如下
 
 ### 使用set

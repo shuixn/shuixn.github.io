@@ -11,6 +11,8 @@ tags:
 
  [impala-shell-2.2.0+cdh5.4.9+0-1.cdh5.4.9.p0.30.el6.x86_64.rpm](http://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/5.4.9/RPMS/x86_64/)
 
+<!-- more -->
+
 ### 安装
 
 ```

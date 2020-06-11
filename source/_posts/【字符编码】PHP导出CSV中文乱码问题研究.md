@@ -12,6 +12,8 @@ tags:
 
 推荐一下这篇文章[十分钟搞清字符集和字符编码](http://cenalulu.github.io/linux/character-encoding/ "十分钟搞清字符集和字符编码")，可以快速了解一下字符编码的知识
 
+<!-- more -->
+
 ### 业务背景
 
 把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章[【Yield】大数据下的应用](http://funsoul.org/2018/02/01/【Yield】大数据下的应用/ "【Yield】大数据下的应用")

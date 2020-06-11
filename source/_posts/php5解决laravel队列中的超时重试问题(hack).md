@@ -14,6 +14,8 @@ tags:
 
 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数[pcntl_async_signals](http://php.net/manual/en/function.pcntl-async-signals.php)，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库可能在支持上还不完善。当然，大部分时候建议是升级的，PHP5很快就不进行安全维护了啊。
 
+<!-- more -->
+
 ## 再探索
 
 这个离线队列到底是怎么运行的？有兴趣的朋友可以看下陈昊写的[《laravel框架关键技术解析》](https://blogoss.yinghualuo.cn/blog/2017/08/Laravel框架关键技术解析-陈昊.pdf)中13章【消息队列】，能够大致明白laravel程序消息队列的“前半部分”，为什么我说前半部分？接着看

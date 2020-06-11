@@ -11,6 +11,8 @@ tags:
 
 https://www.cloudera.com/documentation/enterprise/latest/topics/impala_langref_sql.html
 
+<!-- more -->
+
 ### PHP通过Thrift连接Impala
 
 #### 安装thrift服务

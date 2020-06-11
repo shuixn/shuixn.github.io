@@ -13,6 +13,8 @@ tags:
 
 [funtask](https://github.com/funsoul/funtask "funtask")
 
+<!-- more -->
+
 ## 更新日志
 
 1. 2018-07-29 Swoole1.0简单版生产消费模型，采用多进程模式

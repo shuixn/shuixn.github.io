@@ -13,6 +13,8 @@ tags:
 
 [socket.io-swoole-server](https://github.com/funsoul/socket.io-swoole-server)
 
+<!-- more -->
+
 ## 使用
 
 ![Build Status](https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master)

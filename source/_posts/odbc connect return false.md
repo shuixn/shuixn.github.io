@@ -18,6 +18,8 @@ odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate S
 
 google一下发现和动态库有点关系，只好看下系统调用情况
 
+<!-- more -->
+
 ## strace php 进程
 
 找到下面的信息，看来是这个库``libiodbcinst.so``缺失了

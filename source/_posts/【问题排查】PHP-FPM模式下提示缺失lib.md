@@ -12,6 +12,8 @@ tags:
 
 设置worker为1，方便strace
 
+<!-- more -->
+
 ```vim
 [global]
 pid = /usr/local/php/var/run/php-fpm.pid

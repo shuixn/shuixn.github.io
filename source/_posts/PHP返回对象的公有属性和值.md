@@ -10,6 +10,8 @@ tags:
 
 获取对象的公有属性和值，很自然的会想到 **get_object_vars** 这个函数，可以这样写，
 
+<!-- more -->
+
 ```php
 class User {
     private $age = 18;

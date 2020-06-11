@@ -15,6 +15,8 @@ tags:
 
 近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结：
 
+<!-- more -->
+
 ## 正文
 
 下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。

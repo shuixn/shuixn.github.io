@@ -15,6 +15,8 @@ tags:
 
 [php-ml](https://php-ml.readthedocs.io/en/latest/)是波兰开发者[Arkadiusz Kondas](https://arkadiuszkondas.com/)的作品，前段时间刚翻译了他关于PHP在机器学习领域的看法「3 Reasons Why PHP is Not Yet Perfect for Machine Learning」。php-ml的出现丰富了PHP生态，让PHP开发者也能写机器学习应用，这篇文章讲一讲文本分类问题在php-ml中是怎么解决的。
 
+<!-- more -->
+
 本文的实践例子已经放在Github：[php-text-classification](https://github.com/funsoul/php-text-classification)
 
 ## 数据集

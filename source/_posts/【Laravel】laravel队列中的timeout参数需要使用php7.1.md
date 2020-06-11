@@ -13,6 +13,8 @@ tags:
 
 [job-expirations-and-timeouts](https://laravel-china.org/docs/laravel/5.4/queues/1256#job-expirations-and-timeouts)
 
+<!-- more -->
+
 ### 任务过期 & 超时
 
 #### 任务过期

@@ -15,6 +15,8 @@ tags:
 
 php-fpm的 **request_terminate_timeout** 参数，当设置为0时，worker进程在处理请求时就没有超时处理，0表示无限制，也就是说，用户在查询SQL时，如果该条SQL耗时非常久，worker也不会主动关闭该请求。这里就会出现一种常见的情况：用户看到一直不响应，那就刷新重来，重复查询操作。由于前一个worker还在等待impala服务返回数据，没执行完毕，不能恢复空闲状态，所以master只会把该请求分配给其他worker执行。长此以来，impala服务面对这么多耗时SQL，CPU和内存疯长，处理速度下降。fpm的“僵死”worker越来越多，web服务被拖慢。
 
+<!-- more -->
+
 优化过程如下：
 
 1. request_terminate_timeout设置一个大于0的常数值

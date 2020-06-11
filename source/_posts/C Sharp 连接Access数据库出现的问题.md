@@ -16,6 +16,8 @@ tags:
 
 然后很多人会发现还是提示“不可识别的数据库类型”！其实原因就在于“Provider=Microsoft.Jet.OLEDB.4.0;Data Source=...”。因为那个 Microsoft.Jet.OLEDB.4.0， 是针对低版本的 Access 使用的。
 
+<!-- more -->
+
 只需要把
 
 ```

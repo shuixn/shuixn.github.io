@@ -24,6 +24,8 @@ the weather is nice today
 the/weather/is/nice/today
 ```
 
+<!-- more -->
+
 在中文里面，就没有那么方便的区分方法了。当然，如果你习惯这样说话：
 
 ```bash
