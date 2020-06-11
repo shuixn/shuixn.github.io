@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="php-fpm.conf设置worker为1，方便strace 123456789101112131415161718192021[global]pid = /usr/local/php/var/run/php-fpm.piderror_log = /usr/local/php/var/log/php-fpm.loglog_level = notice[www]listen = /tmp/php-">
+  <meta name="description" content="php-fpm.conf设置worker为1，方便strace">
 <meta name="keywords" content="问题排查,PHP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【问题排查】PHP-FPM模式下提示缺失lib">
 <meta property="og:url" content="http://funsoul.org/2017/12/14/【问题排查】PHP-FPM模式下提示缺失lib/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="php-fpm.conf设置worker为1，方便strace 123456789101112131415161718192021[global]pid = /usr/local/php/var/run/php-fpm.piderror_log = /usr/local/php/var/log/php-fpm.loglog_level = notice[www]listen = /tmp/php-">
+<meta property="og:description" content="php-fpm.conf设置worker为1，方便strace">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-06-21T03:15:13.778Z">
+<meta property="og:updated_time" content="2020-06-11T04:04:41.191Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【问题排查】PHP-FPM模式下提示缺失lib">
-<meta name="twitter:description" content="php-fpm.conf设置worker为1，方便strace 123456789101112131415161718192021[global]pid = /usr/local/php/var/run/php-fpm.piderror_log = /usr/local/php/var/log/php-fpm.loglog_level = notice[www]listen = /tmp/php-">
+<meta name="twitter:description" content="php-fpm.conf设置worker为1，方便strace">
 
 <link rel="canonical" href="http://funsoul.org/2017/12/14/【问题排查】PHP-FPM模式下提示缺失lib/">
 
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-06-21 11:15:13" itemprop="dateModified" datetime="2019-06-21T11:15:13+08:00">2019-06-21</time>
+                <time title="Modified: 2020-06-11 12:04:41" itemprop="dateModified" datetime="2020-06-11T12:04:41+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -230,6 +230,7 @@
 
       
         <h2 id="php-fpm-conf"><a href="#php-fpm-conf" class="headerlink" title="php-fpm.conf"></a>php-fpm.conf</h2><p>设置worker为1，方便strace</p>
+<a id="more"></a>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">global</span>]</span><br><span class="line">pid = /usr/local/php/var/run/php-fpm.pid</span><br><span class="line">error_log = /usr/local/php/var/<span class="built_in">log</span>/php-fpm.<span class="built_in">log</span></span><br><span class="line">log_level = notice</span><br><span class="line">[www]</span><br><span class="line">listen = /tmp/php-cgi.sock</span><br><span class="line">listen.backlog = -<span class="number">1</span></span><br><span class="line">listen.allowed_clients = <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">listen.owner = www</span><br><span class="line">listen.group = www</span><br><span class="line">listen.<span class="keyword">mode</span> = <span class="number">0666</span></span><br><span class="line">user = www</span><br><span class="line">group = www</span><br><span class="line">pm = static</span><br><span class="line">pm.max_children = <span class="number">1</span></span><br><span class="line">pm.start_servers = <span class="number">1</span></span><br><span class="line">pm.min_spare_servers = <span class="number">1</span></span><br><span class="line">pm.max_spare_servers = <span class="number">1</span></span><br><span class="line">request_terminate_timeout = <span class="number">100</span></span><br><span class="line">request_slowlog_timeout = <span class="number">0</span></span><br><span class="line">slowlog = var/<span class="built_in">log</span>/slow.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
 <h2 id="ps-ef-grep-php-fpm"><a href="#ps-ef-grep-php-fpm" class="headerlink" title="ps -ef | grep php-fpm"></a>ps -ef | grep php-fpm</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root       6598      1  0 10:45 ?        00:00:00 php-fpm: master process (/usr/<span class="built_in">local</span>/php/etc/php-fpm.conf)                                                                    </span><br><span class="line">www        6599   6598  0 10:45 ?        00:00:00 php-fpm: pool www</span><br></pre></td></tr></table></figure>
 <h2 id="sudo-strace-p-6599"><a href="#sudo-strace-p-6599" class="headerlink" title="sudo strace -p 6599"></a>sudo strace -p 6599</h2><p>查看worker进程系统调用，找到问题行</p>

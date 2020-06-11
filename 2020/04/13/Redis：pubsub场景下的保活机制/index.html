@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟 问题复现我的环境 php=7.1.22 phpredis=5.">
+  <meta name="description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟">
 <meta name="keywords" content="PHP,Redis,TCP&#x2F;IP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis：pubsub场景下的保活机制">
 <meta property="og:url" content="http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟 问题复现我的环境 php=7.1.22 phpredis=5.">
+<meta property="og:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2020-04-14T07:09:36.957Z">
+<meta property="og:updated_time" content="2020-06-11T04:06:55.646Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis：pubsub场景下的保活机制">
-<meta name="twitter:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟 问题复现我的环境 php=7.1.22 phpredis=5.">
+<meta name="twitter:description" content="上一篇[Redis：排查 read error on connection 小记]，排查了redis pop list场景下断网引发read error on connection错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制） 在这篇文章，我们假设网络在某时会中断十几分钟">
 
 <link rel="canonical" href="http://funsoul.org/2020/04/13/Redis：pubsub场景下的保活机制/">
 
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-04-14 15:09:36" itemprop="dateModified" datetime="2020-04-14T15:09:36+08:00">2020-04-14</time>
+                <time title="Modified: 2020-06-11 12:06:55" itemprop="dateModified" datetime="2020-06-11T12:06:55+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,6 +231,7 @@
       
         <p>上一篇[<a href="/2019/08/13/【Redis】brpop保活机制/" title="Redis：排查 read error on connection 小记">Redis：排查 read error on connection 小记</a>]，排查了redis pop list场景下断网引发<code>read error on connection</code>错误的情况，文末留下一个疑问，就是在pubsub场景下，该如何应对断网？（客户端和服务端不可达，触发保活机制）</p>
 <p><strong>在这篇文章，我们假设网络在某时会中断十几分钟</strong></p>
+<a id="more"></a>
 <h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><h3 id="我的环境"><a href="#我的环境" class="headerlink" title="我的环境"></a>我的环境</h3><ul>
 <li>php=7.1.22</li>
 <li>phpredis=5.0.2</li>

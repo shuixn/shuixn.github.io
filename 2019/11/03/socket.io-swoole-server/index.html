@@ -20,22 +20,22 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+  <meta name="description" content="框架获取socket.io-swoole-server">
 <meta name="keywords" content="PHP,Swoole,Socket.io">
 <meta property="og:type" content="article">
 <meta property="og:title" content="socket.io-swoole-server：基于swoole实现socket.io协议">
 <meta property="og:url" content="http://funsoul.org/2019/11/03/socket.io-swoole-server/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+<meta property="og:description" content="框架获取socket.io-swoole-server">
 <meta property="og:locale" content="chinese">
 <meta property="og:image" content="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master">
 <meta property="og:image" content="https://img.shields.io/badge/PHP-%3E%3D7.1.0-green">
 <meta property="og:image" content="https://img.shields.io/badge/Swoole-%3E%3D4.0.3-green">
 <meta property="og:image" content="https://img.shields.io/github/license/funsoul/socket.io-swoole-server">
-<meta property="og:updated_time" content="2019-11-03T08:26:26.775Z">
+<meta property="og:updated_time" content="2020-06-11T04:06:59.647Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="socket.io-swoole-server：基于swoole实现socket.io协议">
-<meta name="twitter:description" content="框架获取socket.io-swoole-server 使用 ServerServer Config123456$config = new SocketIO\Engine\Server\ConfigPayload();$config    // server worker_num    -&amp;gt;setWorkerNum(2)    // server daemonize    -&amp;gt;setD">
+<meta name="twitter:description" content="框架获取socket.io-swoole-server">
 <meta name="twitter:image" content="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master">
 
 <link rel="canonical" href="http://funsoul.org/2019/11/03/socket.io-swoole-server/">
@@ -203,10 +203,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2019-11-03 00:00:00 / Modified: 16:26:26" itemprop="dateCreated datePublished" datetime="2019-11-03T00:00:00+08:00">2019-11-03</time>
+              <time title="Created: 2019-11-03 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-03T00:00:00+08:00">2019-11-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-11 12:06:59" itemprop="dateModified" datetime="2020-06-11T12:06:59+08:00">2020-06-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -229,6 +235,7 @@
 
       
         <h2 id="框架获取"><a href="#框架获取" class="headerlink" title="框架获取"></a>框架获取</h2><p><a href="https://github.com/funsoul/socket.io-swoole-server" target="_blank" rel="noopener">socket.io-swoole-server</a></p>
+<a id="more"></a>
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p><img src="https://travis-ci.org/funsoul/socket.io-swoole-server.svg?branch=master" alt="Build Status"><br><img src="https://img.shields.io/badge/PHP-%3E%3D7.1.0-green" alt><br><img src="https://img.shields.io/badge/Swoole-%3E%3D4.0.3-green" alt><br><img src="https://img.shields.io/github/license/funsoul/socket.io-swoole-server" alt></p>
 <h2 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h2><h3 id="Server-Config"><a href="#Server-Config" class="headerlink" title="Server Config"></a>Server Config</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$config = <span class="keyword">new</span> SocketIO\Engine\Server\ConfigPayload();</span><br><span class="line">$config</span><br><span class="line">    <span class="comment">// server worker_num</span></span><br><span class="line">    -&gt;setWorkerNum(<span class="number">2</span>)</span><br><span class="line">    <span class="comment">// server daemonize</span></span><br><span class="line">    -&gt;setDaemonize(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
 <h3 id="Examples"><a href="#Examples" class="headerlink" title="Examples"></a>Examples</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$io = <span class="keyword">new</span> SocketIO\Server(<span class="number">9501</span>, $config, <span class="function"><span class="keyword">function</span><span class="params">(SocketIO\Server $io)</span> </span>&#123;</span><br><span class="line">    $io-&gt;on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">        $socket-&gt;on(<span class="string">'new message'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'new message'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        $socket-&gt;on(<span class="string">'new user'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'login'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        $socket-&gt;on(<span class="string">'disconnect'</span>, <span class="function"><span class="keyword">function</span> <span class="params">(SocketIO\Server $socket)</span> </span>&#123;</span><br><span class="line">            $socket-&gt;broadcast(<span class="string">'user left'</span>, $socket-&gt;getMessage());</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">$io-&gt;start();</span><br></pre></td></tr></table></figure>

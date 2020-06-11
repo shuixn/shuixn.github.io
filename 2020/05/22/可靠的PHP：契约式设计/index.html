@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
+  <meta name="description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。">
 <meta name="keywords" content="PHP,契约式设计">
 <meta property="og:type" content="article">
 <meta property="og:title" content="可靠的PHP：契约式设计">
 <meta property="og:url" content="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
+<meta property="og:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2020-05-25T02:38:13.820Z">
+<meta property="og:updated_time" content="2020-06-11T04:03:59.896Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="可靠的PHP：契约式设计">
-<meta name="twitter:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。 什么是契约 契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。">
+<meta name="twitter:description" content="前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。">
 
 <link rel="canonical" href="http://funsoul.org/2020/05/22/可靠的PHP：契约式设计/">
 
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-25 10:38:13" itemprop="dateModified" datetime="2020-05-25T10:38:13+08:00">2020-05-25</time>
+                <time title="Modified: 2020-06-11 12:03:59" itemprop="dateModified" datetime="2020-06-11T12:03:59+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -230,6 +230,7 @@
 
       
         <p>前段时间读了云风翻译的《程序员修炼之道》，里面提到了契约式设计（Design by Contract），在多人合作项目中，规范是大家共同履行的契约，但是大多数时候，我们总是在不经意间忽视规范的重要性。如果能在开发过程中，通过契约设计，也许能免掉不少麻烦，最重要的是，提高软件的可靠性和健壮性。</p>
+<a id="more"></a>
 <h2 id="什么是契约"><a href="#什么是契约" class="headerlink" title="什么是契约"></a>什么是契约</h2><blockquote>
 <p>契约，最初是指双方或多方共同协议订立的有关买卖、抵押、租赁等关系的文书，可以理解为“守信用”。形式有精神契约和文字合同契约，对象多样，可以是：生意伙伴、挚友、爱人、国家、世界、全人类，以及对自己的契约等，可以用“文字合同”来约定，可以用“语言”来约定，还可以是“无言”的契约。</p>
 </blockquote>

@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
 <meta property="og:description" content="前言odbc在connect的时候会返回资源句柄，但是如果返回false就蒙蔽了。如果有记录php错误日志，会得到下面的内容 1odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate SQLGetPrivateProfileString function., SQL state S1000 in">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-09-26T03:54:13.674Z">
+<meta property="og:updated_time" content="2020-06-11T04:06:24.229Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="odbc connect return false">
 <meta name="twitter:description" content="前言odbc在connect的时候会返回资源句柄，但是如果返回false就蒙蔽了。如果有记录php错误日志，会得到下面的内容 1odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (11560) Unable to locate SQLGetPrivateProfileString function., SQL state S1000 in">
@@ -198,10 +198,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2019-09-26 00:00:00 / Modified: 11:54:13" itemprop="dateCreated datePublished" datetime="2019-09-26T00:00:00+08:00">2019-09-26</time>
+              <time title="Created: 2019-09-26 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-26T00:00:00+08:00">2019-09-26</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-11 12:06:24" itemprop="dateModified" datetime="2020-06-11T12:06:24+08:00">2020-06-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -226,6 +232,7 @@
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>odbc在connect的时候会返回<code>资源句柄</code>，但是如果返回<code>false</code>就蒙蔽了。如果有记录php错误日志，会得到下面的内容</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">odbc_connect(): SQL error: [unixODBC][Cloudera][ODBC] (<span class="number">11560</span>) Unable <span class="keyword">to</span> locate SQLGetPrivateProfileString <span class="function"><span class="keyword">function</span>., <span class="title">SQL</span> <span class="title">state</span> <span class="title">S1000</span> <span class="title">in</span> <span class="title">SQLConnect</span></span></span><br></pre></td></tr></table></figure>
 <p>google一下发现和动态库有点关系，只好看下系统调用情况</p>
+<a id="more"></a>
 <h2 id="strace-php-进程"><a href="#strace-php-进程" class="headerlink" title="strace php 进程"></a>strace php 进程</h2><p>找到下面的信息，看来是这个库<code>libiodbcinst.so</code>缺失了</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span>(<span class="string">"/home/.odbcinst.ini"</span>, O_RDONLY)   = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/etc/ld.so.cache"</span>, O_RDONLY)      = <span class="number">7</span></span><br><span class="line">fstat(<span class="number">7</span>, &#123;st_mode=S_IFREG|<span class="number">0644</span>, st_size=<span class="number">31742</span>, ...&#125;) = <span class="number">0</span></span><br><span class="line">mmap(NULL, <span class="number">31742</span>, PROT_READ, MAP_PRIVATE, <span class="number">7</span>, <span class="number">0</span>) = <span class="number">0</span>x7f779b219000</span><br><span class="line"><span class="keyword">close</span>(<span class="number">7</span>)                                = <span class="number">0</span></span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/lib64/tls/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/lib64/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/usr/lib64/tls/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/usr/lib64/libiodbcinst.so"</span>, O_RDONLY) = -<span class="number">1</span> ENOENT (No such <span class="keyword">file</span> <span class="built_in">or</span> directory)</span><br><span class="line">munmap(<span class="number">0</span>x7f779b219000, <span class="number">31742</span>)           = <span class="number">0</span></span><br><span class="line"><span class="keyword">open</span>(<span class="string">"/data/logs/php/php_error.log"</span>, O_WRONLY|O_CREAT|O_APPEND, <span class="number">0644</span>) = <span class="number">7</span></span><br><span class="line"><span class="keyword">write</span>(<span class="number">7</span>, <span class="string">"[26-Sep-2019 10:52:47 Asia/Shang"</span>..., <span class="number">304</span>) = <span class="number">304</span></span><br><span class="line"><span class="keyword">close</span>(<span class="number">7</span>)                                = <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <h2 id="安装库文件"><a href="#安装库文件" class="headerlink" title="安装库文件"></a>安装库文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh https://rpmfind.net/linux/epel/6/x86_64/Packages/l/libiodbc-3.52.7-1.el6.x86_64.rpm</span><br><span class="line"></span><br><span class="line">ln -sv /usr/lib64/libiodbcinst.so.2 /usr/lib64/libiodbcinst.so</span><br></pre></td></tr></table></figure>

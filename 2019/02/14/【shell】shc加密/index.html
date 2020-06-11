@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
 <meta property="og:description" content="背景有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？ 一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。 于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-06-21T03:15:13.775Z">
+<meta property="og:updated_time" content="2020-06-11T04:05:21.671Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用shc保护你的敏感信息">
 <meta name="twitter:description" content="背景有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？ 一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。 于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定">
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-06-21 11:15:13" itemprop="dateModified" datetime="2019-06-21T11:15:13+08:00">2019-06-21</time>
+                <time title="Modified: 2020-06-11 12:05:21" itemprop="dateModified" datetime="2020-06-11T12:05:21+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,6 +232,7 @@
         <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>有个功能是在web下载大文件，但是太大的文件，在浏览器下载会崩溃。想了下，能不能改为API的方式，使用CURL来下载？</p>
 <p>一开始不想暴露api，这个api不常用，因为绕过了用户会话（不用登陆），并不安全，如果被恶意利用：数据会被泄露，服务器会被拖慢等等安全隐患。</p>
 <p>于是想过把通过shell文件，把api放在里面，然后使用shc来加密shell文件为二进制文件。这样一来，api就“看不到”了，有一定的安全性，只要不被反编译，应该是目前最可靠的方法。</p>
+<a id="more"></a>
 <h2 id="安装shc"><a href="#安装shc" class="headerlink" title="安装shc"></a>安装shc</h2><p>root用户</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.3.tgz</span><br><span class="line"># tar -zxvf shc-3.8.3.tgz</span><br><span class="line"># cd shc-3.8.3</span><br><span class="line"># make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
 <p><strong>这里会让你确认，千万别直接enter，而是输入y，enter</strong></p>

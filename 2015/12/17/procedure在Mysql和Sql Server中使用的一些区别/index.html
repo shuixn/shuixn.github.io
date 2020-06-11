@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结： 正文下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。 12345678CREATE PROCEDURE getUsersASBEGINSELECT * FROM test_user">
+  <meta name="description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结：">
 <meta name="keywords" content="数据库">
 <meta property="og:type" content="article">
 <meta property="og:title" content="procedure在Mysql和Sql Server中使用的一些区别">
 <meta property="og:url" content="http://funsoul.org/2015/12/17/procedure在Mysql和Sql Server中使用的一些区别/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结： 正文下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。 12345678CREATE PROCEDURE getUsersASBEGINSELECT * FROM test_user">
+<meta property="og:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结：">
 <meta property="og:locale" content="chinese">
 <meta property="og:image" content="http://funsoul.org/images/procedure区别/20151217113258531.jpg">
 <meta property="og:image" content="http://funsoul.org/images/procedure区别/20151217120502176.jpg">
-<meta property="og:updated_time" content="2020-01-16T03:50:16.441Z">
+<meta property="og:updated_time" content="2020-06-11T04:06:45.961Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="procedure在Mysql和Sql Server中使用的一些区别">
-<meta name="twitter:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结： 正文下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。 12345678CREATE PROCEDURE getUsersASBEGINSELECT * FROM test_user">
+<meta name="twitter:description" content="环境 MySQL 5.6.20  写在前近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结：">
 <meta name="twitter:image" content="http://funsoul.org/images/procedure区别/20151217113258531.jpg">
 
 <link rel="canonical" href="http://funsoul.org/2015/12/17/procedure在Mysql和Sql Server中使用的一些区别/">
@@ -209,7 +209,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-01-16 11:50:16" itemprop="dateModified" datetime="2020-01-16T11:50:16+08:00">2020-01-16</time>
+                <time title="Modified: 2020-06-11 12:06:45" itemprop="dateModified" datetime="2020-06-11T12:06:45+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -236,6 +236,7 @@
 <li>MySQL 5.6.20</li>
 </ul>
 <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>近日，一个好友@随风飘散，问我一个关于procedure在MySQL中使用出现的一些问题。在解决后做一个简单的总结：</p>
+<a id="more"></a>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>下面这段代码来自SQL Server，意思是创建一个procedure， 查询表test_user所有的记录。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> getUsers</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> test_user</span><br><span class="line"><span class="keyword">END</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">EXECUTE</span>    getUsers</span><br></pre></td></tr></table></figure>
 <p>将这段代码原封不动的复制到MySQL中执行</p>

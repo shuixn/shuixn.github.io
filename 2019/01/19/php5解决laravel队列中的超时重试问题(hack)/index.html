@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
 <meta property="og:description" content="写在前上一篇文章laravel队列中的timeout参数需要使用php7.1，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数pcntl_async_signals，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2020-01-16T06:14:44.516Z">
+<meta property="og:updated_time" content="2020-06-11T04:06:32.435Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="php5解决laravel队列中的超时重试问题(hack)">
 <meta name="twitter:description" content="写在前上一篇文章laravel队列中的timeout参数需要使用php7.1，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数pcntl_async_signals，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库">
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-01-16 14:14:44" itemprop="dateModified" datetime="2020-01-16T14:14:44+08:00">2020-01-16</time>
+                <time title="Modified: 2020-06-11 12:06:32" itemprop="dateModified" datetime="2020-06-11T12:06:32+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,6 +231,7 @@
       
         <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>上一篇文章<a href="/2018/12/29/【Laravel】laravel队列中的timeout参数需要使用php7.1/" title="laravel队列中的timeout参数需要使用php7.1">laravel队列中的timeout参数需要使用php7.1</a>，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。</p>
 <p>上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数<a href="http://php.net/manual/en/function.pcntl-async-signals.php" target="_blank" rel="noopener">pcntl_async_signals</a>，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库可能在支持上还不完善。当然，大部分时候建议是升级的，PHP5很快就不进行安全维护了啊。</p>
+<a id="more"></a>
 <h2 id="再探索"><a href="#再探索" class="headerlink" title="再探索"></a>再探索</h2><p>这个离线队列到底是怎么运行的？有兴趣的朋友可以看下陈昊写的<a href="https://blogoss.yinghualuo.cn/blog/2017/08/Laravel框架关键技术解析-陈昊.pdf" target="_blank" rel="noopener">《laravel框架关键技术解析》</a>中13章【消息队列】，能够大致明白laravel程序消息队列的“前半部分”，为什么我说前半部分？接着看</p>
 <p>这部书讲了<strong>同步类型</strong>和<strong>数据库类型</strong>消息队列，接下来我要讲的是数据库类型里面的<strong>redis驱动类型</strong>以及<strong>worker处理程序</strong>这里面到底发生了什么事。</p>
 <p>laravel优秀的设计与机制给我们提供了很多最佳实践，这也意味着<strong>隐藏了不少黑盒子</strong>，有时候让人不痛快、不明所以。只能一边看源码、一边做实验、一边感叹XX。</p>

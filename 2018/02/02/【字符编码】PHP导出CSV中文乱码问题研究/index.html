@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+  <meta name="description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识">
 <meta name="keywords" content="PHP,乱码">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【字符编码】PHP导出CSV中文乱码问题研究">
 <meta property="og:url" content="http://funsoul.org/2018/02/02/【字符编码】PHP导出CSV中文乱码问题研究/index.html">
 <meta property="og:site_name" content="Funsoul&#39;s Blog">
-<meta property="og:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+<meta property="og:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识">
 <meta property="og:locale" content="chinese">
-<meta property="og:updated_time" content="2019-06-21T03:15:13.776Z">
+<meta property="og:updated_time" content="2020-06-11T04:04:46.040Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【字符编码】PHP导出CSV中文乱码问题研究">
-<meta name="twitter:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识 业务背景把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则">
+<meta name="twitter:description" content="没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:) 推荐一下这篇文章十分钟搞清字符集和字符编码，可以快速了解一下字符编码的知识">
 
 <link rel="canonical" href="http://funsoul.org/2018/02/02/【字符编码】PHP导出CSV中文乱码问题研究/">
 
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-06-21 11:15:13" itemprop="dateModified" datetime="2019-06-21T11:15:13+08:00">2019-06-21</time>
+                <time title="Modified: 2020-06-11 12:04:46" itemprop="dateModified" datetime="2020-06-11T12:04:46+08:00">2020-06-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,6 +231,7 @@
       
         <p>没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:)</p>
 <p>推荐一下这篇文章<a href="http://cenalulu.github.io/linux/character-encoding/" title="十分钟搞清字符集和字符编码" target="_blank" rel="noopener">十分钟搞清字符集和字符编码</a>，可以快速了解一下字符编码的知识</p>
+<a id="more"></a>
 <h3 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h3><p>把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章<a href="http://funsoul.org/2018/02/01/【Yield】大数据下的应用/" title="【Yield】大数据下的应用">【Yield】大数据下的应用</a></p>
 <p>由于使用了Laravel Excel工具集，先来看看这个工具内部是如何实现编码兼容的<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ..\vendor\maatwebsite\excel\src\Maatwebsite\Excel\Writers\LaravelExcelWriter.php</span></span><br><span class="line"><span class="comment"># 约347行</span></span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_download</span><span class="params">(Array $headers = [])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// Set the headers</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_setHeaders(</span><br><span class="line">        $headers,</span><br><span class="line">        [</span><br><span class="line">            <span class="string">'Content-Type'</span>        =&gt; <span class="keyword">$this</span>-&gt;contentType,</span><br><span class="line">            <span class="string">'Content-Disposition'</span> =&gt; <span class="string">'attachment; filename="'</span> . <span class="keyword">$this</span>-&gt;filename . <span class="string">'.'</span> . <span class="keyword">$this</span>-&gt;ext . <span class="string">'"'</span>,</span><br><span class="line">            <span class="string">'Expires'</span>             =&gt; <span class="string">'Mon, 26 Jul 1997 05:00:00 GMT'</span>, <span class="comment">// Date in the past</span></span><br><span class="line">            <span class="string">'Last-Modified'</span>       =&gt; Carbon::now()-&gt;format(<span class="string">'D, d M Y H:i:s'</span>),</span><br><span class="line">            <span class="string">'Cache-Control'</span>       =&gt; <span class="string">'cache, must-revalidate'</span>,</span><br><span class="line">            <span class="string">'Pragma'</span>              =&gt; <span class="string">'public'</span></span><br><span class="line">        ]</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    ..</span><br><span class="line">    .</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>通过区分不同的文件类型设置$this-&gt;contentType，但是这里是用来设置浏览器下载的header的，并不是保存为服务器文件，继续找。</p>
