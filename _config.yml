@@ -3,18 +3,18 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Funsoul's Blog
-subtitle: 开发散记
-description: 以终为始
+title: 水行云起
+subtitle: 
+description: 
 keywords: PHP C
-author: funsoul
+author: 水行
 language: chinese
 timezone: 
 favicon: favicon.ico
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://funsoul.org
+url: http://shuixn.org
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -81,4 +81,4 @@ theme: next
 deploy:
   type: git
   repo: 
-    github: https://github.com/funsoul/funsoul.github.io.git,master
+    github: https://github.com/shuixn/shuixn.github.io.git,master
