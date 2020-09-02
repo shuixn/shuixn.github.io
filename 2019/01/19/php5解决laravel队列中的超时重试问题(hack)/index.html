@@ -17,15 +17,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"funsoul.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"shuixn.org","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="写在前上一篇文章laravel队列中的timeout参数需要使用php7.1，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数pcntl_async_signals，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库">
 <meta name="keywords" content="PHP,Laravel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php5解决laravel队列中的超时重试问题(hack)">
-<meta property="og:url" content="http://funsoul.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/index.html">
-<meta property="og:site_name" content="Funsoul&#39;s Blog">
+<meta property="og:url" content="http://shuixn.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/index.html">
+<meta property="og:site_name" content="水行云起">
 <meta property="og:description" content="写在前上一篇文章laravel队列中的timeout参数需要使用php7.1，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数pcntl_async_signals，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库">
 <meta property="og:locale" content="chinese">
 <meta property="og:updated_time" content="2020-06-11T04:06:32.435Z">
@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="php5解决laravel队列中的超时重试问题(hack)">
 <meta name="twitter:description" content="写在前上一篇文章laravel队列中的timeout参数需要使用php7.1，最后结论时，我说这个问题只能升级php7.1才能解决，在今天的思考和实验中发现，还可以“曲线救国”！！啪啪打脸。 上一篇文章，在读了laravel源码知道，在异步队列中，laravel使用了一个php7.1才有的函数pcntl_async_signals，这让我瞬间失去了所有想法，虽然升级PHP7是大趋势，但是有些依赖库">
 
-<link rel="canonical" href="http://funsoul.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/">
+<link rel="canonical" href="http://shuixn.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>php5解决laravel队列中的超时重试问题(hack) | Funsoul's Blog</title>
+  <title>php5解决laravel队列中的超时重试问题(hack) | 水行云起</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118289850-1"></script>
     <script>
@@ -106,10 +106,9 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Funsoul's Blog</h1>
+      <h1 class="site-title">水行云起</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
-      <p class="site-subtitle" itemprop="description">开发散记</p>
   </div>
 
   <div class="site-nav-right">
@@ -176,16 +175,16 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="chinese">
-    <link itemprop="mainEntityOfPage" href="http://funsoul.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/">
+    <link itemprop="mainEntityOfPage" href="http://shuixn.org/2019/01/19/php5解决laravel队列中的超时重试问题(hack)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/about/avatar.jpg">
-      <meta itemprop="name" content="funsoul">
-      <meta itemprop="description" content="以终为始">
+      <meta itemprop="name" content="水行">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Funsoul's Blog">
+      <meta itemprop="name" content="水行云起">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -286,12 +285,12 @@
   <div id="qr" style="display: none;">
       
       <div style="display: inline-block;">
-        <img src="/images/about/wechat.jpg" alt="funsoul WeChat Pay">
+        <img src="/images/about/wechat.jpg" alt="水行 WeChat Pay">
         <p>WeChat Pay</p>
       </div>
       
       <div style="display: inline-block;">
-        <img src="/images/about/ali.jpg" alt="funsoul Alipay">
+        <img src="/images/about/ali.jpg" alt="水行 Alipay">
         <p>Alipay</p>
       </div>
 
@@ -401,10 +400,10 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="funsoul"
+    <img class="site-author-image" itemprop="image" alt="水行"
       src="/images/about/avatar.jpg">
-  <p class="site-author-name" itemprop="name">funsoul</p>
-  <div class="site-description" itemprop="description">以终为始</div>
+  <p class="site-author-name" itemprop="name">水行</p>
+  <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
@@ -431,10 +430,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://funsoul.gitbook.io" title="Notebook → https://funsoul.gitbook.io" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>Notebook</a>
+        <a href="https://shuixn.gitbook.io" title="Notebook → https://shuixn.gitbook.io" rel="noopener" target="_blank"><i class="fa fa-book fa-fw"></i>Notebook</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://github.com/funsoul" title="GitHub → https://github.com/funsoul" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/shuixn" title="GitHub → https://github.com/shuixn" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="https://cyanming2016@gmail.com" title="E-Mail → https://cyanming2016@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
@@ -469,7 +468,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">funsoul</span>
+  <span class="author" itemprop="copyrightHolder">水行</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
