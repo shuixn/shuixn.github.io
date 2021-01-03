@@ -231,7 +231,7 @@
         <p>没有踩过字符编码问题的程序生涯是不完整的，还记得曾经还踩过Apache+PHP+MySQL的编码问题，不过那时候没总结下来，今天遇到了导出文件的编码问题，一起来好好研究一下:)</p>
 <p>推荐一下这篇文章<a href="http://cenalulu.github.io/linux/character-encoding/" title="十分钟搞清字符集和字符编码" target="_blank" rel="noopener">十分钟搞清字符集和字符编码</a>，可以快速了解一下字符编码的知识</p>
 <a id="more"></a>
-<h3 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h3><p>把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章<a href="http://funsoul.org/2018/02/01/【Yield】大数据下的应用/" title="【Yield】大数据下的应用">【Yield】大数据下的应用</a></p>
+<h3 id="业务背景"><a href="#业务背景" class="headerlink" title="业务背景"></a>业务背景</h3><p>把数据查询结果导出到CSV，由于Laravel Excel内部实现方法的问题，载入大数据量时，容易爆内存，因此这里分了两种实现，小数据量则采用Laravel Excel，大数据量则使用无缓冲查询+Yield，详情可参考这篇文章<a href="http://funsoul.org/2018/02/01/【Yield】大数据下的应用/" title="【Yield】大数据下的应用" target="_blank" rel="noopener">【Yield】大数据下的应用</a></p>
 <p>由于使用了Laravel Excel工具集，先来看看这个工具内部是如何实现编码兼容的<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ..\vendor\maatwebsite\excel\src\Maatwebsite\Excel\Writers\LaravelExcelWriter.php</span></span><br><span class="line"><span class="comment"># 约347行</span></span><br><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_download</span><span class="params">(Array $headers = [])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// Set the headers</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_setHeaders(</span><br><span class="line">        $headers,</span><br><span class="line">        [</span><br><span class="line">            <span class="string">'Content-Type'</span>        =&gt; <span class="keyword">$this</span>-&gt;contentType,</span><br><span class="line">            <span class="string">'Content-Disposition'</span> =&gt; <span class="string">'attachment; filename="'</span> . <span class="keyword">$this</span>-&gt;filename . <span class="string">'.'</span> . <span class="keyword">$this</span>-&gt;ext . <span class="string">'"'</span>,</span><br><span class="line">            <span class="string">'Expires'</span>             =&gt; <span class="string">'Mon, 26 Jul 1997 05:00:00 GMT'</span>, <span class="comment">// Date in the past</span></span><br><span class="line">            <span class="string">'Last-Modified'</span>       =&gt; Carbon::now()-&gt;format(<span class="string">'D, d M Y H:i:s'</span>),</span><br><span class="line">            <span class="string">'Cache-Control'</span>       =&gt; <span class="string">'cache, must-revalidate'</span>,</span><br><span class="line">            <span class="string">'Pragma'</span>              =&gt; <span class="string">'public'</span></span><br><span class="line">        ]</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    ..</span><br><span class="line">    .</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>通过区分不同的文件类型设置$this-&gt;contentType，但是这里是用来设置浏览器下载的header的，并不是保存为服务器文件，继续找。</p>
 <h3 id="查看PHPExcel对CSV格式的兼容性实现"><a href="#查看PHPExcel对CSV格式的兼容性实现" class="headerlink" title="查看PHPExcel对CSV格式的兼容性实现"></a>查看PHPExcel对CSV格式的兼容性实现</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ..\vendor\phpoffice\phpexcel\Classes\PHPExcel\Writer\CSV.php</span></span><br><span class="line"><span class="comment"># 约116行</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_excelCompatibility) &#123;</span><br><span class="line">	fwrite($fileHandle, <span class="string">"\xEF\xBB\xBF"</span>);	<span class="comment">//	Enforce UTF-8 BOM Header</span></span><br><span class="line">	<span class="keyword">$this</span>-&gt;setEnclosure(<span class="string">'"'</span>);				<span class="comment">//	Set enclosure to "</span></span><br><span class="line">	<span class="keyword">$this</span>-&gt;setDelimiter(<span class="string">";"</span>);			    <span class="comment">//	Set delimiter to a semi-colon</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;setLineEnding(<span class="string">"\r\n"</span>);</span><br><span class="line">	fwrite($fileHandle, <span class="string">'sep='</span> . <span class="keyword">$this</span>-&gt;getDelimiter() . <span class="keyword">$this</span>-&gt;_lineEnding);</span><br><span class="line">&#125; <span class="keyword">elseif</span> (<span class="keyword">$this</span>-&gt;_useBOM) &#123;</span><br><span class="line">	<span class="comment">// Write the UTF-8 BOM code if required</span></span><br><span class="line">	fwrite($fileHandle, <span class="string">"\xEF\xBB\xBF"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -378,20 +378,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -432,7 +432,7 @@
 <div class="copyright">
   
   &copy; 2019 – 
-  <span itemprop="copyrightYear">2020</span>
+  <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
